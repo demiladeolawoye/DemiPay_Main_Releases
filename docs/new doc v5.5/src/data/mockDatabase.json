@@ -1,0 +1,184 @@
+{
+  "users": [
+    {
+      "id": "user-001",
+      "email": "demo@demipay.com",
+      "password": "demo123",
+      "full_name": "Demo User",
+      "phone": "+1234567890",
+      "created_at": "2025-10-29T00:00:00Z",
+      "last_login": "2025-10-29T08:00:00Z",
+      "is_active": true,
+      "profile_picture": "https://api.dicebear.com/7.x/avataaars/svg?seed=demo",
+      "preferences": {
+        "theme": "light",
+        "currency": "USD",
+        "notifications": true,
+        "language": "en"
+      }
+    },
+    {
+      "id": "user-002",
+      "email": "john.doe@example.com",
+      "password": "john123",
+      "full_name": "John Doe",
+      "phone": "+1234567891",
+      "created_at": "2025-10-28T00:00:00Z",
+      "last_login": "2025-10-29T07:00:00Z",
+      "is_active": true,
+      "profile_picture": "https://api.dicebear.com/7.x/avataaars/svg?seed=john",
+      "preferences": {
+        "theme": "dark",
+        "currency": "USD",
+        "notifications": true,
+        "language": "en"
+      }
+    },
+    {
+      "id": "user-003",
+      "email": "jane.smith@example.com",
+      "password": "jane123",
+      "full_name": "Jane Smith",
+      "phone": "+1234567892",
+      "created_at": "2025-10-27T00:00:00Z",
+      "last_login": "2025-10-29T06:00:00Z",
+      "is_active": true,
+      "profile_picture": "https://api.dicebear.com/7.x/avataaars/svg?seed=jane",
+      "preferences": {
+        "theme": "light",
+        "currency": "EUR",
+        "notifications": false,
+        "language": "en"
+      }
+    }
+  ],
+  
+  "wallets": [
+    {
+      "id": "wallet-001",
+      "user_id": "user-001",
+      "balance": 1234.56,
+      "currency": "USD",
+      "wallet_address": "DP-DEMO-001-2025",
+      "created_at": "2025-10-29T00:00:00Z",
+      "updated_at": "2025-10-29T08:00:00Z"
+    },
+    {
+      "id": "wallet-002",
+      "user_id": "user-002",
+      "balance": 5678.90,
+      "currency": "USD",
+      "wallet_address": "DP-JOHN-002-2025",
+      "created_at": "2025-10-28T00:00:00Z",
+      "updated_at": "2025-10-29T07:00:00Z"
+    },
+    {
+      "id": "wallet-003",
+      "user_id": "user-003",
+      "balance": 3456.78,
+      "currency": "EUR",
+      "wallet_address": "DP-JANE-003-2025",
+      "created_at": "2025-10-27T00:00:00Z",
+      "updated_at": "2025-10-29T06:00:00Z"
+    }
+  ],
+  
+  "transactions": [
+    {
+      "id": "txn-001",
+      "sender_id": "user-001",
+      "recipient_id": "user-002",
+      "amount": 100.00,
+      "currency": "USD",
+      "type": "send",
+      "status": "completed",
+      "note": "Payment for services",
+      "transaction_hash": "TXN-2025-10-29-001",
+      "created_at": "2025-10-29T08:00:00Z",
+      "completed_at": "2025-10-29T08:00:03Z",
+      "fee": 0.50
+    },
+    {
+      "id": "txn-002",
+      "sender_id": "user-002",
+      "recipient_id": "user-001",
+      "amount": 250.00,
+      "currency": "USD",
+      "type": "receive",
+      "status": "completed",
+      "note": "Refund",
+      "transaction_hash": "TXN-2025-10-28-002",
+      "created_at": "2025-10-28T15:30:00Z",
+      "completed_at": "2025-10-28T15:30:02Z",
+      "fee": 1.25
+    },
+    {
+      "id": "txn-003",
+      "sender_id": "user-001",
+      "recipient_id": "user-003",
+      "amount": 75.50,
+      "currency": "USD",
+      "type": "send",
+      "status": "completed",
+      "note": "Dinner split",
+      "transaction_hash": "TXN-2025-10-27-003",
+      "created_at": "2025-10-27T19:45:00Z",
+      "completed_at": "2025-10-27T19:45:01Z",
+      "fee": 0.38
+    },
+    {
+      "id": "txn-004",
+      "sender_id": "user-003",
+      "recipient_id": "user-001",
+      "amount": 500.00,
+      "currency": "USD",
+      "type": "receive",
+      "status": "completed",
+      "note": "Freelance work payment",
+      "transaction_hash": "TXN-2025-10-26-004",
+      "created_at": "2025-10-26T10:00:00Z",
+      "completed_at": "2025-10-26T10:00:05Z",
+      "fee": 2.50
+    },
+    {
+      "id": "txn-005",
+      "sender_id": "user-001",
+      "recipient_id": "user-002",
+      "amount": 150.00,
+      "currency": "USD",
+      "type": "send",
+      "status": "pending",
+      "note": "Monthly subscription",
+      "transaction_hash": "TXN-2025-10-29-005",
+      "created_at": "2025-10-29T09:00:00Z",
+      "completed_at": null,
+      "fee": 0.75
+    }
+  ],
+  
+  "contacts": [
+    {
+      "id": "contact-001",
+      "user_id": "user-001",
+      "contact_user_id": "user-002",
+      "nickname": "John Doe",
+      "added_at": "2025-10-29T00:00:00Z"
+    },
+    {
+      "id": "contact-002",
+      "user_id": "user-001",
+      "contact_user_id": "user-003",
+      "nickname": "Jane Smith",
+      "added_at": "2025-10-28T00:00:00Z"
+    },
+    {
+      "id": "contact-003",
+      "user_id": "user-002",
+      "contact_user_id": "user-001",
+      "nickname": "Demo User",
+      "added_at": "2025-10-29T00:00:00Z"
+    }
+  ],
+  
+  "sessions": []
+}
