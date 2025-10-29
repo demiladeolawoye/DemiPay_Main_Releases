@@ -1,0 +1,8 @@
+{
+  "name": "DemiPay Hybrid Digital Wallet",
+  "version": "5.4",
+  "release_type": "QA Verification",
+  "themes_supported": ["Light", "Dark"],
+  "verified_by": "QA Team",
+  "release_date": "2025-10-29"
+}

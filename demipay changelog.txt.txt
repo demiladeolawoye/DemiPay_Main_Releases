@@ -1,0 +1,7 @@
+DemiPay v5.4 QA Verification Build
+---------------------------------
+- Added dual Light & Dark mode toggle
+- Included checksum integrity validation
+- Updated QA verification notes
+- Prepared for SuperNinja v5.5 deployment
+Release Date: 29 Oct 2025
