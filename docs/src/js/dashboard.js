@@ -469,38 +469,37 @@ document.head.appendChild(style);
 
 console.log('💡 Dashboard script loaded');
 // ------------------------------
-// QUICK ACTIONS INTERACTIVITY
+// QUICK ACTIONS BUTTON LOGIC
 // ------------------------------
 
 document.addEventListener("DOMContentLoaded", () => {
-  const actions = {
-    send: document.querySelector(".quick-action-send"),
-    receive: document.querySelector(".quick-action-receive"),
-    history: document.querySelector(".quick-action-history"),
-    contacts: document.querySelector(".quick-action-contacts"),
-  };
+  const sendBtn = document.getElementById("sendMoneyBtn");
+  const receiveBtn = document.getElementById("receiveMoneyBtn");
+  const historyBtn = document.getElementById("viewHistoryBtn");
+  const contactBtn = document.getElementById("addContactBtn");
 
-  if (actions.send) {
-    actions.send.addEventListener("click", () => {
+  if (sendBtn) {
+    sendBtn.addEventListener("click", () => {
       alert("💸 Send Money feature coming soon! (mock screen)");
     });
   }
 
-  if (actions.receive) {
-    actions.receive.addEventListener("click", () => {
+  if (receiveBtn) {
+    receiveBtn.addEventListener("click", () => {
       alert("📥 Receive Money (QR + Account Share) demo launching soon!");
     });
   }
 
-  if (actions.history) {
-    actions.history.addEventListener("click", () => {
+  if (historyBtn) {
+    historyBtn.addEventListener("click", () => {
       alert("📊 Transaction History (mock API data)");
     });
   }
 
-  if (actions.contacts) {
-    actions.contacts.addEventListener("click", () => {
+  if (contactBtn) {
+    contactBtn.addEventListener("click", () => {
       alert("👥 Manage Contacts — feature under testing");
     });
   }
 });
+
