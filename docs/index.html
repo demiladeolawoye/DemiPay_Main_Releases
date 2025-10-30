@@ -259,8 +259,20 @@
             </div>
         </div>
     </div>
+    <!-- ✅ Load Core and Wallet JS -->
+<script src="./src/js/mockAPI.js"></script>
+<script src="./src/js/dashboard.js"></script>
+<script src="./src/js/qa_tests.js"></script>
 
-    <script src="src/js/mockAPI.js"></script>
-    <script src="src/js/dashboard.js"></script>
+<!-- ✅ Activate Dashboard on Load -->
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    if (typeof initDashboard === "function") {
+      initDashboard(); // optional — depends on your JS structure
+    } else {
+      console.log("Dashboard scripts loaded successfully.");
+    }
+  });
+</script>
 </body>
 </html>
