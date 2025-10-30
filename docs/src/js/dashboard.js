@@ -468,3 +468,39 @@ style.textContent = `
 document.head.appendChild(style);
 
 console.log('💡 Dashboard script loaded');
+// ------------------------------
+// QUICK ACTIONS INTERACTIVITY
+// ------------------------------
+
+document.addEventListener("DOMContentLoaded", () => {
+  const actions = {
+    send: document.querySelector(".quick-action-send"),
+    receive: document.querySelector(".quick-action-receive"),
+    history: document.querySelector(".quick-action-history"),
+    contacts: document.querySelector(".quick-action-contacts"),
+  };
+
+  if (actions.send) {
+    actions.send.addEventListener("click", () => {
+      alert("💸 Send Money feature coming soon! (mock screen)");
+    });
+  }
+
+  if (actions.receive) {
+    actions.receive.addEventListener("click", () => {
+      alert("📥 Receive Money (QR + Account Share) demo launching soon!");
+    });
+  }
+
+  if (actions.history) {
+    actions.history.addEventListener("click", () => {
+      alert("📊 Transaction History (mock API data)");
+    });
+  }
+
+  if (actions.contacts) {
+    actions.contacts.addEventListener("click", () => {
+      alert("👥 Manage Contacts — feature under testing");
+    });
+  }
+});
