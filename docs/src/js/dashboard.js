@@ -502,4 +502,42 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
+// ------------------------------
+// QUICK SERVICES MODAL LOGIC
+// ------------------------------
+
+document.addEventListener("DOMContentLoaded", () => {
+  const modal = document.getElementById("serviceModal");
+  const closeBtn = modal.querySelector(".close");
+  const modalTitle = document.getElementById("modalTitle");
+  const modalBody = document.getElementById("modalBody");
+
+  const services = document.querySelectorAll(".service-card");
+
+  const serviceData = {
+    send: { title: "Send P2P", body: "Enter recipient, amount, and note. Demo transfer simulated ⚙️" },
+    receive: { title: "Receive Money", body: "Display QR or share account link. Demo receive active ✅" },
+    fx: { title: "Cross-Border Remittance", body: "Preview FX rate ₦1 = $0.0012 USD (Mock)" },
+    agent: { title: "Become an Agent", body: "Upload ID + photo (mock validation passed ✅)" },
+    bills: { title: "Pay Bills & Top-Up", body: "Select plan ₦500 – ₦5 000. Demo payment complete 💡" },
+    cards: { title: "Virtual & Linked Cards", body: "Linked Visa **** 4452 (Active Card)" },
+    addmoney: { title: "Add Money", body: "Funding wallet via card... Mock success ₦10 000 added ✅" },
+    savings: { title: "Savings", body: "Demo savings created @ 10% APY (Standing Order set)" },
+    invest: { title: "Investments & Stocks", body: "Purchased 2 shares of DemiTech PLC ($120 mock update)" },
+  };
+
+  services.forEach(card => {
+    card.addEventListener("click", () => {
+      const key = card.dataset.service;
+      modalTitle.textContent = serviceData[key].title;
+      modalBody.textContent = serviceData[key].body;
+      modal.style.display = "block";
+    });
+  });
+
+  closeBtn.addEventListener("click", () => (modal.style.display = "none"));
+  window.addEventListener("click", e => {
+    if (e.target === modal) modal.style.display = "none";
+  });
+});
 
