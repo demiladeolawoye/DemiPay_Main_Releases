@@ -585,4 +585,43 @@ document.addEventListener("DOMContentLoaded", () => {
     if (e.target === modal) modal.style.display = "none";
   });
 });
+}); // ← end of your QUICK SERVICES MODAL LOGIC
+
+// ------------------------------
+// AGENT MODAL LOGIC (FULL FORM)
+// ------------------------------
+const agentCard = document.querySelector('[data-service="agent"]');
+if (agentCard) {
+  agentCard.addEventListener("click", () => {
+    document.getElementById("agentModal").classList.remove("d-none");
+    document.body.style.overflow = "hidden";
+  });
+}
+
+document.getElementById("closeAgentModal").addEventListener("click", () => {
+  document.getElementById("agentModal").classList.add("d-none");
+  document.body.style.overflow = "auto";
+});
+
+document.getElementById("cancelAgentBtn").addEventListener("click", () => {
+  document.getElementById("agentModal").classList.add("d-none");
+  document.body.style.overflow = "auto";
+});
+
+document.getElementById("submitAgentBtn").addEventListener("click", (e) => {
+  e.preventDefault();
+  const fullName = document.getElementById("agentFullName").value.trim();
+  const nin = document.getElementById("agentNIN").value.trim();
+  const photo = document.getElementById("agentPhoto").files[0];
+  
+  if (!fullName || !nin || !photo) {
+    alert("⚠️ All fields are required before submission.");
+    return;
+  }
+
+  alert(`✅ Agent Application Submitted\nName: ${fullName}\nNIN: ${nin}\nPhoto: ${photo.name}`);
+  document.getElementById("agentModal").classList.add("d-none");
+  document.getElementById("agentForm").reset();
+  document.body.style.overflow = "auto";
+});
 
