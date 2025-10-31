@@ -214,3 +214,80 @@ body {
   .action-grid,
   .services-grid { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
 }
+/* ==============================
+   DARK MODE EXTENSION (v5.5)
+   ============================== */
+
+body.dark-mode {
+  background: #0f172a;
+  color: #f1f5f9;
+  transition: background 0.4s ease, color 0.4s ease;
+}
+
+/* ==== Cards & Sections ==== */
+body.dark-mode .balance-card,
+body.dark-mode .action-card,
+body.dark-mode .service-card,
+body.dark-mode .transactions-list {
+  background: #1e293b;
+  border-color: #334155;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+  color: #f1f5f9;
+}
+
+/* ==== Text Adjustments ==== */
+body.dark-mode .action-title,
+body.dark-mode .service-card h4 {
+  color: #e2e8f0;
+}
+body.dark-mode .action-desc,
+body.dark-mode .service-card p,
+body.dark-mode .wallet-meta,
+body.dark-mode .banner-text p {
+  color: #94a3b8;
+}
+
+/* ==== Banners ==== */
+body.dark-mode .banner {
+  background: #1e293b;
+  border-left-color: #38bdf8;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+/* ==== Glow Adaptation ==== */
+body.dark-mode .balance-card::after {
+  background: radial-gradient(circle at 30% 30%, rgba(56, 189, 248, 0.25), transparent 70%);
+}
+
+/* ==== Shimmer Adaptation ==== */
+body.dark-mode .action-card::before,
+body.dark-mode .service-card::before {
+  background: linear-gradient(
+    120deg,
+    rgba(255,255,255,0) 0%,
+    rgba(56,189,248,0.2) 50%,
+    rgba(255,255,255,0) 100%
+  );
+}
+
+/* ==== Buttons ==== */
+body.dark-mode .btn-primary {
+  background: linear-gradient(90deg, #38bdf8, #2563eb);
+}
+body.dark-mode .btn-secondary {
+  background: #334155;
+  color: #e2e8f0;
+}
+
+/* ==== Headings ==== */
+body.dark-mode .money-moves h3,
+body.dark-mode .quick-services h3 {
+  background: linear-gradient(90deg, #38bdf8, #22d3ee);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ==== Transitions ==== */
+body.dark-mode * {
+  transition: background 0.4s ease, color 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease;
+}
