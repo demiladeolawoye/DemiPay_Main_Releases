@@ -608,6 +608,7 @@ document.getElementById("cancelAgentBtn").addEventListener("click", () => {
   document.body.style.overflow = "auto";
 });
 
+// ✅ AGENT FORM SUBMISSION (with smooth success popup)
 document.getElementById("submitAgentBtn").addEventListener("click", (e) => {
   e.preventDefault();
   const fullName = document.getElementById("agentFullName").value.trim();
@@ -619,9 +620,22 @@ document.getElementById("submitAgentBtn").addEventListener("click", (e) => {
     return;
   }
 
-  alert(`✅ Agent Application Submitted\nName: ${fullName}\nNIN: ${nin}\nPhoto: ${photo.name}`);
+  // ✅ SUCCESS POPUP REPLACES ALERT
+  const successPopup = document.createElement("div");
+  successPopup.className = "success-popup";
+  successPopup.innerHTML = `
+    <div class="success-icon">✅</div>
+    <div class="success-text">Agent Application Submitted Successfully</div>
+  `;
+  document.body.appendChild(successPopup);
+
+  // Animate fade in/out
+  setTimeout(() => successPopup.classList.add("show"), 100);
+  setTimeout(() => successPopup.classList.remove("show"), 2500);
+  setTimeout(() => successPopup.remove(), 3000);
+
+  // ✅ Close modal and reset form
   document.getElementById("agentModal").classList.add("d-none");
   document.getElementById("agentForm").reset();
   document.body.style.overflow = "auto";
 });
-
