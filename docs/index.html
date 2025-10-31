@@ -1,351 +1,290 @@
 <!DOCTYPE html>
-<!-- GitHub Pages Activation Fix -->
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - DemiPay v5.5</title>
-   <link rel="stylesheet" href="./src/css/global.css">
-<link rel="stylesheet" href="./src/css/dashboard.css">
-<script src="./src/js/main.js"></script>
-</head>
-<body>
-    <!-- Loading Overlay -->
-    <div id="loadingOverlay" class="loading-overlay">
-        <div class="spinner"></div>
-    </div>
-    <!-- Navigation -->
-    <!-- Login Button -->
-<button onclick="window.location.href='./pages/login.html'" class="login-btn">
-  🔐 Login
-</button>
-    <nav class="navbar">
-        <div class="navbar-container">
-            <div class="navbar-brand">
-                <span class="logo-icon">🚀</span>
-                <span class="logo-text">DemiPay</span>
-                <span class="version-badge">v5.5</span>
-            </div>
-            
-            <div class="navbar-menu">
-                <button class="btn btn-secondary btn-sm" id="themeToggle">
-                    <span id="themeIcon">🌙</span>
-                    <span id="themeText">Dark Mode</span>
-                </button>
-                
-                <div class="user-menu">
-                    <button class="user-menu-btn" id="userMenuBtn">
-                        <img id="userAvatar" src="" alt="User" class="user-avatar">
-                        <span id="userName">User</span>
-                        <span>▼</span>
-                    </button>
-                    
-                    <div class="user-menu-dropdown" id="userMenuDropdown">
-                        <a href="#" class="menu-item">
-                            <span>👤</span>
-                            <span>Profile</span>
-                        </a>
-                        <a href="#" class="menu-item">
-                            <span>⚙️</span>
-                            <span>Settings</span>
-                        </a>
-                        <div class="menu-divider"></div>
-                        <a href="#" class="menu-item" id="logoutBtn">
-                            <span>🚪</span>
-                            <span>Logout</span>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </nav>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DemiPay v5.5 — Money Moves</title>
 
-    <!-- Main Content -->
-    <main class="main-content">
-        <div class="container">
-            <!-- Welcome Section -->
-            <section class="welcome-section">
-                <h1>Welcome back, <span id="welcomeName">User</span>! 👋</h1>
-                <p>Here's what's happening with your wallet today.</p>
-            </section>
+  <!-- Styles -->
+  <link rel="stylesheet" href="./src/css/global.css" />
+  <link rel="stylesheet" href="./src/css/dashboard.css" />
 
-            <!-- Balance Card -->
-            <section class="balance-section">
-                <div class="balance-card">
-                    <div class="balance-header">
-                        <div>
-                            <p class="balance-label">Total Balance</p>
-                            <h2 class="balance-amount" id="balanceAmount">$0.00</h2>
-                            <p class="wallet-address" id="walletAddress">Wallet: Loading...</p>
-                        </div>
-                        <button class="btn btn-primary" id="refreshBalanceBtn">
-                            <span>🔄</span>
-                            <span>Refresh</span>
-                        </button>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Quick Actions -->
-            <section class="quick-actions">
-                <h3>Quick Actions</h3>
-                <div class="action-grid">
-                    <button class="action-card" id="sendMoneyBtn">
-                        <span class="action-icon">💸</span>
-                        <span class="action-title">Send Money</span>
-                        <span class="action-desc">Transfer to anyone</span>
-                    </button>
-                    
-                    <button class="action-card" id="receiveMoneyBtn">
-                        <span class="action-icon">📥</span>
-                        <span class="action-title">Receive Money</span>
-                        <span class="action-desc">Get paid instantly</span>
-                    </button>
-                    
-                    <button class="action-card" id="viewHistoryBtn">
-                        <span class="action-icon">📊</span>
-                        <span class="action-title">History</span>
-                        <span class="action-desc">View transactions</span>
-                    </button>
-                    
-                    <button class="action-card" id="addContactBtn">
-                        <span class="action-icon">👥</span>
-                        <span class="action-title">Contacts</span>
-                        <span class="action-desc">Manage contacts</span>
-                    </button>
-                </div>
-            </section>
-<!-- QUICK SERVICES -->
-<section class="quick-services">
-  <h3>Quick Services</h3>
-  <div class="services-grid">
-
-    <div class="service-card" data-service="send">
-      💸
-      <h4>Send P2P</h4>
-      <p>Instant wallet transfer</p>
-    </div>
-
-    <div class="service-card" data-service="receive">
-      📥
-      <h4>Receive</h4>
-      <p>QR & Account Share</p>
-    </div>
-
-    <div class="service-card" data-service="fx">
-      🌍
-      <h4>Cross-Border FX</h4>
-      <p>Preview rates & send abroad</p>
-    </div>
-
-    <div class="service-card" data-service="agent">
-      🧍‍♂️
-      <h4>Become an Agent</h4>
-      <p>Photo upload + KYC check</p>
-    </div>
-
-    <div class="service-card" data-service="bills">
-      💡
-      <h4>Pay Bills & Top-Up</h4>
-      <p>Bundles ₦500 – ₦5 000</p>
-    </div>
-
-    <div class="service-card" data-service="cards">
-      💳
-      <h4>Virtual & Linked Cards</h4>
-      <p>Add / link / set default</p>
-    </div>
-
-    <div class="service-card" data-service="addmoney">
-      ➕
-      <h4>Add Money</h4>
-      <p>Fund your wallet</p>
-    </div>
-
-    <div class="service-card" data-service="savings">
-      💰
-      <h4>Savings</h4>
-      <p>Create / Withdraw / SO</p>
-    </div>
-
-    <div class="service-card" data-service="invest">
-      📈
-      <h4>Investments & Stocks</h4>
-      <p>Mock balance update</p>
-    </div>
-
-  </div>
-</section>
-
-<!-- MODAL (shared for all services) -->
-<div id="serviceModal" class="modal">
-  <div class="modal-content">
-    <span class="close">&times;</span>
-    <h2 id="modalTitle"></h2>
-    <p id="modalBody"></p>
-  </div>
-</div>
-
-            <!-- Recent Transactions -->
-            <section class="transactions-section">
-                <div class="section-header">
-                    <h3>Recent Transactions</h3>
-                    <button class="btn btn-secondary btn-sm" id="viewAllBtn">View All</button>
-                </div>
-                
-                <div id="transactionsList" class="transactions-list">
-                    <div class="empty-state">
-                        <span class="empty-icon">📭</span>
-                        <p>No transactions yet</p>
-                        <p class="text-sm">Start by sending or receiving money</p>
-                    </div>
-                </div>
-            </section>
-        </div>
-    </main>
-
-    <!-- Send Money Modal -->
-    <div id="sendMoneyModal" class="modal-overlay d-none">
-        <div class="modal">
-            <div class="modal-header">
-                <h3>Send Money</h3>
-                <button class="close-btn" id="closeSendModal">✕</button>
-            </div>
-            <div class="modal-body">
-                <div id="sendAlertContainer"></div>
-                
-                <form id="sendMoneyForm">
-                    <div class="form-group">
-                        <label class="form-label">Recipient Email</label>
-                        <input 
-                            type="email" 
-                            id="recipientEmail" 
-                            class="form-control" 
-                            placeholder="recipient@example.com"
-                            required
-                        >
-                        <small class="form-help">Enter the recipient's email address</small>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Amount</label>
-                        <input 
-                            type="number" 
-                            id="sendAmount" 
-                            class="form-control" 
-                            placeholder="0.00"
-                            min="0.01"
-                            step="0.01"
-                            required
-                        >
-                        <small class="form-help">Fee: 0.5% of amount</small>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Note (Optional)</label>
-                        <textarea 
-                            id="sendNote" 
-                            class="form-control" 
-                            placeholder="What's this for?"
-                            rows="3"
-                        ></textarea>
-                    </div>
-                    
-                    <div class="transaction-summary">
-                        <div class="summary-row">
-                            <span>Amount:</span>
-                            <span id="summaryAmount">$0.00</span>
-                        </div>
-                        <div class="summary-row">
-                            <span>Fee (0.5%):</span>
-                            <span id="summaryFee">$0.00</span>
-                        </div>
-                        <div class="summary-row total">
-                            <span>Total:</span>
-                            <span id="summaryTotal">$0.00</span>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" id="cancelSendBtn">Cancel</button>
-                <button class="btn btn-primary" id="confirmSendBtn">
-                    <span id="sendBtnText">Send Money</span>
-                    <span id="sendBtnSpinner" class="d-none"><div class="spinner"></div></span>
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Receive Money Modal -->
-    <div id="receiveMoneyModal" class="modal-overlay d-none">
-        <div class="modal">
-            <div class="modal-header">
-                <h3>Receive Money</h3>
-                <button class="close-btn" id="closeReceiveModal">✕</button>
-            </div>
-            <div class="modal-body">
-                <div id="receiveAlertContainer"></div>
-                
-                <form id="receiveMoneyForm">
-                    <div class="form-group">
-                        <label class="form-label">Amount to Receive</label>
-                        <input 
-                            type="number" 
-                            id="receiveAmount" 
-                            class="form-control" 
-                            placeholder="0.00"
-                            min="0.01"
-                            step="0.01"
-                            required
-                        >
-                        <small class="form-help">Simulate receiving money from external source</small>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Sender (Optional)</label>
-                        <input 
-                            type="text" 
-                            id="senderName" 
-                            class="form-control" 
-                            placeholder="External sender"
-                        >
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Note (Optional)</label>
-                        <textarea 
-                            id="receiveNote" 
-                            class="form-control" 
-                            placeholder="Payment description"
-                            rows="3"
-                        ></textarea>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" id="cancelReceiveBtn">Cancel</button>
-                <button class="btn btn-success" id="confirmReceiveBtn">
-                    <span id="receiveBtnText">Receive Money</span>
-                    <span id="receiveBtnSpinner" class="d-none"><div class="spinner"></div></span>
-                </button>
-            </div>
-        </div>
-    </div>
-    <!-- ✅ Load Core and Wallet JS -->
-<script src="./src/js/mockAPI.js"></script>
-<script src="./src/js/dashboard.js"></script>
-<script src="./src/js/qa_tests.js"></script>
-
-<!-- ✅ Activate Dashboard on Load -->
-<script>
-  document.addEventListener("DOMContentLoaded", function() {
-    if (typeof initDashboard === "function") {
-      initDashboard(); // optional — depends on your JS structure
-    } else {
-      console.log("Dashboard scripts loaded successfully.");
+  <style>
+    /* ==== Gradient Accent & Hover Effects ==== */
+    :root {
+      --accent-color: #2dd4bf; /* Teal-blue fintech tone */
+      --gradient-accent: linear-gradient(90deg, #2dd4bf, #3b82f6);
     }
-  });
-</script>
+
+    .money-moves h3,
+    .quick-services h3 {
+      background: var(--gradient-accent);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .action-card,
+    .service-card {
+      min-height: 150px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      gap: 6px;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+      transition: all 0.2s ease-in-out;
+      cursor: pointer;
+    }
+
+    .action-card:hover,
+    .service-card:hover {
+      border: 2px solid #3b82f6;
+      box-shadow: 0 4px 14px rgba(59, 130, 246, 0.15);
+      transform: translateY(-3px);
+    }
+
+    .action-title, .service-card h4 {
+      font-size: 15px;
+      font-weight: 600;
+      margin: 4px 0 0;
+    }
+
+    .action-desc, .service-card p {
+      font-size: 13px;
+      color: #555;
+      margin: 0;
+    }
+
+    .wallet-meta {
+      font-size: 13px;
+      color: #555;
+      margin-top: 5px;
+      line-height: 1.4;
+    }
+
+    .kyc-level {
+      color: #16a34a;
+      font-weight: 600;
+    }
+
+    .banner {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: #f9fafb;
+      border-left: 4px solid var(--accent-color);
+      padding: 12px 16px;
+      border-radius: 10px;
+      margin-bottom: 14px;
+    }
+
+    .banner-emoji {
+      font-size: 22px;
+    }
+
+    .banner-text h4 {
+      margin: 0;
+      font-weight: 600;
+      color: #111;
+    }
+
+    .banner-text p {
+      margin: 2px 0 0;
+      font-size: 13px;
+      color: #555;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="navbar-container">
+      <a href="index.html" class="navbar-brand">
+        <span class="logo-icon">🚀</span>
+        <span class="logo-text">DemiPay</span>
+        <span class="version-badge">v5.5</span>
+      </a>
+
+      <div class="navbar-menu">
+        <button class="btn btn-secondary btn-sm" id="themeToggle">
+          <span id="themeIcon">🌙</span>
+          <span id="themeText">Dark Mode</span>
+        </button>
+
+        <div class="user-menu">
+          <button class="user-menu-btn" id="userMenuBtn">
+            <img id="userAvatar" src="" alt="User" class="user-avatar" />
+            <span id="userName">User</span>
+            <span>▼</span>
+          </button>
+          <div class="user-menu-dropdown" id="userMenuDropdown">
+            <a href="#" class="menu-item"><span>👤</span><span>Profile</span></a>
+            <a href="#" class="menu-item"><span>⚙️</span><span>Settings</span></a>
+            <div class="menu-divider"></div>
+            <a href="#" class="menu-item" id="logoutBtn"><span>🚪</span><span>Logout</span></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="container">
+      <!-- Welcome -->
+      <section class="welcome-section">
+        <h1>Welcome back, <span id="welcomeName">User</span> 👋</h1>
+        <p>Here's what's happening with your wallet today.</p>
+      </section>
+
+      <!-- Wallet Balance -->
+      <section class="balance-section">
+        <div class="balance-card">
+          <div class="balance-header">
+            <div>
+              <p class="balance-label">Total Balance</p>
+              <h2 class="balance-amount" id="balanceAmount">$0.00</h2>
+              <p class="wallet-address" id="walletAddress">Wallet: Loading...</p>
+              <p class="wallet-meta">
+                Account No: <strong>DP-1029345678</strong><br />
+                KYC Level: <span class="kyc-level">Tier 2 (Verified)</span>
+              </p>
+            </div>
+            <button class="btn btn-primary" id="refreshBalanceBtn">
+              <span>🔄</span><span>Refresh</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Security Banner -->
+      <section class="banner banner-security">
+        <span class="banner-emoji">🔒</span>
+        <div class="banner-text">
+          <h4>Security</h4>
+          <p>Your wallet is protected with encryption and OTP verification.</p>
+        </div>
+      </section>
+
+      <!-- Finance Banner -->
+      <section class="banner banner-finance">
+        <span class="banner-emoji">💹</span>
+        <div class="banner-text">
+          <h4>Finance Updates</h4>
+          <p>FX Update: ₦1 ≈ $0.0013 • Earn +5% APY bonus this week!</p>
+        </div>
+      </section>
+
+      <!-- Money Moves -->
+      <section class="money-moves">
+        <h3>Money Moves</h3>
+        <div class="action-grid">
+          <button class="action-card" id="sendMoneyBtn">
+            <span class="action-icon">💸</span>
+            <span class="action-title">Send Money</span>
+            <span class="action-desc">Instant P2P Transfer</span>
+          </button>
+          <button class="action-card" id="receiveMoneyBtn">
+            <span class="action-icon">📥</span>
+            <span class="action-title">Receive Money</span>
+            <span class="action-desc">QR & Account Share</span>
+          </button>
+          <button class="action-card" id="addMoneyBtn">
+            <span class="action-icon">➕</span>
+            <span class="action-title">Add / Withdraw</span>
+            <span class="action-desc">Card or Bank (Mock)</span>
+          </button>
+          <button class="action-card" id="bankTransferBtn">
+            <span class="action-icon">🏦</span>
+            <span class="action-title">Bank Transfer</span>
+            <span class="action-desc">Multi-Region Banks</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Services -->
+      <section class="quick-services">
+        <h3>Services</h3>
+        <div class="services-grid">
+          <div class="service-card" data-service="fx">🌍
+            <h4>Cross-Border Remittance</h4><p>Preview FX & Send Abroad</p>
+          </div>
+          <div class="service-card" data-service="savings">💰
+            <h4>Savings</h4><p>Create • Add • Withdraw • SO</p>
+          </div>
+          <div class="service-card" data-service="bills">💡
+            <h4>Pay Bills & Top-Up</h4><p>Bundles ₦500–₦5 000</p>
+          </div>
+          <div class="service-card" data-service="cards">💳
+            <h4>Virtual & Linked Cards</h4><p>Add • Link • Set Default</p>
+          </div>
+          <div class="service-card" data-service="payonline">🛒
+            <h4>Pay Online</h4><p>Checkout Simulation</p>
+          </div>
+          <div class="service-card" data-service="shop">🏬
+            <h4>Shop on the Fly</h4><p>Affiliate Redirection</p>
+          </div>
+          <div class="service-card" data-service="invest">📈
+            <h4>Investments & Stocks</h4><p>Mock Buy/Sell & Portfolio</p>
+          </div>
+          <div class="service-card" data-service="agent">🧍‍♂️
+            <h4>Become an Agent</h4><p>Photo Upload + NIN</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Agent Modal -->
+      <div id="agentModal" class="modal">
+        <div class="modal-content">
+          <span class="close">&times;</span>
+          <h2>Become an Agent</h2>
+          <form id="agentForm">
+            <label>Full Name</label>
+            <input type="text" id="agentName" placeholder="John Doe" required />
+            <label>National Identification Number (NIN)</label>
+            <input type="text" id="agentNIN" minlength="11" maxlength="11" placeholder="Enter 11-digit NIN" required />
+            <label>Upload or Capture Photo ID</label>
+            <input type="file" id="agentPhoto" accept="image/*" capture="user" required />
+            <button type="submit" class="btn btn-primary">Submit Application</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Recent Transactions -->
+      <section class="transactions-section">
+        <div class="section-header">
+          <h3>Recent Transactions</h3>
+          <button class="btn btn-secondary btn-sm" id="viewAllBtn">View All</button>
+        </div>
+        <div id="transactionsList" class="transactions-list">
+          <div class="empty-state">
+            <span class="empty-icon">📭</span>
+            <p>No transactions yet</p>
+            <p class="text-sm">Start by sending or receiving money</p>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Scripts -->
+  <script>
+    document.getElementById("agentForm")?.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const nin = document.getElementById("agentNIN").value;
+      if (nin.length !== 11) {
+        alert("⚠️ Please enter a valid 11-digit NIN.");
+        return;
+      }
+      alert("✅ Agent application submitted successfully (mock).");
+    });
+  </script>
 </body>
 </html>
