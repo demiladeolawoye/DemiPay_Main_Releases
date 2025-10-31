@@ -240,22 +240,36 @@
         </div>
       </section>
 
-      <!-- Agent Modal -->
-      <div id="agentModal" class="modal">
-        <div class="modal-content">
-          <span class="close">&times;</span>
-          <h2>Become an Agent</h2>
-          <form id="agentForm">
-            <label>Full Name</label>
-            <input type="text" id="agentName" placeholder="John Doe" required />
-            <label>National Identification Number (NIN)</label>
-            <input type="text" id="agentNIN" minlength="11" maxlength="11" placeholder="Enter 11-digit NIN" required />
-            <label>Upload or Capture Photo ID</label>
-            <input type="file" id="agentPhoto" accept="image/*" capture="user" required />
-            <button type="submit" class="btn btn-primary">Submit Application</button>
-          </form>
+   <!-- Become an Agent Modal -->
+<div id="agentModal" class="modal-overlay d-none">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Become an Agent</h3>
+      <button class="close-btn" id="closeAgentModal">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="agentForm">
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" id="agentFullName" class="form-control" placeholder="John Doe" required>
         </div>
-      </div>
+        <div class="form-group">
+          <label>National Identification Number (NIN)</label>
+          <input type="text" id="agentNIN" class="form-control" placeholder="Enter 11-digit NIN" maxlength="11" required>
+        </div>
+        <div class="form-group">
+          <label>Upload or Capture Photo ID</label>
+          <input type="file" id="agentPhoto" class="form-control" accept="image/*" capture="camera" required>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="cancelAgentBtn">Cancel</button>
+      <button class="btn btn-primary" id="submitAgentBtn">Submit Application</button>
+    </div>
+  </div>
+</div>
+
 
       <!-- Recent Transactions -->
       <section class="transactions-section">
