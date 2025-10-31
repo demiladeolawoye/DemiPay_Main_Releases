@@ -20,6 +20,51 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!mockAPI.isAuthenticated()) {
             window.location.href = 'src/pages/login.html';
             return;
+            // ===============================
+// MOCK TRANSACTIONS + LOAD MORE
+// ===============================
+const mockTxContainer = document.getElementById('transactionsList');
+let mockData = [
+  { type: "Sent", name: "John Doe", desc: "P2P Transfer", amount: -150.00, status: "completed" },
+  { type: "Received", name: "Jane Smith", desc: "Refund", amount: 320.00, status: "completed" },
+  { type: "Sent", name: "Netflix", desc: "Monthly Subscription", amount: -45.99, status: "pending" },
+  { type: "Received", name: "Upwork Ltd", desc: "Freelance Payment", amount: 500.00, status: "completed" },
+  { type: "Sent", name: "Bolt", desc: "Ride Payment", amount: -17.80, status: "completed" }
+];
+
+// Render mock transactions
+function renderMockTransactions() {
+  mockTxContainer.innerHTML = mockData.map(tx => `
+    <div class="transaction-item ${tx.amount < 0 ? 'debit' : 'credit'}">
+      <div class="tx-info">
+        <strong>${tx.type} ${tx.name}</strong>
+        <p>${tx.desc}</p>
+      </div>
+      <div class="tx-amount">
+        <span>${tx.amount < 0 ? '-' : '+'}$${Math.abs(tx.amount).toFixed(2)}</span>
+        <small class="${tx.status}">${tx.status}</small>
+      </div>
+    </div>
+  `).join("");
+}
+
+// Load More button
+const loadMoreBtn = document.createElement("button");
+loadMoreBtn.textContent = "Load More Transactions";
+loadMoreBtn.className = "btn btn-secondary btn-sm";
+loadMoreBtn.style.marginTop = "10px";
+loadMoreBtn.addEventListener("click", () => {
+  const newTx = [
+    { type: "Received", name: "Stripe Payout", desc: "Business income", amount: 1200.00, status: "completed" },
+    { type: "Sent", name: "Spotify", desc: "Music subscription", amount: -9.99, status: "completed" }
+  ];
+  mockData = [...mockData, ...newTx];
+  renderMockTransactions();
+});
+
+mockTxContainer.after(loadMoreBtn);
+renderMockTransactions();
+
         }
         
         // Get current user
