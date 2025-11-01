@@ -493,6 +493,63 @@ function showToast(type, message) {
     toast.style.transform = "translateY(-20px)";
     setTimeout(() => (toast.style.display = "none"), 500);
   }, 3000);
+} // ✅ ← this closing bracket was missing
+
+// ------------------------------
+// SYSTEM TOAST (Bottom-Left Notifications)
+// ------------------------------
+function showSystemToast(type, message) {
+  let toast = document.getElementById("systemToast");
+  if (!toast) {
+    toast = document.createElement("div");
+    toast.id = "systemToast";
+    document.body.appendChild(toast);
+  }
+
+  toast.innerHTML = message;
+  toast.className = `toast-bottom toast-${type}`;
+  toast.style.cssText = `
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    padding: 12px 18px;
+    border-radius: 10px;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 500;
+    z-index: 9999;
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.3s ease;
+    background: ${
+      type === "success"
+        ? "linear-gradient(90deg, #16a34a, #22c55e)"
+        : type === "warning"
+        ? "linear-gradient(90deg, #facc15, #f59e0b)"
+        : "linear-gradient(90deg, #dc2626, #ef4444)"
+    };
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  `;
+
+  // Animate in
+  toast.style.display = "flex";
+  setTimeout(() => {
+    toast.style.opacity = "1";
+    toast.style.transform = "translateY(0)";
+  }, 50);
+
+  // Auto-hide after 3.5 seconds
+  setTimeout(() => {
+    toast.style.opacity = "0";
+    toast.style.transform = "translateY(30px)";
+    setTimeout(() => (toast.style.display = "none"), 400);
+  }, 3500);
+}
+
+  
 /**
  * DemiPay v5.5 Dashboard JavaScript
  * Handles all dashboard functionality
@@ -938,58 +995,6 @@ function formatCurrency(amount) {
         currency: 'USD'
     }).format(amount);
 }
-// ------------------------------
-// GLOBAL TOAST NOTIFICATION SYSTEM (Enhanced)
-// ------------------------------
-function showToast(type, message) {
-  let toast = document.getElementById("globalToast");
-  if (!toast) {
-    toast = document.createElement("div");
-    toast.id = "globalToast";
-    document.body.appendChild(toast);
-  }
-
-  // Set message & style
-  toast.innerHTML = message;
-  toast.className = `toast toast-${type}`;
-  toast.style.cssText = `
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    padding: 12px 20px;
-    background: ${
-      type === "success"
-        ? "linear-gradient(90deg, #22c55e, #16a34a)"
-        : type === "warning"
-        ? "linear-gradient(90deg, #facc15, #f59e0b)"
-        : "linear-gradient(90deg, #ef4444, #dc2626)"
-    };
-    color: #fff;
-    border-radius: 10px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-    font-weight: 500;
-    font-size: 15px;
-    z-index: 9999;
-    opacity: 0;
-    transform: translateY(-20px);
-    transition: all 0.4s ease;
-  `;
-
-  // Animate in
-  toast.style.display = "block";
-  setTimeout(() => {
-    toast.style.opacity = "1";
-    toast.style.transform = "translateY(0)";
-  }, 50);
-
-  // Animate out after 3 seconds
-  setTimeout(() => {
-    toast.style.opacity = "0";
-    toast.style.transform = "translateY(-20px)";
-    setTimeout(() => (toast.style.display = "none"), 500);
-  }, 3000);
-}
-
 
 // Format date
 function formatDate(dateString) {
