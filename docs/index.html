@@ -169,6 +169,20 @@ body.scrolled .logo-text {
     transform: translate(-50%, 0);
   }
 }
+/* Toast Fade Animations */
+.toast {
+  animation: fadeInToast 0.3s ease, fadeOutToast 0.3s ease 2.7s forwards;
+}
+
+@keyframes fadeInToast {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeOutToast {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-10px); }
+}
 
 </style>
 </head>
