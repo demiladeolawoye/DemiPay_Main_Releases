@@ -5,249 +5,181 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>DemiPay v5.5 — Money Moves</title>
 
-  <!-- Styles -->
-<link rel="stylesheet" href="./src/css/global.css" />
-<link rel="stylesheet" href="./src/css/dashboard.css" />
+  <!-- External styles (keep your existing files) -->
+  <link rel="stylesheet" href="./src/css/global.css" />
+  <link rel="stylesheet" href="./src/css/dashboard.css" />
 
-<style>
-  /* ==== Gradient Accent & Hover Effects ==== */
-  :root {
-    --accent-color: #2dd4bf;
-    --gradient-accent: linear-gradient(90deg, #2dd4bf, #3b82f6);
-  }
+  <style>
+    :root{
+      --accent-color:#2dd4bf;
+      --accent-2:#3b82f6;
+      --gradient-accent:linear-gradient(90deg,#2dd4bf,#3b82f6);
+      --radius:12px;
+    }
 
-  /* … your existing CSS … */
+    /* ===== Navbar (Glass + Centered) ===== */
+    .navbar{
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: rgba(255,255,255,.85);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid #eef2f7;
+      transition: box-shadow .25s ease;
+    }
+    body.scrolled .navbar{ box-shadow: 0 6px 24px rgba(0,0,0,.06); }
 
-  /* Existing banner-text, etc. */
+    .navbar-container{
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
 
-  /* 👇 Add this new part at the very bottom of the same <style> block */
-  .user-menu-dropdown {
-    position: absolute;
-    right: 0;
-    top: 45px;
-    background: #fff;
-    border-radius: 10px;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
-    padding: 8px 0;
-    display: none;
-  }
+    .navbar-brand{display:flex;align-items:center;gap:8px;font-weight:700}
+    .logo-icon{font-size:1.25rem}
+    .version-badge{
+      font-size:.75rem;
+      background:#eef2ff;
+      color:#374151;
+      padding:2px 8px;border-radius:999px
+    }
 
-  .user-menu-dropdown.show {
-    display: block;
-    animation: fadeIn 0.2s ease-in-out;
-  }
+    .navbar-menu{display:flex;align-items:center;gap:10px}
+    .user-menu{position:relative}
+    .user-menu-btn{
+      display:flex;align-items:center;gap:8px;
+      padding:8px 10px;border:1px solid #e5e7eb;border-radius:999px;background:#fff;cursor:pointer;
+    }
+    .user-avatar{width:26px;height:26px;border-radius:999px;object-fit:cover}
 
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  /* ==== Sticky Navbar with Soft Shadow ==== */
-.navbar {
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  background: #ffffff;
-  border-bottom: 1px solid #f1f5f9;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
-  backdrop-filter: blur(6px);
-  transition: all 0.3s ease-in-out;
-}
+    .user-menu-dropdown{
+      position:absolute;right:0;top:45px;background:#fff;border-radius:10px;
+      box-shadow:0 10px 24px rgba(0,0,0,.12);padding:8px 0;display:none;min-width:180px
+    }
+    .user-menu-dropdown.show{display:block;animation:fadeIn .2s ease}
+    .user-menu-dropdown .menu-item{
+      display:flex;align-items:center;gap:8px;padding:10px 14px;color:#111827;text-decoration:none
+    }
+    .user-menu-dropdown .menu-item:hover{background:#f9fafb}
+    .menu-divider{height:1px;background:#eef2f7;margin:6px 0}
 
-/* Slight glow effect when scrolling */
-body.scrolled .navbar {
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
-  transform: translateY(0);
-}
-/* ==== Logo Scroll Animation ==== */
-.navbar-brand {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-weight: 700;
-  font-size: 1.2rem;
-  transition: all 0.3s ease;
-}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
 
-.logo-icon {
-  font-size: 1.5rem;
-  transition: all 0.3s ease;
-}
+    /* ===== Page layout ===== */
+    .main-content{padding: 24px 16px;}
+    .container{max-width:1100px;margin:0 auto}
 
-.logo-text {
-  transition: all 0.3s ease;
-}
+    /* ===== Welcome header with gradient name ===== */
+    .welcome-section h1{font-size:clamp(24px,3vw,30px);margin:6px 0 2px}
+    .gradient-text{
+      background:linear-gradient(90deg,var(--accent-color),var(--accent-2));
+      -webkit-background-clip:text;background-clip:text;color:transparent
+    }
+    /* one-time shimmer pulse */
+    .shimmer-once{
+      position:relative;
+      background-image:linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.65) 50%, rgba(255,255,255,0) 100%);
+      background-repeat:no-repeat;background-size:200% 100%;
+      animation:shine 1.2s ease forwards;
+    }
+    @keyframes shine{from{background-position:-120% 0}to{background-position:120% 0}}
 
-/* When scrolling, make logo smaller and slightly transparent */
-body.scrolled .navbar-brand {
-  transform: scale(0.9);
-  opacity: 0.9;
-}
+    /* ===== Cards / sections (keep your look; minimal base here) ===== */
+    .balance-card{
+      border:1px solid #eef2f7;border-radius:16px;padding:18px;background:#fff;
+      box-shadow:0 6px 20px rgba(0,0,0,.04)
+    }
+    .balance-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+    .btn{border:none;border-radius:10px;padding:10px 14px;cursor:pointer}
+    .btn-primary{background:var(--gradient-accent);color:#fff}
+    .btn-secondary{background:#f3f4f6;color:#111827}
 
-body.scrolled .logo-icon {
-  transform: scale(0.9) rotate(-5deg);
-}
+    /* ===== Action grid ===== */
+    .action-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+    .action-card{
+      border:1px solid #eef2f7;border-radius:14px;padding:14px;background:#fff;cursor:pointer;
+      display:flex;flex-direction:column;gap:4px;align-items:flex-start;
+      transition:transform .15s ease, box-shadow .15s ease;
+    }
+    .action-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.06)}
 
-body.scrolled .logo-text {
-  letter-spacing: 0.5px;
-  opacity: 0.85;
-}
-/* ==== Scroll to Top Button (with Fade Animation) ==== */
-#scrollTopBtn {
-  position: fixed;
-  bottom: 28px;
-  right: 28px;
-  width: 45px;
-  height: 45px;
-  border-radius: 50%;
-  border: none;
-  background: var(--gradient-accent);
-  color: white;
-  font-size: 20px;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
-  cursor: pointer;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s ease;
-  z-index: 999;
-  opacity: 0;
-  animation: none;
-}
+    @media (max-width:900px){.action-grid{grid-template-columns:repeat(2,1fr)}}
+    @media (max-width:520px){.action-grid{grid-template-columns:1fr}}
 
-/* Visible state (smooth fade-in) */
-#scrollTopBtn.show {
-  display: flex;
-  animation: fadeInUp 0.4s ease forwards;
-}
+    /* ===== Transactions ===== */
+    .transactions-list{display:flex;flex-direction:column;gap:10px}
+    .transaction-item{
+      border:1px solid #eef2f7;border-radius:12px;padding:12px;background:#fff;
+      display:flex;align-items:center;justify-content:space-between
+    }
 
-/* Hover glow */
-#scrollTopBtn:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
-  background: linear-gradient(90deg, #3b82f6, #2dd4bf);
-}
+    /* ===== Scroll to top ===== */
+    #scrollTopBtn{
+      position:fixed;bottom:28px;right:28px;width:44px;height:44px;border-radius:999px;
+      border:none;background:var(--gradient-accent);color:#fff;font-size:18px;display:none;
+      align-items:center;justify-content:center;box-shadow:0 8px 22px rgba(0,0,0,.15);z-index:999
+    }
+    #scrollTopBtn.show{display:flex;animation:fadeInUp .25s ease forwards}
+    #scrollTopBtn:hover{transform:translateY(-2px)}
 
-/* Animation keyframes */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-  /* ==== Welcome Toast (Bottom Notification) ==== */
-#welcomeToast {
-  position: fixed;
-  bottom: 30px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--gradient-accent);
-  color: #fff;
-  padding: 12px 22px;
-  border-radius: 30px;
-  font-size: 14px;
-  font-weight: 500;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  opacity: 0;
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  animation: fadeInToast 0.6s ease forwards;
-}
+    @keyframes fadeInUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
-@keyframes fadeInToast {
-  from {
-    opacity: 0;
-    transform: translate(-50%, 20px);
-  }
-  to {
-    opacity: 1;
-    transform: translate(-50%, 0);
-  }
-}
-/* Toast Fade Animations */
-.toast {
-  animation: fadeInToast 0.3s ease, fadeOutToast 0.3s ease 2.7s forwards;
-}
-
-@keyframes fadeInToast {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes fadeOutToast {
-  from { opacity: 1; transform: translateY(0); }
-  to { opacity: 0; transform: translateY(-10px); }
-}
-/* 🔔 Bottom Toast Fade Animations */
-.toast-bottom {
-  animation: fadeInUp 0.3s ease, fadeOutDown 0.3s ease 3.7s forwards;
-}
-
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes fadeOutDown {
-  from { opacity: 1; transform: translateY(0); }
-  to { opacity: 0; transform: translateY(20px); }
-}
-
-</style>
+    /* ===== Toast animations (top-right & bottom-left) ===== */
+    .toast{animation:fadeInToast .25s ease, fadeOutToast .25s ease 2.75s forwards}
+    @keyframes fadeInToast{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes fadeOutToast{from{opacity:1}to{opacity:0}}
+    .toast-bottom{animation:fadeInUp .25s ease, fadeOutDown .25s ease 3.5s forwards}
+    @keyframes fadeOutDown{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(20px)}}
+  </style>
 </head>
 
 <body>
- <!-- Navigation -->
-<nav class="navbar">
-  <div class="navbar-container">
-    <!-- Brand (clickable home logo) -->
-    <div class="navbar-brand" onclick="window.location.href='index.html'" style="cursor:pointer;">
-      <span class="logo-icon">🚀</span>
-      <span class="logo-text">DemiPay</span>
-      <span class="version-badge">v5.5</span>
-    </div>
+  <!-- ===== NAVBAR ===== -->
+  <nav class="navbar">
+    <div class="navbar-container">
+      <div class="navbar-brand" onclick="location.href='index.html'" style="cursor:pointer;">
+        <span class="logo-icon">🚀</span>
+        <span class="logo-text">DemiPay</span>
+        <span class="version-badge">v5.5</span>
+      </div>
 
-    <!-- Menu items -->
-    <div class="navbar-menu">
-      <!-- Theme toggle -->
-      <button class="btn btn-secondary btn-sm" id="themeToggle">
-        <span id="themeIcon">🌙</span>
-        <span id="themeText">Dark Mode</span>
-      </button>
-
-      <!-- User dropdown -->
-      <div class="user-menu">
-        <button class="user-menu-btn" id="userMenuBtn">
-          <img id="userAvatar" src="./src/assets/user.png" alt="User" class="user-avatar">
-          <span id="userName">Demi</span>
-          <span>▼</span>
+      <div class="navbar-menu">
+        <button class="btn btn-secondary btn-sm" id="themeToggle">
+          <span id="themeIcon">🌙</span>
+          <span id="themeText">Dark Mode</span>
         </button>
-        <div class="user-menu-dropdown" id="userMenuDropdown">
-          <a href="#" class="menu-item"><span>👤</span><span>Profile</span></a>
-          <a href="#" class="menu-item"><span>⚙️</span><span>Settings</span></a>
-          <div class="menu-divider"></div>
-          <a href="#" class="menu-item" id="logoutBtn"><span>🚪</span><span>Logout</span></a>
+
+        <div class="user-menu">
+          <button class="user-menu-btn" id="userMenuBtn">
+            <img id="userAvatar" src="./src/assets/user.png" alt="User" class="user-avatar" />
+            <span id="userName">Demi</span>
+            <span>▼</span>
+          </button>
+          <div class="user-menu-dropdown" id="userMenuDropdown">
+            <a href="#" class="menu-item"><span>👤</span><span>Profile</span></a>
+            <a href="#" class="menu-item"><span>⚙️</span><span>Settings</span></a>
+            <div class="menu-divider"></div>
+            <a href="#" class="menu-item" id="logoutBtn"><span>🚪</span><span>Logout</span></a>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-</nav>
+  </nav>
 
-  <!-- Main Content -->
+  <!-- ===== MAIN ===== -->
   <main class="main-content">
     <div class="container">
       <!-- Welcome -->
       <section class="welcome-section">
-        <h1>Welcome back, Demi 👋</h1>
-        <p>Here's what's happening with your wallet today.</p>
+        <h1>Welcome back, <span class="gradient-text" id="welcomeName">Demi</span> 👋</h1>
+        <p>Here’s what’s happening with your wallet today.</p>
       </section>
 
-      <!-- Wallet Balance -->
+      <!-- Balance -->
       <section class="balance-section">
         <div class="balance-card">
           <div class="balance-header">
@@ -260,33 +192,31 @@ body.scrolled .logo-text {
                 KYC Level: <span class="kyc-level">Tier 2 (Verified)</span>
               </p>
             </div>
-            <button class="btn btn-primary" id="refreshBalanceBtn">
-              <span>🔄</span><span>Refresh</span>
-            </button>
+            <button class="btn btn-primary" id="refreshBalanceBtn">🔄 Refresh</button>
           </div>
         </div>
       </section>
 
       <!-- Security Banner -->
-      <section class="banner banner-security">
+      <section class="banner banner-security" style="margin-top:14px;border:1px solid #eef2f7;border-radius:14px;padding:12px;background:#fff;display:flex;gap:10px;align-items:center">
         <span class="banner-emoji">🔒</span>
         <div class="banner-text">
-          <h4>Security</h4>
-          <p>Your wallet is protected with encryption and OTP verification.</p>
+          <h4 style="margin:0 0 4px">Security</h4>
+          <p style="margin:0">Your wallet is protected with encryption and OTP verification.</p>
         </div>
       </section>
 
       <!-- Finance Banner -->
-      <section class="banner banner-finance">
+      <section class="banner banner-finance" style="margin-top:10px;border:1px solid #eef2f7;border-radius:14px;padding:12px;background:#fff;display:flex;gap:10px;align-items:center">
         <span class="banner-emoji">💹</span>
         <div class="banner-text">
-          <h4>Finance Updates</h4>
-          <p>FX Update: ₦1 ≈ $0.0013 • Earn +5% APY bonus this week!</p>
+          <h4 style="margin:0 0 4px">Finance Updates</h4>
+          <p style="margin:0">FX Update: ₦1 ≈ $0.0013 • Earn +5% APY bonus this week!</p>
         </div>
       </section>
 
       <!-- Money Moves -->
-      <section class="money-moves">
+      <section class="money-moves" style="margin-top:16px">
         <h3>Money Moves</h3>
         <div class="action-grid">
           <button class="action-card" id="sendMoneyBtn">
@@ -313,147 +243,203 @@ body.scrolled .logo-text {
       </section>
 
       <!-- Services -->
-      <section class="quick-services">
+      <section class="quick-services" style="margin-top:18px">
         <h3>Services</h3>
-        <div class="services-grid">
-          <div class="service-card" data-service="fx">🌍
+        <div class="action-grid services-grid">
+          <div class="action-card service-card" data-service="fx">🌍
             <h4>Cross-Border Remittance</h4><p>Preview FX & Send Abroad</p>
           </div>
-          <div class="service-card" data-service="savings">💰
+          <div class="action-card service-card" data-service="savings">💰
             <h4>Savings</h4><p>Create • Add • Withdraw • SO</p>
           </div>
-          <div class="service-card" data-service="bills">💡
+          <div class="action-card service-card" data-service="bills">💡
             <h4>Pay Bills & Top-Up</h4><p>Bundles ₦500–₦5 000</p>
           </div>
-          <div class="service-card" data-service="cards">💳
+          <div class="action-card service-card" data-service="cards">💳
             <h4>Virtual & Linked Cards</h4><p>Add • Link • Set Default</p>
           </div>
-          <div class="service-card" data-service="payonline">🛒
+          <div class="action-card service-card" data-service="payonline">🛒
             <h4>Pay Online</h4><p>Checkout Simulation</p>
           </div>
-          <div class="service-card" data-service="shop">🏬
+          <div class="action-card service-card" data-service="shop">🏬
             <h4>Shop on the Fly</h4><p>Affiliate Redirection</p>
           </div>
-          <div class="service-card" data-service="invest">📈
+          <div class="action-card service-card" data-service="invest">📈
             <h4>Investments & Stocks</h4><p>Mock Buy/Sell & Portfolio</p>
           </div>
-          <div class="service-card" data-service="agent">🧍‍♂️
+          <div class="action-card service-card" data-service="agent">🧍‍♂️
             <h4>Become an Agent</h4><p>Photo Upload + NIN</p>
           </div>
         </div>
       </section>
 
-   <!-- Become an Agent Modal -->
-<div id="agentModal" class="modal-overlay d-none">
-  <div class="modal">
-    <div class="modal-header">
-      <h3>Become an Agent</h3>
-      <button class="close-btn" id="closeAgentModal">✕</button>
-    </div>
-    <div class="modal-body">
-      <form id="agentForm">
-        <div class="form-group">
-          <label>Full Name</label>
-          <input type="text" id="agentFullName" class="form-control" placeholder="John Doe" required>
+      <!-- Agent Modal (hidden by default – no auto-open) -->
+      <div id="agentModal" class="modal-overlay d-none" style="position:fixed;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;z-index:1200">
+        <div class="modal" style="width:min(560px,92vw);background:#fff;border-radius:16px;box-shadow:0 20px 48px rgba(0,0,0,.22);overflow:hidden">
+          <div class="modal-header" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #eef2f7">
+            <h3 style="margin:0">Become an Agent</h3>
+            <button class="close-btn" id="closeAgentModal" style="border:none;background:transparent;font-size:18px;cursor:pointer">✕</button>
+          </div>
+          <div class="modal-body" style="padding:16px">
+            <form id="agentForm">
+              <div class="form-group" style="margin-bottom:10px">
+                <label>Full Name</label>
+                <input type="text" id="agentFullName" class="form-control" placeholder="John Doe" required style="width:100%;padding:10px;border:1px solid #e5e7eb;border-radius:10px">
+              </div>
+              <div class="form-group" style="margin-bottom:10px">
+                <label>National Identification Number (NIN)</label>
+                <input type="text" id="agentNIN" class="form-control" placeholder="Enter 11-digit NIN" maxlength="11" required style="width:100%;padding:10px;border:1px solid #e5e7eb;border-radius:10px">
+              </div>
+              <div class="form-group">
+                <label>Upload or Capture Photo ID</label>
+                <input type="file" id="agentPhoto" class="form-control" accept="image/*" capture="camera" required style="width:100%;padding:10px;border:1px solid #e5e7eb;border-radius:10px">
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer" style="padding:12px 16px;display:flex;gap:8px;justify-content:flex-end;border-top:1px solid #eef2f7">
+            <button class="btn btn-secondary" id="cancelAgentBtn">Cancel</button>
+            <button class="btn btn-primary" id="submitAgentBtn">Submit Application</button>
+          </div>
         </div>
-        <div class="form-group">
-          <label>National Identification Number (NIN)</label>
-          <input type="text" id="agentNIN" class="form-control" placeholder="Enter 11-digit NIN" maxlength="11" required>
-        </div>
-        <div class="form-group">
-          <label>Upload or Capture Photo ID</label>
-          <input type="file" id="agentPhoto" class="form-control" accept="image/*" capture="camera" required>
-        </div>
-      </form>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" id="cancelAgentBtn">Cancel</button>
-      <button class="btn btn-primary" id="submitAgentBtn">Submit Application</button>
-    </div>
-  </div>
-</div>
+      </div>
 
-
-      <!-- Recent Transactions -->
-      <section class="transactions-section">
-        <div class="section-header">
+      <!-- Transactions -->
+      <section class="transactions-section" style="margin-top:18px;margin-bottom:80px">
+        <div class="section-header" style="display:flex;align-items:center;justify-content:space-between">
           <h3>Recent Transactions</h3>
           <button class="btn btn-secondary btn-sm" id="viewAllBtn">View All</button>
         </div>
         <div id="transactionsList" class="transactions-list">
-          <div class="empty-state">
-            <span class="empty-icon">📭</span>
-            <p>No transactions yet</p>
-            <p class="text-sm">Start by sending or receiving money</p>
+          <div class="empty-state" style="text-align:center;border:1px dashed #e5e7eb;border-radius:12px;padding:22px;background:#fff">
+            <span class="empty-icon" style="font-size:28px">📭</span>
+            <p style="margin:6px 0 0">No transactions yet</p>
+            <p class="text-sm" style="margin:0;color:#6b7280">Start by sending or receiving money</p>
           </div>
         </div>
       </section>
     </div>
   </main>
 
-<!-- ============================= -->
-<!-- 🔧 SCRIPT SECTION START -->
-<!-- ============================= -->
+  <!-- Scroll to Top -->
+  <button id="scrollTopBtn" title="Back to Top">⬆️</button>
 
-<!-- Agent Form (mock) -->
-<script>
-  document.getElementById("agentForm")?.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const nin = document.getElementById("agentNIN").value;
-    if (nin.length !== 11) {
-      alert("⚠️ Please enter a valid 11-digit NIN.");
-      return;
+  <!-- Toast mounts -->
+  <div id="globalToast" style="display:none"></div>
+  <div id="systemToast" style="display:none"></div>
+
+  <!-- ===== SCRIPTS ===== -->
+  <script>
+    // Sticky shadow + scroll-to-top
+    const scrollBtn = document.getElementById('scrollTopBtn');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 10) document.body.classList.add('scrolled'); else document.body.classList.remove('scrolled');
+      if (window.scrollY > 200) scrollBtn.classList.add('show'); else scrollBtn.classList.remove('show');
+    });
+    scrollBtn.addEventListener('click', ()=> window.scrollTo({top:0, behavior:'smooth'}));
+
+    // User menu toggle (click outside to close)
+    const userMenuBtn = document.getElementById('userMenuBtn');
+    const userMenuDropdown = document.getElementById('userMenuDropdown');
+    userMenuBtn.addEventListener('click', (e)=>{ e.stopPropagation(); userMenuDropdown.classList.toggle('show'); });
+    document.addEventListener('click', (e)=>{ if(!document.querySelector('.user-menu').contains(e.target)){ userMenuDropdown.classList.remove('show'); }});
+
+    // Theme toggle + persist
+    const themeToggle = document.getElementById('themeToggle');
+    function applySavedTheme(){
+      const saved = localStorage.getItem('demipay_theme') || 'light';
+      if(saved==='dark'){
+        document.body.classList.add('dark-mode');
+        themeIcon.textContent = '☀️';
+        themeText.textContent = 'Light Mode';
+      }
     }
-    alert("✅ Agent application submitted successfully (mock).");
-  });
-</script>
+    const themeIcon = document.getElementById('themeIcon');
+    const themeText = document.getElementById('themeText');
+    themeToggle.addEventListener('click', ()=>{
+      document.body.classList.toggle('dark-mode');
+      const isDark = document.body.classList.contains('dark-mode');
+      themeIcon.textContent = isDark ? '☀️' : '🌙';
+      themeText.textContent = isDark ? 'Light Mode' : 'Dark Mode';
+      localStorage.setItem('demipay_theme', isDark ? 'dark' : 'light');
+      showToast('success', isDark ? '🌙 Dark Mode Enabled' : '☀️ Light Mode Restored');
+    });
+    applySavedTheme();
 
-<!-- 👇 Sticky Navbar Scroll Effect -->
-<script>
-  window.addEventListener("scroll", () => {
-    if (window.scrollY > 10) {
-      document.body.classList.add("scrolled");
-    } else {
-      document.body.classList.remove("scrolled");
+    // Welcome gradient shimmer once
+    const welcomeNameEl = document.getElementById('welcomeName');
+    welcomeNameEl.classList.add('shimmer-once');
+    welcomeNameEl.addEventListener('animationend', ()=> welcomeNameEl.classList.remove('shimmer-once'));
+
+    // Toasts (top-right)
+    function showToast(type, message){
+      let toast = document.getElementById('globalToast');
+      if(!toast){ toast = document.createElement('div'); toast.id='globalToast'; document.body.appendChild(toast); }
+      toast.innerHTML = message;
+      toast.className = 'toast toast-'+type;
+      toast.style.cssText = `
+        position:fixed;top:20px;right:20px;padding:12px 18px;border-radius:10px;color:#fff;
+        z-index:9999;box-shadow:0 10px 24px rgba(0,0,0,.18);opacity:0;transition:.25s;
+        background:${ type==='success' ? 'linear-gradient(90deg,#22c55e,#16a34a)' :
+                    type==='warning' ? 'linear-gradient(90deg,#facc15,#f59e0b)' :
+                    'linear-gradient(90deg,#ef4444,#dc2626)' };
+      `;
+      toast.style.display='block';
+      requestAnimationFrame(()=>{ toast.style.opacity='1'; });
+      setTimeout(()=>{ toast.style.opacity='0'; setTimeout(()=> toast.style.display='none',250); }, 3000);
     }
-  });
-</script>
 
-<!-- 👆 Scroll to Top Button -->
-<button id="scrollTopBtn" title="Back to Top">⬆️</button>
-
-<script>
-  const scrollBtn = document.getElementById("scrollTopBtn");
-
-  // Show/hide button when scrolling
-  window.addEventListener("scroll", () => {
-    if (window.scrollY > 200) {
-      scrollBtn.classList.add("show");
-    } else {
-      scrollBtn.classList.remove("show");
+    // System toasts (bottom-left)
+    function showSystemToast(type, message){
+      let toast = document.getElementById('systemToast');
+      if(!toast){ toast = document.createElement('div'); toast.id='systemToast'; document.body.appendChild(toast); }
+      toast.innerHTML = message;
+      toast.className = 'toast-bottom toast-'+type;
+      toast.style.cssText = `
+        position:fixed;bottom:20px;left:20px;padding:12px 18px;border-radius:10px;color:#fff;
+        z-index:9999;box-shadow:0 10px 24px rgba(0,0,0,.18);opacity:0;transition:.25s;
+        background:${ type==='success' ? 'linear-gradient(90deg,#16a34a,#22c55e)' :
+                    type==='warning' ? 'linear-gradient(90deg,#facc15,#f59e0b)' :
+                    'linear-gradient(90deg,#dc2626,#ef4444)' };
+      `;
+      toast.style.display='flex';
+      requestAnimationFrame(()=>{ toast.style.opacity='1'; });
+      setTimeout(()=>{ toast.style.opacity='0'; setTimeout(()=> toast.style.display='none',300); }, 3500);
     }
-  });
 
-  // Smooth scroll to top
-  scrollBtn.addEventListener("click", () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  });
-</script>
+    // ===== Agent Modal (no auto-open) =====
+    const agentCard = document.querySelector('[data-service="agent"]');
+    const agentModal = document.getElementById('agentModal');
+    const closeAgentModal = document.getElementById('closeAgentModal');
+    const cancelAgentBtn = document.getElementById('cancelAgentBtn');
+    const submitAgentBtn = document.getElementById('submitAgentBtn');
 
-<!-- 👋 Welcome Toast -->
-<div id="welcomeToast" style="display:none;">
-  👋 Welcome back, <strong>Demi</strong> — your wallet is secure and synced.
-</div>
+    if(agentCard){
+      agentCard.addEventListener('click', ()=>{
+        agentModal.classList.remove('d-none');
+        document.body.style.overflow='hidden';
+      });
+    }
+    [closeAgentModal, cancelAgentBtn].forEach(btn => btn.addEventListener('click', ()=>{
+      agentModal.classList.add('d-none');
+      document.body.style.overflow='auto';
+    }));
+    agentModal.addEventListener('click', (e)=>{ if(e.target===agentModal){ agentModal.classList.add('d-none'); document.body.style.overflow='auto'; }});
 
-<!-- ✅ Unified Toast Notification -->
-<div id="globalToast" style="display:none;"></div>
+    // Agent form (mock)
+    submitAgentBtn.addEventListener('click', (e)=>{
+      e.preventDefault();
+      const name = document.getElementById('agentFullName').value.trim();
+      const nin = document.getElementById('agentNIN').value.trim();
+      const photo = document.getElementById('agentPhoto').files[0];
+      if(!name || nin.length!==11 || !photo){ showSystemToast('warning','⚠️ Please complete all fields (11-digit NIN).'); return; }
+      showToast('success','✅ Agent application submitted (mock)');
+      agentModal.classList.add('d-none');
+      document.getElementById('agentForm').reset();
+      document.body.style.overflow='auto';
+    });
 
-<!-- 🔔 System Event Toast -->
-<div id="systemToast" style="display:none;"></div>
-
+    // Example: mock refresh balance & recent transactions hooks
+    document.getElementById('refreshBalanceBtn').addEventListener('click', ()=> showToast('success','🔄 Balance refreshed (mock)'));
+  </script>
 </body>
 </html>
-
-
-
-
