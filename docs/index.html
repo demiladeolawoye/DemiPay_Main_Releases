@@ -100,47 +100,72 @@
       color: #555;
     }
   </style>
+  .user-menu-dropdown {
+  position: absolute;
+  right: 0;
+  top: 45px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  padding: 8px 0;
+  display: none;
+}
+
+.user-menu-dropdown.show {
+  display: block;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 </head>
 
 <body>
   <!-- Navigation -->
-  <nav class="navbar">
-    <div class="navbar-container">
-      <a href="index.html" class="navbar-brand">
-        <span class="logo-icon">🚀</span>
-        <span class="logo-text">DemiPay</span>
-        <span class="version-badge">v5.5</span>
-      </a>
+<nav class="navbar">
+  <div class="navbar-container">
+    <!-- Brand (clickable home logo) -->
+    <div class="navbar-brand" onclick="window.location.href='index.html'" style="cursor:pointer;">
+      <span class="logo-icon">🚀</span>
+      <span class="logo-text">DemiPay</span>
+      <span class="version-badge">v5.5</span>
+    </div>
 
-      <div class="navbar-menu">
-        <button class="btn btn-secondary btn-sm" id="themeToggle">
-          <span id="themeIcon">🌙</span>
-          <span id="themeText">Dark Mode</span>
+    <!-- Menu items -->
+    <div class="navbar-menu">
+      <!-- Theme toggle -->
+      <button class="btn btn-secondary btn-sm" id="themeToggle">
+        <span id="themeIcon">🌙</span>
+        <span id="themeText">Dark Mode</span>
+      </button>
+
+      <!-- User dropdown -->
+      <div class="user-menu">
+        <button class="user-menu-btn" id="userMenuBtn">
+          <img id="userAvatar" src="./src/assets/user.png" alt="User" class="user-avatar">
+          <span id="userName">Demi</span>
+          <span>▼</span>
         </button>
-
-        <div class="user-menu">
-          <button class="user-menu-btn" id="userMenuBtn">
-            <img id="userAvatar" src="" alt="User" class="user-avatar" />
-            <span id="userName">User</span>
-            <span>▼</span>
-          </button>
-          <div class="user-menu-dropdown" id="userMenuDropdown">
-            <a href="#" class="menu-item"><span>👤</span><span>Profile</span></a>
-            <a href="#" class="menu-item"><span>⚙️</span><span>Settings</span></a>
-            <div class="menu-divider"></div>
-            <a href="#" class="menu-item" id="logoutBtn"><span>🚪</span><span>Logout</span></a>
-          </div>
+        <div class="user-menu-dropdown" id="userMenuDropdown">
+          <a href="#" class="menu-item"><span>👤</span><span>Profile</span></a>
+          <a href="#" class="menu-item"><span>⚙️</span><span>Settings</span></a>
+          <div class="menu-divider"></div>
+          <a href="#" class="menu-item" id="logoutBtn"><span>🚪</span><span>Logout</span></a>
         </div>
       </div>
     </div>
-  </nav>
+  </div>
+</nav>
 
   <!-- Main Content -->
   <main class="main-content">
     <div class="container">
       <!-- Welcome -->
       <section class="welcome-section">
-        <h1>Welcome back, <span id="welcomeName">User</span> 👋</h1>
+        <h1>Welcome back, Demi 👋</h1>
         <p>Here's what's happening with your wallet today.</p>
       </section>
 
