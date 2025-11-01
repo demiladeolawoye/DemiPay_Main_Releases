@@ -234,7 +234,8 @@ function toggleTheme() {
     // Save preference
     localStorage.setItem('demipay_theme', isDark ? 'dark' : 'light');
     
-    console.log(`🎨 Theme changed to: ${isDark ? 'dark' : 'light'}`);
+  showToast("success", isDark ? "🌙 Dark Mode Enabled" : "☀️ Light Mode Restored");
+
 }
 
 // Apply saved theme
@@ -433,31 +434,7 @@ function showModalAlert(containerId, type, message) {
     }, 5000);
 }
 
-// Show toast notification
-function showToast(type, message) {
-    const toast = document.createElement('div');
-    toast.className = `toast toast-${type}`;
-    toast.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 1rem 1.5rem;
-        background: ${type === 'success' ? 'var(--success-color)' : 'var(--error-color)'};
-        color: white;
-        border-radius: var(--radius-md);
-        box-shadow: var(--shadow-lg);
-        z-index: 10000;
-        animation: slideIn 0.3s ease;
-    `;
-    toast.textContent = message;
-    
-    document.body.appendChild(toast);
-    
-    setTimeout(() => {
-        toast.style.animation = 'slideOut 0.3s ease';
-        setTimeout(() => toast.remove(), 300);
-    }, 3000);
-}
+
 
 // Format currency
 function formatCurrency(amount) {
@@ -466,6 +443,58 @@ function formatCurrency(amount) {
         currency: 'USD'
     }).format(amount);
 }
+// ------------------------------
+// GLOBAL TOAST NOTIFICATION SYSTEM (Enhanced)
+// ------------------------------
+function showToast(type, message) {
+  let toast = document.getElementById("globalToast");
+  if (!toast) {
+    toast = document.createElement("div");
+    toast.id = "globalToast";
+    document.body.appendChild(toast);
+  }
+
+  // Set message & style
+  toast.innerHTML = message;
+  toast.className = `toast toast-${type}`;
+  toast.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 12px 20px;
+    background: ${
+      type === "success"
+        ? "linear-gradient(90deg, #22c55e, #16a34a)"
+        : type === "warning"
+        ? "linear-gradient(90deg, #facc15, #f59e0b)"
+        : "linear-gradient(90deg, #ef4444, #dc2626)"
+    };
+    color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    font-weight: 500;
+    font-size: 15px;
+    z-index: 9999;
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: all 0.4s ease;
+  `;
+
+  // Animate in
+  toast.style.display = "block";
+  setTimeout(() => {
+    toast.style.opacity = "1";
+    toast.style.transform = "translateY(0)";
+  }, 50);
+
+  // Animate out after 3 seconds
+  setTimeout(() => {
+    toast.style.opacity = "0";
+    toast.style.transform = "translateY(-20px)";
+    setTimeout(() => (toast.style.display = "none"), 500);
+  }, 3000);
+}
+
 
 // Format date
 function formatDate(dateString) {
@@ -536,8 +565,10 @@ document.addEventListener("DOMContentLoaded", () => {
   // Wait a bit to ensure user/session loaded
   setTimeout(() => {
     if (mockAPI.isAuthenticated()) {
-      showWelcomeToast();
-    }
+  const name = currentUser?.full_name?.split(" ")[0] || "User";
+  showToast("success", `👋 Welcome back, ${name} — your wallet is synced and ready.`);
+}
+
   }, 800);
 });
 
