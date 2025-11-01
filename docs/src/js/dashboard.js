@@ -511,6 +511,35 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
+// ------------------------------
+// WELCOME TOAST ON LOGIN OR RESTORED SESSION
+// ------------------------------
+function showWelcomeToast() {
+  const toast = document.getElementById("welcomeToast");
+  if (!toast) return;
+
+  const firstName = currentUser?.full_name?.split(" ")[0] || "User";
+  toast.innerHTML = `👋 Welcome back, <strong>${firstName}</strong> — your wallet is secure and synced.`;
+  toast.style.display = "flex";
+  toast.style.opacity = "1";
+
+  // Auto-hide after 4 seconds
+  setTimeout(() => {
+    toast.style.transition = "opacity 0.6s ease";
+    toast.style.opacity = "0";
+    setTimeout(() => (toast.style.display = "none"), 600);
+  }, 4000);
+}
+
+// Trigger after successful dashboard load
+document.addEventListener("DOMContentLoaded", () => {
+  // Wait a bit to ensure user/session loaded
+  setTimeout(() => {
+    if (mockAPI.isAuthenticated()) {
+      showWelcomeToast();
+    }
+  }, 800);
+});
 
 console.log('💡 Dashboard script loaded');
 // ------------------------------
