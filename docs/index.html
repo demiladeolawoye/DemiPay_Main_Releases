@@ -183,6 +183,20 @@ body.scrolled .logo-text {
   from { opacity: 1; transform: translateY(0); }
   to { opacity: 0; transform: translateY(-10px); }
 }
+/* 🔔 Bottom Toast Fade Animations */
+.toast-bottom {
+  animation: fadeInUp 0.3s ease, fadeOutDown 0.3s ease 3.7s forwards;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeOutDown {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(20px); }
+}
 
 </style>
 </head>
@@ -377,7 +391,11 @@ body.scrolled .logo-text {
     </div>
   </main>
 
-<!-- Scripts -->
+<!-- ============================= -->
+<!-- 🔧 SCRIPT SECTION START -->
+<!-- ============================= -->
+
+<!-- Agent Form (mock) -->
 <script>
   document.getElementById("agentForm")?.addEventListener("submit", (e) => {
     e.preventDefault();
@@ -399,12 +417,27 @@ body.scrolled .logo-text {
       document.body.classList.remove("scrolled");
     }
   });
+</script>
+
 <!-- 👆 Scroll to Top Button -->
 <button id="scrollTopBtn" title="Back to Top">⬆️</button>
 
 <script>
   const scrollBtn = document.getElementById("scrollTopBtn");
-  ...
+
+  // Show/hide button when scrolling
+  window.addEventListener("scroll", () => {
+    if (window.scrollY > 200) {
+      scrollBtn.classList.add("show");
+    } else {
+      scrollBtn.classList.remove("show");
+    }
+  });
+
+  // Smooth scroll to top
+  scrollBtn.addEventListener("click", () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
 </script>
 
 <!-- 👋 Welcome Toast -->
@@ -414,10 +447,13 @@ body.scrolled .logo-text {
 
 <!-- ✅ Unified Toast Notification -->
 <div id="globalToast" style="display:none;"></div>
+
 <!-- 🔔 System Event Toast -->
 <div id="systemToast" style="display:none;"></div>
 
 </body>
 </html>
+
+
 
 
