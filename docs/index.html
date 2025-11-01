@@ -5,157 +5,198 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>DemiPay v5.5 — Money Moves</title>
 
-  <!-- External styles (keep your existing files) -->
+  <!-- Existing stylesheets (keep these) -->
   <link rel="stylesheet" href="./src/css/global.css" />
   <link rel="stylesheet" href="./src/css/dashboard.css" />
 
   <style>
-    :root{
-      --accent-color:#2dd4bf;
-      --accent-2:#3b82f6;
-      --gradient-accent:linear-gradient(90deg,#2dd4bf,#3b82f6);
-      --radius:12px;
+    /* ===== Theme & Accent ===== */
+    :root {
+      --accent-color: #2dd4bf;
+      --gradient-accent: linear-gradient(90deg, #2dd4bf, #3b82f6);
+      --bg-card: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+    }
+    body.dark-mode {
+      --bg-card: #0b1220;
+      --text: #e5e7eb;
+      --muted: #9aa4b2;
+      --border: #1f2937;
     }
 
-    /* ===== Navbar (Glass + Centered) ===== */
-    .navbar{
+    /* ===== Top Bar (brand + controls) ===== */
+    .topbar {
       position: sticky;
       top: 0;
       z-index: 1000;
-      background: rgba(255,255,255,.85);
-      backdrop-filter: blur(8px);
-      border-bottom: 1px solid #eef2f7;
-      transition: box-shadow .25s ease;
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+      backdrop-filter: blur(6px);
     }
-    body.scrolled .navbar{ box-shadow: 0 6px 24px rgba(0,0,0,.06); }
-
-    .navbar-container{
+    .topbar-inner {
       max-width: 1100px;
       margin: 0 auto;
-      padding: 12px 20px;
+      padding: 12px 16px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 16px;
+      gap: 12px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 800;
+      color: var(--text);
+    }
+    .brand .logo { font-size: 18px }
+    .brand .version {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: #eef2ff;
+      color: #4f46e5;
+    }
+    body.dark-mode .brand .version { background:#111827; color:#93c5fd }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
-    .navbar-brand{display:flex;align-items:center;gap:8px;font-weight:700}
-    .logo-icon{font-size:1.25rem}
-    .version-badge{
-      font-size:.75rem;
-      background:#eef2ff;
-      color:#374151;
-      padding:2px 8px;border-radius:999px
+    .btn, .user-menu-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 12px; border: 1px solid var(--border); border-radius: 10px;
+      background: var(--bg-card); color: var(--text); cursor: pointer;
+      transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
+    }
+    .btn:hover, .user-menu-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(0,0,0,.08) }
+    .btn-primary {
+      background: var(--gradient-accent); color: #fff; border: none;
+      animation: pulse 2.5s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%,100% { box-shadow: 0 0 0 0 rgba(45,212,191,.35) }
+      50%     { box-shadow: 0 0 0 10px rgba(45,212,191,0) }
     }
 
-    .navbar-menu{display:flex;align-items:center;gap:10px}
-    .user-menu{position:relative}
-    .user-menu-btn{
-      display:flex;align-items:center;gap:8px;
-      padding:8px 10px;border:1px solid #e5e7eb;border-radius:999px;background:#fff;cursor:pointer;
+    .user-menu { position: relative }
+    .user-menu-dropdown {
+      position: absolute; right: 0; top: calc(100% + 8px);
+      min-width: 180px; padding: 6px;
+      background: var(--bg-card); color: var(--text);
+      border: 1px solid var(--border); border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.08);
+      display: none;
     }
-    .user-avatar{width:26px;height:26px;border-radius:999px;object-fit:cover}
+    .user-menu-dropdown.show { display: block; animation: fadeIn .18s ease-in-out }
+    .menu-item { display:flex; align-items:center; gap:8px; padding:10px 10px; border-radius:10px; color:inherit; text-decoration:none }
+    .menu-item:hover { background:#f8fafc }
+    body.dark-mode .menu-item:hover { background:#0f172a }
+    .menu-divider { height:1px; background:var(--border); margin:6px 4px }
 
-    .user-menu-dropdown{
-      position:absolute;right:0;top:45px;background:#fff;border-radius:10px;
-      box-shadow:0 10px 24px rgba(0,0,0,.12);padding:8px 0;display:none;min-width:180px
+    @keyframes fadeIn { from{opacity:0; transform:translateY(-6px)} to{opacity:1; transform:translateY(0)} }
+
+    /* ===== Page Wrappers ===== */
+    .main-content { padding: 24px 16px }
+    .container { max-width: 1100px; margin: 0 auto }
+
+    /* ===== Cards / banners ===== */
+    .balance-card, .banner, .action-card, .service-card {
+      background: var(--bg-card); color: var(--text);
+      border: 1px solid var(--border); border-radius: 16px;
+      box-shadow: 0 4px 16px rgba(0,0,0,.04);
+      transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
     }
-    .user-menu-dropdown.show{display:block;animation:fadeIn .2s ease}
-    .user-menu-dropdown .menu-item{
-      display:flex;align-items:center;gap:8px;padding:10px 14px;color:#111827;text-decoration:none
+    .action-card:hover, .service-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 26px rgba(0,0,0,.08);
+      border-color: #c7d2fe;
     }
-    .user-menu-dropdown .menu-item:hover{background:#f9fafb}
-    .menu-divider{height:1px;background:#eef2f7;margin:6px 0}
 
-    @keyframes fadeIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
-
-    /* ===== Page layout ===== */
-    .main-content{padding: 24px 16px;}
-    .container{max-width:1100px;margin:0 auto}
-
-    /* ===== Welcome header with gradient name ===== */
-    .welcome-section h1{font-size:clamp(24px,3vw,30px);margin:6px 0 2px}
-    .gradient-text{
-      background:linear-gradient(90deg,var(--accent-color),var(--accent-2));
-      -webkit-background-clip:text;background-clip:text;color:transparent
+    .action-grid, .services-grid {
+      display: grid; gap: 14px;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
     }
-    /* one-time shimmer pulse */
-    .shimmer-once{
-      position:relative;
-      background-image:linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.65) 50%, rgba(255,255,255,0) 100%);
-      background-repeat:no-repeat;background-size:200% 100%;
-      animation:shine 1.2s ease forwards;
-    }
-    @keyframes shine{from{background-position:-120% 0}to{background-position:120% 0}}
+    @media (max-width: 900px) { .action-grid, .services-grid { grid-template-columns: repeat(2, 1fr) } }
+    @media (max-width: 560px) { .action-grid, .services-grid { grid-template-columns: 1fr } }
 
-    /* ===== Cards / sections (keep your look; minimal base here) ===== */
-    .balance-card{
-      border:1px solid #eef2f7;border-radius:16px;padding:18px;background:#fff;
-      box-shadow:0 6px 20px rgba(0,0,0,.04)
-    }
-    .balance-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
-    .btn{border:none;border-radius:10px;padding:10px 14px;cursor:pointer}
-    .btn-primary{background:var(--gradient-accent);color:#fff}
-    .btn-secondary{background:#f3f4f6;color:#111827}
+    .action-card, .service-card { padding: 16px }
+    .action-icon { font-size: 22px }
+    .action-title { display:block; font-weight:700; margin-top:6px }
+    .action-desc { font-size: 12px; color: var(--muted) }
 
-    /* ===== Action grid ===== */
-    .action-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
-    .action-card{
-      border:1px solid #eef2f7;border-radius:14px;padding:14px;background:#fff;cursor:pointer;
-      display:flex;flex-direction:column;gap:4px;align-items:flex-start;
-      transition:transform .15s ease, box-shadow .15s ease;
-    }
-    .action-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.06)}
-
-    @media (max-width:900px){.action-grid{grid-template-columns:repeat(2,1fr)}}
-    @media (max-width:520px){.action-grid{grid-template-columns:1fr}}
+    .banner { display:flex; gap:10px; align-items:center; padding:12px 14px; margin:14px 0 }
+    .banner-emoji { font-size: 18px }
+    .banner-text h4 { margin:0; font-size: 14px }
+    .banner-text p  { margin:2px 0 0; font-size: 12px; color:var(--muted) }
 
     /* ===== Transactions ===== */
-    .transactions-list{display:flex;flex-direction:column;gap:10px}
-    .transaction-item{
-      border:1px solid #eef2f7;border-radius:12px;padding:12px;background:#fff;
-      display:flex;align-items:center;justify-content:space-between
+    .transactions-list { display:flex; flex-direction:column; gap:10px }
+    .transaction-item {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:12px; border:1px solid var(--border); border-radius:12px; background:var(--bg-card)
     }
+    .tx-left { display:flex; align-items:center; gap:10px }
+    .tx-icon { width:36px; height:36px; display:grid; place-items:center; border-radius:10px }
+    .tx-icon.receive { background:#ecfdf5; color:#047857 }
+    .tx-icon.send    { background:#fef2f2; color:#b91c1c }
+    body.dark-mode .tx-icon.receive { background:#052e2b; color:#34d399 }
+    body.dark-mode .tx-icon.send    { background:#2a0f12; color:#fca5a5 }
 
-    /* ===== Scroll to top ===== */
-    #scrollTopBtn{
-      position:fixed;bottom:28px;right:28px;width:44px;height:44px;border-radius:999px;
-      border:none;background:var(--gradient-accent);color:#fff;font-size:18px;display:none;
-      align-items:center;justify-content:center;box-shadow:0 8px 22px rgba(0,0,0,.15);z-index:999
+    .tx-meta small { color: var(--muted) }
+    .amount { font-weight:800 }
+    .amount.positive { color:#16a34a }
+    .amount.negative { color:#dc2626 }
+    .status { font-size: 11px; padding:3px 8px; border-radius:999px; border:1px solid var(--border) }
+    .status.completed { background:#ecfeff; color:#155e75; border-color:#a5f3fc }
+    .status.pending   { background:#fff7ed; color:#9a3412; border-color:#fed7aa }
+
+    /* ===== Scroll To Top ===== */
+    #scrollTopBtn {
+      position: fixed; bottom: 24px; right: 24px; width: 44px; height: 44px;
+      border: none; border-radius: 999px; cursor: pointer; display: none;
+      background: var(--gradient-accent); color:#fff; font-size:18px; align-items:center; justify-content:center;
+      box-shadow: 0 10px 24px rgba(0,0,0,.18); transition: transform .15s, box-shadow .15s; z-index: 999;
     }
-    #scrollTopBtn.show{display:flex;animation:fadeInUp .25s ease forwards}
-    #scrollTopBtn:hover{transform:translateY(-2px)}
+    #scrollTopBtn.show { display:flex; animation: fadeInUp .25s ease forwards }
+    #scrollTopBtn:hover { transform: translateY(-2px) scale(1.02) }
 
-    @keyframes fadeInUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes fadeInUp { from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:translateY(0)} }
 
-    /* ===== Toast animations (top-right & bottom-left) ===== */
-    .toast{animation:fadeInToast .25s ease, fadeOutToast .25s ease 2.75s forwards}
-    @keyframes fadeInToast{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
-    @keyframes fadeOutToast{from{opacity:1}to{opacity:0}}
-    .toast-bottom{animation:fadeInUp .25s ease, fadeOutDown .25s ease 3.5s forwards}
-    @keyframes fadeOutDown{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(20px)}}
+    /* ===== Toasts ===== */
+    .toast {
+      position: fixed; top: 18px; right: 18px; padding: 12px 18px; border-radius: 12px;
+      color: #fff; font-weight: 600; z-index: 10000; opacity: 0; transform: translateY(-10px);
+      transition: all .35s ease; box-shadow: 0 8px 24px rgba(0,0,0,.18);
+    }
+    .toast-success { background: linear-gradient(90deg, #22c55e, #16a34a) }
+    .toast-warning { background: linear-gradient(90deg, #facc15, #f59e0b) }
+    .toast-error   { background: linear-gradient(90deg, #ef4444, #dc2626) }
   </style>
 </head>
 
 <body>
-  <!-- ===== NAVBAR ===== -->
-  <nav class="navbar">
-    <div class="navbar-container">
-      <div class="navbar-brand" onclick="location.href='index.html'" style="cursor:pointer;">
-        <span class="logo-icon">🚀</span>
-        <span class="logo-text">DemiPay</span>
-        <span class="version-badge">v5.5</span>
+  <!-- ===== Top Bar ===== -->
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand" onclick="location.href='index.html'" style="cursor:pointer">
+        <span class="logo">🚀</span>
+        <span>DemiPay</span>
+        <span class="version">v5.5</span>
       </div>
 
-      <div class="navbar-menu">
-        <button class="btn btn-secondary btn-sm" id="themeToggle">
-          <span id="themeIcon">🌙</span>
-          <span id="themeText">Dark Mode</span>
-        </button>
+      <div class="controls">
+        <button class="btn" id="themeToggle"><span id="themeIcon">🌙</span><span id="themeText">Dark Mode</span></button>
 
         <div class="user-menu">
           <button class="user-menu-btn" id="userMenuBtn">
-            <img id="userAvatar" src="./src/assets/user.png" alt="User" class="user-avatar" />
+            <img id="userAvatar" src="./src/assets/user.png" alt="User" style="width:20px;height:20px;border-radius:999px" />
             <span id="userName">Demi</span>
             <span>▼</span>
           </button>
@@ -168,26 +209,26 @@
         </div>
       </div>
     </div>
-  </nav>
+  </header>
 
-  <!-- ===== MAIN ===== -->
+  <!-- ===== Main ===== -->
   <main class="main-content">
     <div class="container">
       <!-- Welcome -->
       <section class="welcome-section">
-        <h1>Welcome back, <span class="gradient-text" id="welcomeName">Demi</span> 👋</h1>
-        <p>Here’s what’s happening with your wallet today.</p>
+        <h1>Welcome back, Demi <span style="filter:hue-rotate(-10deg)">👋</span></h1>
+        <p>Here's what's happening with your wallet today.</p>
       </section>
 
       <!-- Balance -->
       <section class="balance-section">
-        <div class="balance-card">
-          <div class="balance-header">
+        <div class="balance-card" style="padding:16px">
+          <div class="balance-header" style="display:flex;align-items:center;justify-content:space-between;gap:12px">
             <div>
-              <p class="balance-label">Total Balance</p>
-              <h2 class="balance-amount" id="balanceAmount">$0.00</h2>
-              <p class="wallet-address" id="walletAddress">Wallet: Loading...</p>
-              <p class="wallet-meta">
+              <p class="balance-label" style="margin:0;color:var(--muted)">Total Balance</p>
+              <h2 class="balance-amount" id="balanceAmount" style="margin:6px 0 2px">$0.00</h2>
+              <p class="wallet-address" id="walletAddress" style="margin:0;color:var(--muted)">Wallet: Loading...</p>
+              <p class="wallet-meta" style="margin:8px 0 0;color:var(--muted)">
                 Account No: <strong>DP-1029345678</strong><br />
                 KYC Level: <span class="kyc-level">Tier 2 (Verified)</span>
               </p>
@@ -197,26 +238,25 @@
         </div>
       </section>
 
-      <!-- Security Banner -->
-      <section class="banner banner-security" style="margin-top:14px;border:1px solid #eef2f7;border-radius:14px;padding:12px;background:#fff;display:flex;gap:10px;align-items:center">
+      <!-- Banners -->
+      <section class="banner banner-security">
         <span class="banner-emoji">🔒</span>
         <div class="banner-text">
-          <h4 style="margin:0 0 4px">Security</h4>
-          <p style="margin:0">Your wallet is protected with encryption and OTP verification.</p>
+          <h4>Security</h4>
+          <p>Your wallet is protected with encryption and OTP verification.</p>
         </div>
       </section>
 
-      <!-- Finance Banner -->
-      <section class="banner banner-finance" style="margin-top:10px;border:1px solid #eef2f7;border-radius:14px;padding:12px;background:#fff;display:flex;gap:10px;align-items:center">
+      <section class="banner banner-finance">
         <span class="banner-emoji">💹</span>
         <div class="banner-text">
-          <h4 style="margin:0 0 4px">Finance Updates</h4>
-          <p style="margin:0">FX Update: ₦1 ≈ $0.0013 • Earn +5% APY bonus this week!</p>
+          <h4>Finance Updates</h4>
+          <p>FX Update: ₦1 ≈ $0.0013 • Earn +5% APY bonus this week!</p>
         </div>
       </section>
 
       <!-- Money Moves -->
-      <section class="money-moves" style="margin-top:16px">
+      <section class="money-moves">
         <h3>Money Moves</h3>
         <div class="action-grid">
           <button class="action-card" id="sendMoneyBtn">
@@ -243,78 +283,75 @@
       </section>
 
       <!-- Services -->
-      <section class="quick-services" style="margin-top:18px">
+      <section class="quick-services" style="margin-top:14px">
         <h3>Services</h3>
-        <div class="action-grid services-grid">
-          <div class="action-card service-card" data-service="fx">🌍
+        <div class="services-grid">
+          <div class="service-card" data-service="fx">🌍
             <h4>Cross-Border Remittance</h4><p>Preview FX & Send Abroad</p>
           </div>
-          <div class="action-card service-card" data-service="savings">💰
+          <div class="service-card" data-service="savings">💰
             <h4>Savings</h4><p>Create • Add • Withdraw • SO</p>
           </div>
-          <div class="action-card service-card" data-service="bills">💡
+          <div class="service-card" data-service="bills">💡
             <h4>Pay Bills & Top-Up</h4><p>Bundles ₦500–₦5 000</p>
           </div>
-          <div class="action-card service-card" data-service="cards">💳
+          <div class="service-card" data-service="cards">💳
             <h4>Virtual & Linked Cards</h4><p>Add • Link • Set Default</p>
           </div>
-          <div class="action-card service-card" data-service="payonline">🛒
+          <div class="service-card" data-service="payonline">🛒
             <h4>Pay Online</h4><p>Checkout Simulation</p>
           </div>
-          <div class="action-card service-card" data-service="shop">🏬
+          <div class="service-card" data-service="shop">🏬
             <h4>Shop on the Fly</h4><p>Affiliate Redirection</p>
           </div>
-          <div class="action-card service-card" data-service="invest">📈
+          <div class="service-card" data-service="invest">📈
             <h4>Investments & Stocks</h4><p>Mock Buy/Sell & Portfolio</p>
           </div>
-          <div class="action-card service-card" data-service="agent">🧍‍♂️
+          <div class="service-card" data-service="agent">🧍‍♂️
             <h4>Become an Agent</h4><p>Photo Upload + NIN</p>
           </div>
         </div>
       </section>
 
-      <!-- Agent Modal (hidden by default – no auto-open) -->
-      <div id="agentModal" class="modal-overlay d-none" style="position:fixed;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;z-index:1200">
-        <div class="modal" style="width:min(560px,92vw);background:#fff;border-radius:16px;box-shadow:0 20px 48px rgba(0,0,0,.22);overflow:hidden">
-          <div class="modal-header" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #eef2f7">
+      <!-- Agent Modal -->
+      <div id="agentModal" class="modal-overlay hidden" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index: 2000; align-items:center; justify-content:center;">
+        <div class="modal" style="width: 520px; max-width: calc(100% - 24px); background:var(--bg-card); color:var(--text); border:1px solid var(--border); border-radius:16px; box-shadow:0 20px 60px rgba(0,0,0,.25);">
+          <div class="modal-header" style="display:flex; align-items:center; justify-content:space-between; padding:16px 16px 8px;">
             <h3 style="margin:0">Become an Agent</h3>
-            <button class="close-btn" id="closeAgentModal" style="border:none;background:transparent;font-size:18px;cursor:pointer">✕</button>
+            <button class="btn" id="closeAgentModal">✕</button>
           </div>
-          <div class="modal-body" style="padding:16px">
+          <div class="modal-body" style="padding: 8px 16px 16px">
             <form id="agentForm">
               <div class="form-group" style="margin-bottom:10px">
                 <label>Full Name</label>
-                <input type="text" id="agentFullName" class="form-control" placeholder="John Doe" required style="width:100%;padding:10px;border:1px solid #e5e7eb;border-radius:10px">
+                <input type="text" id="agentFullName" class="form-control" placeholder="John Doe" required style="width:100%;padding:10px;border:1px solid var(--border);border-radius:10px;background:transparent;color:var(--text)">
               </div>
               <div class="form-group" style="margin-bottom:10px">
                 <label>National Identification Number (NIN)</label>
-                <input type="text" id="agentNIN" class="form-control" placeholder="Enter 11-digit NIN" maxlength="11" required style="width:100%;padding:10px;border:1px solid #e5e7eb;border-radius:10px">
+                <input type="text" id="agentNIN" class="form-control" maxlength="11" placeholder="Enter 11-digit NIN" required style="width:100%;padding:10px;border:1px solid var(--border);border-radius:10px;background:transparent;color:var(--text)">
               </div>
-              <div class="form-group">
+              <div class="form-group" style="margin-bottom:10px">
                 <label>Upload or Capture Photo ID</label>
-                <input type="file" id="agentPhoto" class="form-control" accept="image/*" capture="camera" required style="width:100%;padding:10px;border:1px solid #e5e7eb;border-radius:10px">
+                <input type="file" id="agentPhoto" class="form-control" accept="image/*" capture="camera" required style="width:100%;padding:10px;border:1px solid var(--border);border-radius:10px;background:transparent;color:var(--text)">
               </div>
             </form>
           </div>
-          <div class="modal-footer" style="padding:12px 16px;display:flex;gap:8px;justify-content:flex-end;border-top:1px solid #eef2f7">
-            <button class="btn btn-secondary" id="cancelAgentBtn">Cancel</button>
+          <div class="modal-footer" style="display:flex;justify-content:flex-end;gap:10px; padding: 0 16px 16px">
+            <button class="btn" id="cancelAgentBtn">Cancel</button>
             <button class="btn btn-primary" id="submitAgentBtn">Submit Application</button>
           </div>
         </div>
       </div>
 
       <!-- Transactions -->
-      <section class="transactions-section" style="margin-top:18px;margin-bottom:80px">
+      <section class="transactions-section" style="margin-top:18px">
         <div class="section-header" style="display:flex;align-items:center;justify-content:space-between">
           <h3>Recent Transactions</h3>
-          <button class="btn btn-secondary btn-sm" id="viewAllBtn">View All</button>
+          <button class="btn" id="viewAllBtn">View All</button>
         </div>
-        <div id="transactionsList" class="transactions-list">
-          <div class="empty-state" style="text-align:center;border:1px dashed #e5e7eb;border-radius:12px;padding:22px;background:#fff">
-            <span class="empty-icon" style="font-size:28px">📭</span>
-            <p style="margin:6px 0 0">No transactions yet</p>
-            <p class="text-sm" style="margin:0;color:#6b7280">Start by sending or receiving money</p>
-          </div>
+        <div id="transactionsList" class="transactions-list"></div>
+        <div style="margin-top:10px; display:flex; justify-content:center">
+          <button class="btn" id="loadMoreBtn">Load More Transactions</button>
         </div>
       </section>
     </div>
@@ -323,123 +360,174 @@
   <!-- Scroll to Top -->
   <button id="scrollTopBtn" title="Back to Top">⬆️</button>
 
-  <!-- Toast mounts -->
+  <!-- Toast Container (created dynamically but keep id for CSS hook) -->
   <div id="globalToast" style="display:none"></div>
-  <div id="systemToast" style="display:none"></div>
 
-  <!-- ===== SCRIPTS ===== -->
   <script>
-    // Sticky shadow + scroll-to-top
-    const scrollBtn = document.getElementById('scrollTopBtn');
-    window.addEventListener('scroll', () => {
-      if (window.scrollY > 10) document.body.classList.add('scrolled'); else document.body.classList.remove('scrolled');
-      if (window.scrollY > 200) scrollBtn.classList.add('show'); else scrollBtn.classList.remove('show');
-    });
-    scrollBtn.addEventListener('click', ()=> window.scrollTo({top:0, behavior:'smooth'}));
+    /* -----------------------------
+       Minimal Mock State / Helpers
+    ------------------------------*/
+    const currentUser = { id: "u_001", full_name: "Demi Olawoye", preferences: { theme: localStorage.getItem("demipay_theme") || "light" } };
+    const mockBalance = { balance: 0, wallet_address: "dp_0xF3...9b1" };
 
-    // User menu toggle (click outside to close)
-    const userMenuBtn = document.getElementById('userMenuBtn');
-    const userMenuDropdown = document.getElementById('userMenuDropdown');
-    userMenuBtn.addEventListener('click', (e)=>{ e.stopPropagation(); userMenuDropdown.classList.toggle('show'); });
-    document.addEventListener('click', (e)=>{ if(!document.querySelector('.user-menu').contains(e.target)){ userMenuDropdown.classList.remove('show'); }});
+    // Toast
+    function showToast(type, message) {
+      let t = document.getElementById("globalToast");
+      if (!t) { t = document.createElement("div"); t.id = "globalToast"; document.body.appendChild(t); }
+      t.className = `toast toast-${type}`;
+      t.textContent = message;
+      t.style.display = "block";
+      requestAnimationFrame(() => { t.style.opacity = "1"; t.style.transform = "translateY(0)"; });
+      setTimeout(() => { t.style.opacity = "0"; t.style.transform = "translateY(-10px)"; setTimeout(() => t.style.display = "none", 350); }, 2600);
+    }
 
-    // Theme toggle + persist
-    const themeToggle = document.getElementById('themeToggle');
-    function applySavedTheme(){
-      const saved = localStorage.getItem('demipay_theme') || 'light';
-      if(saved==='dark'){
-        document.body.classList.add('dark-mode');
-        themeIcon.textContent = '☀️';
-        themeText.textContent = 'Light Mode';
+    // Theme
+    function applySavedTheme() {
+      const saved = localStorage.getItem("demipay_theme") || currentUser.preferences.theme || "light";
+      if (saved === "dark") {
+        document.body.classList.add("dark-mode");
+        document.getElementById("themeIcon").textContent = "☀️";
+        document.getElementById("themeText").textContent = "Light Mode";
       }
     }
-    const themeIcon = document.getElementById('themeIcon');
-    const themeText = document.getElementById('themeText');
-    themeToggle.addEventListener('click', ()=>{
-      document.body.classList.toggle('dark-mode');
-      const isDark = document.body.classList.contains('dark-mode');
-      themeIcon.textContent = isDark ? '☀️' : '🌙';
-      themeText.textContent = isDark ? 'Light Mode' : 'Dark Mode';
-      localStorage.setItem('demipay_theme', isDark ? 'dark' : 'light');
-      showToast('success', isDark ? '🌙 Dark Mode Enabled' : '☀️ Light Mode Restored');
-    });
-    applySavedTheme();
-
-    // Welcome gradient shimmer once
-    const welcomeNameEl = document.getElementById('welcomeName');
-    welcomeNameEl.classList.add('shimmer-once');
-    welcomeNameEl.addEventListener('animationend', ()=> welcomeNameEl.classList.remove('shimmer-once'));
-
-    // Toasts (top-right)
-    function showToast(type, message){
-      let toast = document.getElementById('globalToast');
-      if(!toast){ toast = document.createElement('div'); toast.id='globalToast'; document.body.appendChild(toast); }
-      toast.innerHTML = message;
-      toast.className = 'toast toast-'+type;
-      toast.style.cssText = `
-        position:fixed;top:20px;right:20px;padding:12px 18px;border-radius:10px;color:#fff;
-        z-index:9999;box-shadow:0 10px 24px rgba(0,0,0,.18);opacity:0;transition:.25s;
-        background:${ type==='success' ? 'linear-gradient(90deg,#22c55e,#16a34a)' :
-                    type==='warning' ? 'linear-gradient(90deg,#facc15,#f59e0b)' :
-                    'linear-gradient(90deg,#ef4444,#dc2626)' };
-      `;
-      toast.style.display='block';
-      requestAnimationFrame(()=>{ toast.style.opacity='1'; });
-      setTimeout(()=>{ toast.style.opacity='0'; setTimeout(()=> toast.style.display='none',250); }, 3000);
+    function toggleTheme() {
+      document.body.classList.toggle("dark-mode");
+      const isDark = document.body.classList.contains("dark-mode");
+      localStorage.setItem("demipay_theme", isDark ? "dark" : "light");
+      document.getElementById("themeIcon").textContent = isDark ? "☀️" : "🌙";
+      document.getElementById("themeText").textContent = isDark ? "Light Mode" : "Dark Mode";
+      showToast("success", isDark ? "🌙 Dark Mode Enabled" : "☀️ Light Mode Restored");
     }
 
-    // System toasts (bottom-left)
-    function showSystemToast(type, message){
-      let toast = document.getElementById('systemToast');
-      if(!toast){ toast = document.createElement('div'); toast.id='systemToast'; document.body.appendChild(toast); }
-      toast.innerHTML = message;
-      toast.className = 'toast-bottom toast-'+type;
-      toast.style.cssText = `
-        position:fixed;bottom:20px;left:20px;padding:12px 18px;border-radius:10px;color:#fff;
-        z-index:9999;box-shadow:0 10px 24px rgba(0,0,0,.18);opacity:0;transition:.25s;
-        background:${ type==='success' ? 'linear-gradient(90deg,#16a34a,#22c55e)' :
-                    type==='warning' ? 'linear-gradient(90deg,#facc15,#f59e0b)' :
-                    'linear-gradient(90deg,#dc2626,#ef4444)' };
-      `;
-      toast.style.display='flex';
-      requestAnimationFrame(()=>{ toast.style.opacity='1'; });
-      setTimeout(()=>{ toast.style.opacity='0'; setTimeout(()=> toast.style.display='none',300); }, 3500);
+    // Currency/date
+    const fmtCurrency = a => new Intl.NumberFormat("en-US",{style:"currency",currency:"USD"}).format(a);
+    function fmtDate(date) {
+      const d = new Date(date), now = new Date(), diff = now - d, days = Math.floor(diff / (1000*60*60*24));
+      if (days === 0) return "Today " + d.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"});
+      if (days === 1) return "Yesterday " + d.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"});
+      if (days < 7) return `${days} days ago`;
+      return d.toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"});
     }
 
-    // ===== Agent Modal (no auto-open) =====
-    const agentCard = document.querySelector('[data-service="agent"]');
-    const agentModal = document.getElementById('agentModal');
-    const closeAgentModal = document.getElementById('closeAgentModal');
-    const cancelAgentBtn = document.getElementById('cancelAgentBtn');
-    const submitAgentBtn = document.getElementById('submitAgentBtn');
+    /* -----------------------------
+       Mock Transactions + Renderer
+    ------------------------------*/
+    const ALL_TX = [
+      { id:"t1", type:"receive",  counterparty:"Ada Lovelace",   note:"Project payout", amount: 480.00, status:"completed", created_at:"2025-10-30T09:22:00Z" },
+      { id:"t2", type:"send",     counterparty:"Netflix",        note:"Monthly subscription", amount: -15.99, status:"completed", created_at:"2025-10-28T20:10:00Z" },
+      { id:"t3", type:"receive",  counterparty:"Upwork Ltd",     note:"Freelance income", amount: 250.00, status:"completed", created_at:"2025-10-26T13:10:00Z" },
+      { id:"t4", type:"send",     counterparty:"Bolt",           note:"Ride to Heathrow", amount: -21.30, status:"completed", created_at:"2025-10-26T07:55:00Z" },
+      { id:"t5", type:"send",     counterparty:"Tesco",          note:"Groceries", amount: -42.70, status:"pending", created_at:"2025-10-25T18:30:00Z" },
+      { id:"t6", type:"receive",  counterparty:"Stripe Payout",  note:"Store sales", amount: 1_200.00, status:"completed", created_at:"2025-10-22T10:45:00Z" },
+      { id:"t7", type:"send",     counterparty:"Spotify",        note:"Music", amount: -9.99, status:"completed", created_at:"2025-10-20T21:05:00Z" },
+      { id:"t8", type:"receive",  counterparty:"Friend (Chi)",   note:"Refund", amount: 35.00, status:"completed", created_at:"2025-10-18T14:12:00Z" },
+      { id:"t9", type:"send",     counterparty:"Amazon",         note:"Order #114-9393", amount: -68.45, status:"completed", created_at:"2025-10-17T16:25:00Z" },
+      { id:"t10",type:"receive",  counterparty:"HMRC",           note:"Tax rebate", amount: 90.00, status:"completed", created_at:"2025-10-15T08:10:00Z" }
+    ];
+    let txCursor = 0; // how many rendered
 
-    if(agentCard){
-      agentCard.addEventListener('click', ()=>{
-        agentModal.classList.remove('d-none');
-        document.body.style.overflow='hidden';
+    function renderTransactions(append=false) {
+      const list = document.getElementById("transactionsList");
+      if (!append) list.innerHTML = "";
+
+      const next = ALL_TX.slice(txCursor, txCursor + 5);
+      next.forEach(tx => {
+        const isIn = tx.type === "receive";
+        const row = document.createElement("div");
+        row.className = "transaction-item";
+        row.innerHTML = `
+          <div class="tx-left">
+            <div class="tx-icon ${isIn ? "receive":"send"}">${isIn ? "📥":"💸"}</div>
+            <div class="tx-meta">
+              <div><strong>${isIn ? "Received from":"Sent to"} ${tx.counterparty}</strong></div>
+              <small>${tx.note || "No description"} • ${fmtDate(tx.created_at)}</small>
+            </div>
+          </div>
+          <div class="tx-right" style="display:flex;align-items:center;gap:10px">
+            <div class="amount ${tx.amount >= 0 ? "positive":"negative"}">
+              ${tx.amount >= 0 ? "+" : ""}${fmtCurrency(Math.abs(tx.amount))}
+            </div>
+            <span class="status ${tx.status}">${tx.status}</span>
+          </div>
+        `;
+        list.appendChild(row);
       });
+
+      txCursor += next.length;
+      if (txCursor >= ALL_TX.length) document.getElementById("loadMoreBtn").style.display = "none";
     }
-    [closeAgentModal, cancelAgentBtn].forEach(btn => btn.addEventListener('click', ()=>{
-      agentModal.classList.add('d-none');
-      document.body.style.overflow='auto';
-    }));
-    agentModal.addEventListener('click', (e)=>{ if(e.target===agentModal){ agentModal.classList.add('d-none'); document.body.style.overflow='auto'; }});
 
-    // Agent form (mock)
-    submitAgentBtn.addEventListener('click', (e)=>{
-      e.preventDefault();
-      const name = document.getElementById('agentFullName').value.trim();
-      const nin = document.getElementById('agentNIN').value.trim();
-      const photo = document.getElementById('agentPhoto').files[0];
-      if(!name || nin.length!==11 || !photo){ showSystemToast('warning','⚠️ Please complete all fields (11-digit NIN).'); return; }
-      showToast('success','✅ Agent application submitted (mock)');
-      agentModal.classList.add('d-none');
-      document.getElementById('agentForm').reset();
-      document.body.style.overflow='auto';
+    /* -----------------------------
+       Modal (agent) – open/close
+    ------------------------------*/
+    function openAgentModal(){ const m=document.getElementById("agentModal"); m.style.display="flex"; document.body.style.overflow="hidden"; }
+    function closeAgentModal(){ const m=document.getElementById("agentModal"); m.style.display="none"; document.body.style.overflow="auto"; document.getElementById("agentForm").reset(); }
+
+    /* -----------------------------
+       Init
+    ------------------------------*/
+    document.addEventListener("DOMContentLoaded", () => {
+      // Theme init
+      applySavedTheme();
+
+      // User menu
+      const menuBtn = document.getElementById("userMenuBtn");
+      const dropdown = document.getElementById("userMenuDropdown");
+      menuBtn.addEventListener("click", (e)=>{ e.stopPropagation(); dropdown.classList.toggle("show"); });
+      document.addEventListener("click", (e)=>{ if (!document.querySelector(".user-menu").contains(e.target)) dropdown.classList.remove("show"); });
+
+      // Topbar scroll subtle shadow (already sticky)
+      window.addEventListener("scroll", () => {
+        const btn = document.getElementById("scrollTopBtn");
+        if (window.scrollY > 220) btn.classList.add("show"); else btn.classList.remove("show");
+      });
+
+      // Control buttons
+      document.getElementById("themeToggle").addEventListener("click", toggleTheme);
+      document.getElementById("refreshBalanceBtn").addEventListener("click", () => {
+        document.getElementById("balanceAmount").textContent = fmtCurrency(mockBalance.balance);
+        document.getElementById("walletAddress").textContent = `Wallet: ${mockBalance.wallet_address}`;
+        showToast("success","Balance refreshed");
+      });
+      document.getElementById("scrollTopBtn").addEventListener("click", () => window.scrollTo({ top:0, behavior:"smooth" }));
+
+      // Mock quick actions (no modal needed here)
+      document.getElementById("sendMoneyBtn").addEventListener("click", ()=> showToast("warning","Send Money coming soon (mock)"));
+      document.getElementById("receiveMoneyBtn").addEventListener("click", ()=> showToast("success","Receive via QR coming soon (mock)"));
+      document.getElementById("addMoneyBtn").addEventListener("click", ()=> showToast("success","₦10,000 added (mock)"));
+      document.getElementById("bankTransferBtn").addEventListener("click", ()=> showToast("warning","Bank list loading (mock)"));
+
+      // Services – open agent modal ONLY on click
+      document.querySelectorAll(".service-card").forEach(c=>{
+        c.addEventListener("click", () => {
+          if (c.dataset.service === "agent") openAgentModal();
+          else showToast("success", `${c.querySelector("h4").textContent} (mock)`);
+        });
+      });
+
+      // Agent modal events
+      document.getElementById("closeAgentModal").addEventListener("click", closeAgentModal);
+      document.getElementById("cancelAgentBtn").addEventListener("click", closeAgentModal);
+      document.getElementById("agentModal").addEventListener("click", (e)=> { if (e.target.id === "agentModal") closeAgentModal(); });
+      document.getElementById("submitAgentBtn").addEventListener("click", (e)=>{
+        e.preventDefault();
+        const full = document.getElementById("agentFullName").value.trim();
+        const nin  = document.getElementById("agentNIN").value.trim();
+        const pic  = document.getElementById("agentPhoto").files[0];
+        if (!full || nin.length !== 11 || !pic) { showToast("error","Please complete all fields (NIN must be 11 digits)"); return; }
+        closeAgentModal();
+        showToast("success","✅ Agent application submitted");
+      });
+
+      // Mock user header bits
+      document.getElementById("userName").textContent = currentUser.full_name.split(" ")[0];
+      document.getElementById("balanceAmount").textContent = fmtCurrency(mockBalance.balance);
+      document.getElementById("walletAddress").textContent = `Wallet: ${mockBalance.wallet_address}`;
+
+      // Transactions
+      renderTransactions(false);
+      document.getElementById("loadMoreBtn").addEventListener("click", ()=> renderTransactions(true));
     });
-
-    // Example: mock refresh balance & recent transactions hooks
-    document.getElementById('refreshBalanceBtn').addEventListener('click', ()=> showToast('success','🔄 Balance refreshed (mock)'));
   </script>
 </body>
 </html>
