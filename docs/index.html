@@ -2,532 +2,706 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DemiPay v5.5 — Money Moves</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DemiPay v5.6 — Money Moves</title>
 
-  <!-- Existing stylesheets (keep these) -->
-  <link rel="stylesheet" href="./src/css/global.css" />
-  <link rel="stylesheet" href="./src/css/dashboard.css" />
-
+  <!-- ===== Base Reset & Vars ===== -->
   <style>
-    /* ===== Theme & Accent ===== */
-    :root {
-      --accent-color: #2dd4bf;
-      --gradient-accent: linear-gradient(90deg, #2dd4bf, #3b82f6);
-      --bg-card: #ffffff;
-      --text: #0f172a;
-      --muted: #64748b;
-      --border: #e2e8f0;
-    }
-    body.dark-mode {
-      --bg-card: #0b1220;
-      --text: #e5e7eb;
-      --muted: #9aa4b2;
-      --border: #1f2937;
+    :root{
+      --bg:#0f172a;            /* dark */
+      --bg-soft:#111827;
+      --text:#0f172a;          /* light text on light bg */
+      --text-inv:#f8fafc;      /* text on dark */
+      --card:#ffffff;
+      --muted:#64748b;
+      --line:#e5e7eb;
+      --accent:#2dd4bf;
+      --accent-2:#3b82f6;
+      --radius:14px;
+      --shadow:0 10px 30px rgba(2,8,23,.08);
     }
 
-    /* ===== Top Bar (brand + controls) ===== */
-    .topbar {
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-      background: var(--bg-card);
-      border-bottom: 1px solid var(--border);
-      box-shadow: 0 2px 10px rgba(0,0,0,0.04);
-      backdrop-filter: blur(6px);
-    }
-    .topbar-inner {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 12px 16px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-    }
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-weight: 800;
-      color: var(--text);
-    }
-    .brand .logo { font-size: 18px }
-    .brand .version {
-      font-size: 11px;
-      font-weight: 700;
-      padding: 2px 6px;
-      border-radius: 999px;
-      background: #eef2ff;
-      color: #4f46e5;
-    }
-    body.dark-mode .brand .version { background:#111827; color:#93c5fd }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:#f8fafc;color:var(--text)}
+    .container{max-width:1100px;margin:0 auto;padding:24px}
+    h1,h2,h3,h4{margin:0 0 8px}
+    p{margin:0 0 6px;color:var(--muted)}
+    .grid{display:grid;gap:14px}
+    .btn{display:inline-flex;align-items:center;gap:8px;border:0;cursor:pointer;border-radius:12px;padding:10px 14px;background:var(--text);color:#fff;transition:.2s box-shadow,.2s transform}
+    .btn:hover{transform:translateY(-1px);box-shadow:0 10px 22px rgba(2,8,23,.12)}
+    .btn-primary{background:linear-gradient(90deg,var(--accent),var(--accent-2))}
+    .btn-secondary{background:#0ea5e9}
+    .btn-ghost{background:transparent;color:var(--text)}
+    .btn-sm{padding:8px 12px;border-radius:10px;font-size:.9rem}
 
-    .controls {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
+    /* ===== Navbar ===== */
+    .navbar{position:sticky;top:0;z-index:1000;background:#fff;border-bottom:1px solid var(--line);backdrop-filter:saturate(1.2) blur(6px);box-shadow:0 8px 22px rgba(2,8,23,.04)}
+    .nav-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:12px 24px;gap:16px}
+    .brand{display:flex;align-items:center;gap:10px;font-weight:700}
+    .brand .logo{font-size:20px}
+    .version{margin-left:4px;font-weight:700;color:#2563eb}
+    .nav-center{display:flex;align-items:center;gap:10px}
+    .nav-right{display:flex;align-items:center;gap:12px}
 
-    .btn, .user-menu-btn {
-      display: inline-flex; align-items: center; gap: 6px;
-      padding: 8px 12px; border: 1px solid var(--border); border-radius: 10px;
-      background: var(--bg-card); color: var(--text); cursor: pointer;
-      transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
+    /* User menu */
+    .user-menu{position:relative}
+    .user-btn{display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 10px;cursor:pointer}
+    .avatar{
+      width:28px;height:28px;border-radius:50%;
+      background:radial-gradient(circle at 65% 35%,#3b82f6, #1e293b);
+      display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.8rem
     }
-    .btn:hover, .user-menu-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(0,0,0,.08) }
-    .btn-primary {
-      background: var(--gradient-accent); color: #fff; border: none;
-      animation: pulse 2.5s ease-in-out infinite;
+    .user-dropdown{position:absolute;right:0;top:44px;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:6px;display:none;min-width:180px}
+    .user-dropdown.show{display:block;animation:fadeIn .18s ease}
+    .menu-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:10px;text-decoration:none;color:inherit}
+    .menu-item:hover{background:#f1f5f9}
+    .divider{height:1px;background:var(--line);margin:6px 0}
+
+    /* ===== Sections ===== */
+    .card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px}
+    .section-title{margin-bottom:12px}
+    .action-grid,.services-grid{
+      display:grid;gap:12px;
+      grid-template-columns:repeat(auto-fit,minmax(180px,1fr))
     }
-    @keyframes pulse {
-      0%,100% { box-shadow: 0 0 0 0 rgba(45,212,191,.35) }
-      50%     { box-shadow: 0 0 0 10px rgba(45,212,191,0) }
+    .action-card,.service-card{
+      background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;cursor:pointer;
+      display:flex;flex-direction:column;gap:6px;transition:.18s transform,.18s box-shadow
     }
-
-    .user-menu { position: relative }
-    .user-menu-dropdown {
-      position: absolute; right: 0; top: calc(100% + 8px);
-      min-width: 180px; padding: 6px;
-      background: var(--bg-card); color: var(--text);
-      border: 1px solid var(--border); border-radius: 12px;
-      box-shadow: 0 10px 30px rgba(0,0,0,.08);
-      display: none;
-    }
-    .user-menu-dropdown.show { display: block; animation: fadeIn .18s ease-in-out }
-    .menu-item { display:flex; align-items:center; gap:8px; padding:10px 10px; border-radius:10px; color:inherit; text-decoration:none }
-    .menu-item:hover { background:#f8fafc }
-    body.dark-mode .menu-item:hover { background:#0f172a }
-    .menu-divider { height:1px; background:var(--border); margin:6px 4px }
-
-    @keyframes fadeIn { from{opacity:0; transform:translateY(-6px)} to{opacity:1; transform:translateY(0)} }
-
-    /* ===== Page Wrappers ===== */
-    .main-content { padding: 24px 16px }
-    .container { max-width: 1100px; margin: 0 auto }
-
-    /* ===== Cards / banners ===== */
-    .balance-card, .banner, .action-card, .service-card {
-      background: var(--bg-card); color: var(--text);
-      border: 1px solid var(--border); border-radius: 16px;
-      box-shadow: 0 4px 16px rgba(0,0,0,.04);
-      transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
-    }
-    .action-card:hover, .service-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 10px 26px rgba(0,0,0,.08);
-      border-color: #c7d2fe;
-    }
-
-    .action-grid, .services-grid {
-      display: grid; gap: 14px;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
-    @media (max-width: 900px) { .action-grid, .services-grid { grid-template-columns: repeat(2, 1fr) } }
-    @media (max-width: 560px) { .action-grid, .services-grid { grid-template-columns: 1fr } }
-
-    .action-card, .service-card { padding: 16px }
-    .action-icon { font-size: 22px }
-    .action-title { display:block; font-weight:700; margin-top:6px }
-    .action-desc { font-size: 12px; color: var(--muted) }
-
-    .banner { display:flex; gap:10px; align-items:center; padding:12px 14px; margin:14px 0 }
-    .banner-emoji { font-size: 18px }
-    .banner-text h4 { margin:0; font-size: 14px }
-    .banner-text p  { margin:2px 0 0; font-size: 12px; color:var(--muted) }
+    .action-card:hover,.service-card:hover{transform:translateY(-2px);box-shadow:0 16px 28px rgba(2,8,23,.08)}
+    .action-icon{font-size:22px}
+    .muted{color:var(--muted);font-size:.92rem}
 
     /* ===== Transactions ===== */
-    .transactions-list { display:flex; flex-direction:column; gap:10px }
-    .transaction-item {
-      display:flex; align-items:center; justify-content:space-between;
-      padding:12px; border:1px solid var(--border); border-radius:12px; background:var(--bg-card)
+    .tx-list{display:grid;gap:10px}
+    .tx{display:flex;align-items:center;justify-content:space-between;padding:12px;border:1px solid var(--line);border-radius:12px;background:#fff}
+    .tx .left{display:flex;gap:12px;align-items:center}
+    .tx .badge{font-size:12px;border-radius:999px;padding:4px 8px;background:#eef2ff;color:#3730a3}
+    .amount{font-weight:700}
+    .pos{color:#16a34a}.neg{color:#dc2626}
+    .status{font-size:12px;border:1px solid var(--line);border-radius:8px;padding:3px 8px;color:#475569}
+
+    /* ===== Modals ===== */
+    .overlay{position:fixed;inset:0;background:rgba(2,8,23,.55);display:none;align-items:center;justify-content:center;z-index:9999}
+    .overlay.show{display:flex;animation:fadeIn .18s ease}
+    .modal{background:#fff;border-radius:16px;max-width:520px;width:92%;box-shadow:var(--shadow);border:1px solid var(--line);overflow:hidden}
+    .modal-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--line)}
+    .modal-body{padding:16px}
+    .modal-footer{padding:12px 16px;border-top:1px solid var(--line);display:flex;gap:10px;justify-content:flex-end}
+
+    label{font-size:.92rem;color:#334155}
+    .field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+    input,select,textarea{
+      width:100%;padding:10px;border-radius:10px;border:1px solid var(--line);background:#fff;outline:none
     }
-    .tx-left { display:flex; align-items:center; gap:10px }
-    .tx-icon { width:36px; height:36px; display:grid; place-items:center; border-radius:10px }
-    .tx-icon.receive { background:#ecfdf5; color:#047857 }
-    .tx-icon.send    { background:#fef2f2; color:#b91c1c }
-    body.dark-mode .tx-icon.receive { background:#052e2b; color:#34d399 }
-    body.dark-mode .tx-icon.send    { background:#2a0f12; color:#fca5a5 }
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 
-    .tx-meta small { color: var(--muted) }
-    .amount { font-weight:800 }
-    .amount.positive { color:#16a34a }
-    .amount.negative { color:#dc2626 }
-    .status { font-size: 11px; padding:3px 8px; border-radius:999px; border:1px solid var(--border) }
-    .status.completed { background:#ecfeff; color:#155e75; border-color:#a5f3fc }
-    .status.pending   { background:#fff7ed; color:#9a3412; border-color:#fed7aa }
+    /* Camera area */
+    .camera-wrap{display:grid;gap:8px}
+    video,canvas,.preview-img{width:100%;border-radius:12px;border:1px solid var(--line);background:#0b1220;min-height:220px;object-fit:cover}
+    .hint{font-size:.85rem;color:#6b7280}
 
-    /* ===== Scroll To Top ===== */
-    #scrollTopBtn {
-      position: fixed; bottom: 24px; right: 24px; width: 44px; height: 44px;
-      border: none; border-radius: 999px; cursor: pointer; display: none;
-      background: var(--gradient-accent); color:#fff; font-size:18px; align-items:center; justify-content:center;
-      box-shadow: 0 10px 24px rgba(0,0,0,.18); transition: transform .15s, box-shadow .15s; z-index: 999;
-    }
-    #scrollTopBtn.show { display:flex; animation: fadeInUp .25s ease forwards }
-    #scrollTopBtn:hover { transform: translateY(-2px) scale(1.02) }
+    /* Toasts */
+    .toast{position:fixed;top:18px;right:18px;color:#fff;border-radius:12px;padding:12px 16px;box-shadow:var(--shadow);z-index:10000;opacity:0;transform:translateY(-16px);transition:.25s all}
+    .toast.show{opacity:1;transform:translateY(0)}
+    .toast-success{background:linear-gradient(90deg,#22c55e,#16a34a)}
+    .toast-error{background:linear-gradient(90deg,#ef4444,#dc2626)}
+    .toast-warning{background:linear-gradient(90deg,#f59e0b,#f59e0b)}
+    .toast-bottom{bottom:18px;left:18px;right:auto;top:auto}
 
-    @keyframes fadeInUp { from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:translateY(0)} }
+    /* Animations */
+    @keyframes fadeIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+    .pulse{animation:pulse 1.4s ease-in-out infinite}
+    @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(59,130,246,0.35)}50%{box-shadow:0 0 0 12px rgba(59,130,246,0)}}
 
-    /* ===== Toasts ===== */
-    .toast {
-      position: fixed; top: 18px; right: 18px; padding: 12px 18px; border-radius: 12px;
-      color: #fff; font-weight: 600; z-index: 10000; opacity: 0; transform: translateY(-10px);
-      transition: all .35s ease; box-shadow: 0 8px 24px rgba(0,0,0,.18);
-    }
-    .toast-success { background: linear-gradient(90deg, #22c55e, #16a34a) }
-    .toast-warning { background: linear-gradient(90deg, #facc15, #f59e0b) }
-    .toast-error   { background: linear-gradient(90deg, #ef4444, #dc2626) }
+    /* Dark mode */
+    .dark body{background:var(--bg);color:var(--text-inv)}
+    .dark .navbar,.dark .card,.dark .action-card,.dark .service-card,.dark .tx{background:var(--bg-soft);border-color:#1f2937;color:var(--text-inv)}
+    .dark input,.dark select,.dark textarea{background:#0b1220;border-color:#1f2937;color:#e5e7eb}
+    .dark .menu-item:hover{background:#0b1220}
   </style>
 </head>
-
 <body>
-  <!-- ===== Top Bar ===== -->
-  <header class="topbar">
-    <div class="topbar-inner">
-      <div class="brand" onclick="location.href='index.html'" style="cursor:pointer">
-        <span class="logo">🚀</span>
-        <span>DemiPay</span>
-        <span class="version">v5.5</span>
+  <!-- ===== NAVBAR ===== -->
+  <nav class="navbar">
+    <div class="nav-inner">
+      <div class="brand">
+        <div class="logo">🚀</div>
+        <div>DemiPay <span class="version">v5.6</span></div>
       </div>
 
-      <div class="controls">
-        <button class="btn" id="themeToggle"><span id="themeIcon">🌙</span><span id="themeText">Dark Mode</span></button>
+      <div class="nav-center">
+        <button id="themeToggle" class="btn btn-sm btn-ghost">🌙 Dark Mode</button>
+      </div>
 
+      <div class="nav-right">
         <div class="user-menu">
-          <button class="user-menu-btn" id="userMenuBtn">
-            <img id="userAvatar" src="./src/assets/user.png" alt="User" style="width:20px;height:20px;border-radius:999px" />
-            <span id="userName">Demi</span>
-            <span>▼</span>
+          <button id="userBtn" class="user-btn">
+            <div class="avatar" title="Demi">
+              <!-- Inline male avatar initial -->
+              D
+            </div>
+            <span id="userNameTop">Demi</span> ▾
           </button>
-          <div class="user-menu-dropdown" id="userMenuDropdown">
-            <a href="#" class="menu-item"><span>👤</span><span>Profile</span></a>
-            <a href="#" class="menu-item"><span>⚙️</span><span>Settings</span></a>
-            <div class="menu-divider"></div>
-            <a href="#" class="menu-item" id="logoutBtn"><span>🚪</span><span>Logout</span></a>
+          <div id="userDropdown" class="user-dropdown">
+            <a href="#" class="menu-item" data-open="profileModal">👤 Profile</a>
+            <a href="#" class="menu-item" data-open="settingsModal">⚙️ Settings</a>
+            <div class="divider"></div>
+            <a href="#" class="menu-item" id="logoutLink">🚪 Logout</a>
           </div>
         </div>
       </div>
     </div>
-  </header>
+  </nav>
 
-  <!-- ===== Main ===== -->
-  <main class="main-content">
-    <div class="container">
+  <!-- ===== MAIN ===== -->
+  <main>
+    <div class="container grid" style="gap:18px">
       <!-- Welcome -->
-      <section class="welcome-section">
-        <h1>Welcome back, Demi <span style="filter:hue-rotate(-10deg)">👋</span></h1>
-        <p>Here's what's happening with your wallet today.</p>
+      <section class="card">
+        <h1>Welcome back, Demi 👋</h1>
+        <p>Here’s what’s happening with your wallet today.</p>
       </section>
 
       <!-- Balance -->
-      <section class="balance-section">
-        <div class="balance-card" style="padding:16px">
-          <div class="balance-header" style="display:flex;align-items:center;justify-content:space-between;gap:12px">
-            <div>
-              <p class="balance-label" style="margin:0;color:var(--muted)">Total Balance</p>
-              <h2 class="balance-amount" id="balanceAmount" style="margin:6px 0 2px">$0.00</h2>
-              <p class="wallet-address" id="walletAddress" style="margin:0;color:var(--muted)">Wallet: Loading...</p>
-              <p class="wallet-meta" style="margin:8px 0 0;color:var(--muted)">
-                Account No: <strong>DP-1029345678</strong><br />
-                KYC Level: <span class="kyc-level">Tier 2 (Verified)</span>
-              </p>
-            </div>
-            <button class="btn btn-primary" id="refreshBalanceBtn">🔄 Refresh</button>
+      <section class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap">
+          <div>
+            <p class="muted">Total Balance</p>
+            <h2 id="balanceAmount">$2,450.87</h2>
+            <p id="walletAddress" class="muted">Wallet: DP-0x3F…9A2</p>
+            <p class="muted">KYC Level: <b>Tier 2 (Verified)</b></p>
           </div>
-        </div>
-      </section>
-
-      <!-- Banners -->
-      <section class="banner banner-security">
-        <span class="banner-emoji">🔒</span>
-        <div class="banner-text">
-          <h4>Security</h4>
-          <p>Your wallet is protected with encryption and OTP verification.</p>
-        </div>
-      </section>
-
-      <section class="banner banner-finance">
-        <span class="banner-emoji">💹</span>
-        <div class="banner-text">
-          <h4>Finance Updates</h4>
-          <p>FX Update: ₦1 ≈ $0.0013 • Earn +5% APY bonus this week!</p>
+          <div style="display:flex;gap:10px">
+            <button id="refreshBalanceBtn" class="btn btn-primary">🔄 Refresh</button>
+          </div>
         </div>
       </section>
 
       <!-- Money Moves -->
-      <section class="money-moves">
-        <h3>Money Moves</h3>
+      <section class="card">
+        <h3 class="section-title">Money Moves</h3>
         <div class="action-grid">
-          <button class="action-card" id="sendMoneyBtn">
-            <span class="action-icon">💸</span>
-            <span class="action-title">Send Money</span>
-            <span class="action-desc">Instant P2P Transfer</span>
-          </button>
-          <button class="action-card" id="receiveMoneyBtn">
-            <span class="action-icon">📥</span>
-            <span class="action-title">Receive Money</span>
-            <span class="action-desc">QR & Account Share</span>
-          </button>
-          <button class="action-card" id="addMoneyBtn">
-            <span class="action-icon">➕</span>
-            <span class="action-title">Add / Withdraw</span>
-            <span class="action-desc">Card or Bank (Mock)</span>
-          </button>
-          <button class="action-card" id="bankTransferBtn">
-            <span class="action-icon">🏦</span>
-            <span class="action-title">Bank Transfer</span>
-            <span class="action-desc">Multi-Region Banks</span>
-          </button>
+          <div class="action-card pulse" data-open="sendModal">
+            <div class="action-icon">💸</div>
+            <strong>Send Money</strong>
+            <span class="muted">Instant P2P transfer</span>
+          </div>
+          <div class="action-card" data-open="receiveModal">
+            <div class="action-icon">📥</div>
+            <strong>Receive Money</strong>
+            <span class="muted">Wallet ID & copy</span>
+          </div>
+          <div class="action-card" data-open="fundsModal">
+            <div class="action-icon">➕</div>
+            <strong>Add / Withdraw</strong>
+            <span class="muted">Card or bank (mock)</span>
+          </div>
+          <div class="action-card" data-open="bankModal">
+            <div class="action-icon">🏦</div>
+            <strong>Bank Transfer</strong>
+            <span class="muted">Multi-region banks</span>
+          </div>
         </div>
       </section>
 
       <!-- Services -->
-      <section class="quick-services" style="margin-top:14px">
-        <h3>Services</h3>
+      <section class="card">
+        <h3 class="section-title">Services</h3>
         <div class="services-grid">
-          <div class="service-card" data-service="fx">🌍
-            <h4>Cross-Border Remittance</h4><p>Preview FX & Send Abroad</p>
+          <div class="service-card" data-open="fxModal">🌍
+            <strong>Cross-Border Remittance</strong><span class="muted">Convert & send abroad</span>
           </div>
-          <div class="service-card" data-service="savings">💰
-            <h4>Savings</h4><p>Create • Add • Withdraw • SO</p>
+          <div class="service-card" data-open="savingsModal">💰
+            <strong>Savings</strong><span class="muted">Goals @ 10% APY</span>
           </div>
-          <div class="service-card" data-service="bills">💡
-            <h4>Pay Bills & Top-Up</h4><p>Bundles ₦500–₦5 000</p>
+          <div class="service-card" data-open="billsModal">💡
+            <strong>Pay Bills & Top-Up</strong><span class="muted">Airtime • TV • Power</span>
           </div>
-          <div class="service-card" data-service="cards">💳
-            <h4>Virtual & Linked Cards</h4><p>Add • Link • Set Default</p>
+          <div class="service-card" data-open="cardsModal">💳
+            <strong>Virtual & Linked Cards</strong><span class="muted">Mock Visa</span>
           </div>
-          <div class="service-card" data-service="payonline">🛒
-            <h4>Pay Online</h4><p>Checkout Simulation</p>
+          <div class="service-card" data-open="checkoutModal">🛒
+            <strong>Pay Online</strong><span class="muted">Checkout simulation</span>
           </div>
-          <div class="service-card" data-service="shop">🏬
-            <h4>Shop on the Fly</h4><p>Affiliate Redirection</p>
+          <div class="service-card" id="shopCard">🏬
+            <strong>Shop on the Fly</strong><span class="muted">Open moovinQ</span>
           </div>
-          <div class="service-card" data-service="invest">📈
-            <h4>Investments & Stocks</h4><p>Mock Buy/Sell & Portfolio</p>
+          <div class="service-card" data-open="investModal">📈
+            <strong>Investments & Stocks</strong><span class="muted">Mock portfolio</span>
           </div>
-          <div class="service-card" data-service="agent">🧍‍♂️
-            <h4>Become an Agent</h4><p>Photo Upload + NIN</p>
+          <div class="service-card" data-open="agentModal">🧍‍♂️
+            <strong>Become an Agent</strong><span class="muted">Live selfie + NIN</span>
           </div>
         </div>
       </section>
 
-      <!-- Agent Modal -->
-      <div id="agentModal" class="modal-overlay hidden" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index: 2000; align-items:center; justify-content:center;">
-        <div class="modal" style="width: 520px; max-width: calc(100% - 24px); background:var(--bg-card); color:var(--text); border:1px solid var(--border); border-radius:16px; box-shadow:0 20px 60px rgba(0,0,0,.25);">
-          <div class="modal-header" style="display:flex; align-items:center; justify-content:space-between; padding:16px 16px 8px;">
-            <h3 style="margin:0">Become an Agent</h3>
-            <button class="btn" id="closeAgentModal">✕</button>
-          </div>
-          <div class="modal-body" style="padding: 8px 16px 16px">
-            <form id="agentForm">
-              <div class="form-group" style="margin-bottom:10px">
-                <label>Full Name</label>
-                <input type="text" id="agentFullName" class="form-control" placeholder="John Doe" required style="width:100%;padding:10px;border:1px solid var(--border);border-radius:10px;background:transparent;color:var(--text)">
-              </div>
-              <div class="form-group" style="margin-bottom:10px">
-                <label>National Identification Number (NIN)</label>
-                <input type="text" id="agentNIN" class="form-control" maxlength="11" placeholder="Enter 11-digit NIN" required style="width:100%;padding:10px;border:1px solid var(--border);border-radius:10px;background:transparent;color:var(--text)">
-              </div>
-              <div class="form-group" style="margin-bottom:10px">
-                <label>Upload or Capture Photo ID</label>
-                <input type="file" id="agentPhoto" class="form-control" accept="image/*" capture="camera" required style="width:100%;padding:10px;border:1px solid var(--border);border-radius:10px;background:transparent;color:var(--text)">
-              </div>
-            </form>
-          </div>
-          <div class="modal-footer" style="display:flex;justify-content:flex-end;gap:10px; padding: 0 16px 16px">
-            <button class="btn" id="cancelAgentBtn">Cancel</button>
-            <button class="btn btn-primary" id="submitAgentBtn">Submit Application</button>
-          </div>
-        </div>
-      </div>
-
       <!-- Transactions -->
-      <section class="transactions-section" style="margin-top:18px">
-        <div class="section-header" style="display:flex;align-items:center;justify-content:space-between">
-          <h3>Recent Transactions</h3>
-          <button class="btn" id="viewAllBtn">View All</button>
+      <section class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <h3 class="section-title">Recent Transactions</h3>
+          <button id="viewAllBtn" class="btn btn-sm btn-ghost">View All</button>
         </div>
-        <div id="transactionsList" class="transactions-list"></div>
-        <div style="margin-top:10px; display:flex; justify-content:center">
-          <button class="btn" id="loadMoreBtn">Load More Transactions</button>
-        </div>
+        <div id="txList" class="tx-list"></div>
       </section>
     </div>
   </main>
 
-  <!-- Scroll to Top -->
-  <button id="scrollTopBtn" title="Back to Top">⬆️</button>
+  <!-- ===== TOASTS ===== -->
+  <div id="toast" class="toast"></div>
+  <div id="toastSystem" class="toast toast-bottom"></div>
 
-  <!-- Toast Container (created dynamically but keep id for CSS hook) -->
-  <div id="globalToast" style="display:none"></div>
+  <!-- ===== MODALS (re-usable shell) ===== -->
+  <!-- Send Money -->
+  <div id="sendModal" class="overlay">
+    <div class="modal">
+      <div class="modal-header"><h4>Send Money</h4><button class="btn btn-ghost" data-close>✕</button></div>
+      <div class="modal-body">
+        <div class="field"><label>Recipient Email</label><input id="sendEmail" placeholder="user@example.com"/></div>
+        <div class="row">
+          <div class="field"><label>Amount (USD)</label><input id="sendAmount" type="number" min="1" step="0.01" placeholder="50.00"/></div>
+          <div class="field"><label>Note</label><input id="sendNote" placeholder="For lunch"/></div>
+        </div>
+        <p class="muted">Fee: 0.5% • Arrives instantly</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" data-close>Cancel</button>
+        <button id="sendConfirm" class="btn btn-primary">Send</button>
+      </div>
+    </div>
+  </div>
 
+  <!-- Receive Money -->
+  <div id="receiveModal" class="overlay">
+    <div class="modal">
+      <div class="modal-header"><h4>Receive Money</h4><button class="btn btn-ghost" data-close>✕</button></div>
+      <div class="modal-body">
+        <div class="field"><label>Your Wallet ID</label>
+          <input id="walletId" value="DP-0x3F98A2-9912" readonly/>
+        </div>
+        <button id="copyWallet" class="btn btn-secondary btn-sm">Copy Wallet ID</button>
+        <p class="hint">QR coming soon</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" data-close>Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add / Withdraw -->
+  <div id="fundsModal" class="overlay">
+    <div class="modal">
+      <div class="modal-header"><h4>Add / Withdraw</h4><button class="btn btn-ghost" data-close>✕</button></div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="field"><label>Action</label>
+            <select id="fundAction"><option>Add Funds</option><option>Withdraw</option></select>
+          </div>
+          <div class="field"><label>Amount</label><input id="fundAmount" type="number" min="1" step="0.01" placeholder="100.00"/></div>
+        </div>
+        <div class="field"><label>Method</label>
+          <select id="fundMethod"><option>Card (Mock)</option><option>Bank (Mock)</option></select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" data-close>Cancel</button>
+        <button id="fundConfirm" class="btn btn-primary">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bank Transfer -->
+  <div id="bankModal" class="overlay">
+    <div class="modal">
+      <div class="modal-header"><h4>Bank Transfer</h4><button class="btn btn-ghost" data-close>✕</button></div>
+      <div class="modal-body">
+        <div class="field"><label>Bank</label>
+          <select id="bankSelect">
+            <option>Barclays (UK)</option><option>Monzo (UK)</option><option>GTBank (NG)</option><option>FCMB (NG)</option>
+          </select>
+        </div>
+        <div class="row">
+          <div class="field"><label>Account No.</label><input id="bankAcc" placeholder="01234567"/></div>
+          <div class="field"><label>Amount (USD)</label><input id="bankAmt" type="number" min="1" step="0.01"/></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" data-close>Cancel</button>
+        <button id="bankSend" class="btn btn-primary">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FX -->
+  <div id="fxModal" class="overlay">
+    <div class="modal">
+      <div class="modal-header"><h4>Cross-Border Remittance</h4><button class="btn btn-ghost" data-close>✕</button></div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="field"><label>From</label><select id="fxFrom"><option>NGN</option><option>USD</option><option>GBP</option></select></div>
+          <div class="field"><label>To</label><select id="fxTo"><option>USD</option><option>GBP</option><option>NGN</option></select></div>
+        </div>
+        <div class="field"><label>Amount</label><input id="fxInput" type="number" min="1" step="0.01" placeholder="10000"/></div>
+        <p class="muted" id="fxRate">Rate (mock): ₦1 → $0.0013</p>
+        <p><b>Converted:</b> <span id="fxOut">—</span></p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" data-close>Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Savings -->
+  <div id="savingsModal" class="overlay">
+    <div class="modal">
+      <div class="modal-header"><h4>Savings</h4><button class="btn btn-ghost" data-close>✕</button></div>
+      <div class="modal-body">
+        <div class="card" style="margin-bottom:10px">
+          <strong>Holiday 2026</strong><p class="muted">Target $2,000 • Saved $450</p>
+        </div>
+        <div class="card" style="margin-bottom:10px">
+          <strong>Emergency</strong><p class="muted">Target $1,500 • Saved $900</p>
+        </div>
+        <div class="field"><label>New Goal</label><input id="goalName" placeholder="Name"/></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" data-close>Close</button>
+        <button id="addGoal" class="btn btn-primary">Add Goal</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bills -->
+  <div id="billsModal" class="overlay">
+    <div class="modal">
+      <div class="modal-header"><h4>Pay Bills & Top-Up</h4><button class="btn btn-ghost" data-close>✕</button></div>
+      <div class="modal-body">
+        <div class="field"><label>Service</label>
+          <select id="billService"><option>Airtime</option><option>DSTV</option><option>Electricity</option></select>
+        </div>
+        <div class="field"><label>Plan</label><select id="billPlan"><option>₦500</option><option>₦1000</option><option>₦5000</option></select></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" data-close>Cancel</button>
+        <button id="billPay" class="btn btn-primary">Pay</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cards -->
+  <div id="cardsModal" class="overlay">
+    <div class="modal">
+      <div class="modal-header"><h4>Your Cards</h4><button class="btn btn-ghost" data-close>✕</button></div>
+      <div class="modal-body">
+        <div class="card" style="background:linear-gradient(120deg,#1e293b,#334155);color:#fff">
+          <p>VIRTUAL VISA</p>
+          <h2 style="letter-spacing:2px">4111 • 0023 • 8890 • 4452</h2>
+          <p>EXP 12/28 • CVV 902</p>
+          <p>NAME: DEMI OLAW OYE</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" data-close>Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Checkout -->
+  <div id="checkoutModal" class="overlay">
+    <div class="modal">
+      <div class="modal-header"><h4>Checkout</h4><button class="btn btn-ghost" data-close>✕</button></div>
+      <div class="modal-body">
+        <p>Vendor: DemoStore</p>
+        <p>Items: 2 • Total: <b>$39.98</b></p>
+        <p class="muted">This is a mock checkout confirmation.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" data-close>Cancel</button>
+        <button id="checkoutPay" class="btn btn-primary">Pay $39.98</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Invest -->
+  <div id="investModal" class="overlay">
+    <div class="modal">
+      <div class="modal-header"><h4>Investments & Stocks</h4><button class="btn btn-ghost" data-close>✕</button></div>
+      <div class="modal-body">
+        <div class="card" style="margin-bottom:10px"><strong>DemiTech PLC</strong><p class="muted">2 shares • $120</p></div>
+        <div class="card" style="margin-bottom:10px"><strong>MoovinQ Group</strong><p class="muted">5 shares • $200</p></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" data-close>Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Become an Agent (with camera) -->
+  <div id="agentModal" class="overlay">
+    <div class="modal" style="max-width:640px">
+      <div class="modal-header"><h4>Become an Agent</h4><button class="btn btn-ghost" data-close>✕</button></div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="field"><label>Full Name</label><input id="agentName" placeholder="John Doe"/></div>
+          <div class="field"><label>NIN (11 digits)</label><input id="agentNIN" maxlength="11" placeholder="01234567890"/></div>
+        </div>
+
+        <div class="camera-wrap">
+          <label>Live Selfie (recommended)</label>
+          <video id="cam" playsinline autoplay muted></video>
+          <div style="display:flex;gap:10px">
+            <button id="camStart" class="btn btn-secondary btn-sm">🎥 Start Camera</button>
+            <button id="camSnap" class="btn btn-primary btn-sm">📸 Capture</button>
+            <button id="camStop" class="btn btn-ghost btn-sm">🛑 Stop</button>
+          </div>
+          <canvas id="snap" style="display:none"></canvas>
+          <img id="preview" class="preview-img" alt="Selfie preview" style="display:none"/>
+          <p class="hint">If camera access is denied or unavailable, upload a photo below.</p>
+          <div class="field"><label>Upload Photo (fallback)</label><input id="agentFile" type="file" accept="image/*"/></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" data-close>Cancel</button>
+        <button id="agentSubmit" class="btn btn-primary">Submit Application</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Profile -->
+  <div id="profileModal" class="overlay">
+    <div class="modal">
+      <div class="modal-header"><h4>Profile</h4><button class="btn btn-ghost" data-close>✕</button></div>
+      <div class="modal-body">
+        <p><b>Name:</b> Demi Olawoye</p>
+        <p><b>Email:</b> demi.olawoye@yahoo.co.uk</p>
+        <p><b>Member since:</b> 2025</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" data-close>Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings -->
+  <div id="settingsModal" class="overlay">
+    <div class="modal">
+      <div class="modal-header"><h4>Settings</h4><button class="btn btn-ghost" data-close>✕</button></div>
+      <div class="modal-body">
+        <div class="field"><label><input type="checkbox" id="settingNotify" checked/> Enable notifications</label></div>
+        <div class="field"><label><input type="checkbox" id="settingCompact"/> Compact layout</label></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" data-close>Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SCRIPTS ===== -->
   <script>
-    /* -----------------------------
-       Minimal Mock State / Helpers
-    ------------------------------*/
-    const currentUser = { id: "u_001", full_name: "Demi Olawoye", preferences: { theme: localStorage.getItem("demipay_theme") || "light" } };
-    const mockBalance = { balance: 0, wallet_address: "dp_0xF3...9b1" };
+    // ---------- Utilities ----------
+    const $ = (q, root=document) => root.querySelector(q);
+    const $$ = (q, root=document) => Array.from(root.querySelectorAll(q));
+    const showToast = (type,msg, system=false)=>{
+      const el = system ? $("#toastSystem") : $("#toast");
+      el.className = "toast"+(system?" toast-bottom":"")+" toast-"+(type==="success"?"success":type);
+      el.textContent = msg;
+      el.classList.add("show");
+      setTimeout(()=>el.classList.remove("show"), 3200);
+    };
 
-    // Toast
-    function showToast(type, message) {
-      let t = document.getElementById("globalToast");
-      if (!t) { t = document.createElement("div"); t.id = "globalToast"; document.body.appendChild(t); }
-      t.className = `toast toast-${type}`;
-      t.textContent = message;
-      t.style.display = "block";
-      requestAnimationFrame(() => { t.style.opacity = "1"; t.style.transform = "translateY(0)"; });
-      setTimeout(() => { t.style.opacity = "0"; t.style.transform = "translateY(-10px)"; setTimeout(() => t.style.display = "none", 350); }, 2600);
-    }
-
-    // Theme
-    function applySavedTheme() {
-      const saved = localStorage.getItem("demipay_theme") || currentUser.preferences.theme || "light";
-      if (saved === "dark") {
-        document.body.classList.add("dark-mode");
-        document.getElementById("themeIcon").textContent = "☀️";
-        document.getElementById("themeText").textContent = "Light Mode";
-      }
-    }
-    function toggleTheme() {
-      document.body.classList.toggle("dark-mode");
-      const isDark = document.body.classList.contains("dark-mode");
-      localStorage.setItem("demipay_theme", isDark ? "dark" : "light");
-      document.getElementById("themeIcon").textContent = isDark ? "☀️" : "🌙";
-      document.getElementById("themeText").textContent = isDark ? "Light Mode" : "Dark Mode";
-      showToast("success", isDark ? "🌙 Dark Mode Enabled" : "☀️ Light Mode Restored");
-    }
-
-    // Currency/date
-    const fmtCurrency = a => new Intl.NumberFormat("en-US",{style:"currency",currency:"USD"}).format(a);
-    function fmtDate(date) {
-      const d = new Date(date), now = new Date(), diff = now - d, days = Math.floor(diff / (1000*60*60*24));
-      if (days === 0) return "Today " + d.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"});
-      if (days === 1) return "Yesterday " + d.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"});
-      if (days < 7) return `${days} days ago`;
-      return d.toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"});
-    }
-
-    /* -----------------------------
-       Mock Transactions + Renderer
-    ------------------------------*/
-    const ALL_TX = [
-      { id:"t1", type:"receive",  counterparty:"Ada Lovelace",   note:"Project payout", amount: 480.00, status:"completed", created_at:"2025-10-30T09:22:00Z" },
-      { id:"t2", type:"send",     counterparty:"Netflix",        note:"Monthly subscription", amount: -15.99, status:"completed", created_at:"2025-10-28T20:10:00Z" },
-      { id:"t3", type:"receive",  counterparty:"Upwork Ltd",     note:"Freelance income", amount: 250.00, status:"completed", created_at:"2025-10-26T13:10:00Z" },
-      { id:"t4", type:"send",     counterparty:"Bolt",           note:"Ride to Heathrow", amount: -21.30, status:"completed", created_at:"2025-10-26T07:55:00Z" },
-      { id:"t5", type:"send",     counterparty:"Tesco",          note:"Groceries", amount: -42.70, status:"pending", created_at:"2025-10-25T18:30:00Z" },
-      { id:"t6", type:"receive",  counterparty:"Stripe Payout",  note:"Store sales", amount: 1_200.00, status:"completed", created_at:"2025-10-22T10:45:00Z" },
-      { id:"t7", type:"send",     counterparty:"Spotify",        note:"Music", amount: -9.99, status:"completed", created_at:"2025-10-20T21:05:00Z" },
-      { id:"t8", type:"receive",  counterparty:"Friend (Chi)",   note:"Refund", amount: 35.00, status:"completed", created_at:"2025-10-18T14:12:00Z" },
-      { id:"t9", type:"send",     counterparty:"Amazon",         note:"Order #114-9393", amount: -68.45, status:"completed", created_at:"2025-10-17T16:25:00Z" },
-      { id:"t10",type:"receive",  counterparty:"HMRC",           note:"Tax rebate", amount: 90.00, status:"completed", created_at:"2025-10-15T08:10:00Z" }
-    ];
-    let txCursor = 0; // how many rendered
-
-    function renderTransactions(append=false) {
-      const list = document.getElementById("transactionsList");
-      if (!append) list.innerHTML = "";
-
-      const next = ALL_TX.slice(txCursor, txCursor + 5);
-      next.forEach(tx => {
-        const isIn = tx.type === "receive";
-        const row = document.createElement("div");
-        row.className = "transaction-item";
-        row.innerHTML = `
-          <div class="tx-left">
-            <div class="tx-icon ${isIn ? "receive":"send"}">${isIn ? "📥":"💸"}</div>
-            <div class="tx-meta">
-              <div><strong>${isIn ? "Received from":"Sent to"} ${tx.counterparty}</strong></div>
-              <small>${tx.note || "No description"} • ${fmtDate(tx.created_at)}</small>
-            </div>
-          </div>
-          <div class="tx-right" style="display:flex;align-items:center;gap:10px">
-            <div class="amount ${tx.amount >= 0 ? "positive":"negative"}">
-              ${tx.amount >= 0 ? "+" : ""}${fmtCurrency(Math.abs(tx.amount))}
-            </div>
-            <span class="status ${tx.status}">${tx.status}</span>
-          </div>
-        `;
-        list.appendChild(row);
-      });
-
-      txCursor += next.length;
-      if (txCursor >= ALL_TX.length) document.getElementById("loadMoreBtn").style.display = "none";
-    }
-
-    /* -----------------------------
-       Modal (agent) – open/close
-    ------------------------------*/
-    function openAgentModal(){ const m=document.getElementById("agentModal"); m.style.display="flex"; document.body.style.overflow="hidden"; }
-    function closeAgentModal(){ const m=document.getElementById("agentModal"); m.style.display="none"; document.body.style.overflow="auto"; document.getElementById("agentForm").reset(); }
-
-    /* -----------------------------
-       Init
-    ------------------------------*/
-    document.addEventListener("DOMContentLoaded", () => {
-      // Theme init
-      applySavedTheme();
-
-      // User menu
-      const menuBtn = document.getElementById("userMenuBtn");
-      const dropdown = document.getElementById("userMenuDropdown");
-      menuBtn.addEventListener("click", (e)=>{ e.stopPropagation(); dropdown.classList.toggle("show"); });
-      document.addEventListener("click", (e)=>{ if (!document.querySelector(".user-menu").contains(e.target)) dropdown.classList.remove("show"); });
-
-      // Topbar scroll subtle shadow (already sticky)
-      window.addEventListener("scroll", () => {
-        const btn = document.getElementById("scrollTopBtn");
-        if (window.scrollY > 220) btn.classList.add("show"); else btn.classList.remove("show");
-      });
-
-      // Control buttons
-      document.getElementById("themeToggle").addEventListener("click", toggleTheme);
-      document.getElementById("refreshBalanceBtn").addEventListener("click", () => {
-        document.getElementById("balanceAmount").textContent = fmtCurrency(mockBalance.balance);
-        document.getElementById("walletAddress").textContent = `Wallet: ${mockBalance.wallet_address}`;
-        showToast("success","Balance refreshed");
-      });
-      document.getElementById("scrollTopBtn").addEventListener("click", () => window.scrollTo({ top:0, behavior:"smooth" }));
-
-      // Mock quick actions (no modal needed here)
-      document.getElementById("sendMoneyBtn").addEventListener("click", ()=> showToast("warning","Send Money coming soon (mock)"));
-      document.getElementById("receiveMoneyBtn").addEventListener("click", ()=> showToast("success","Receive via QR coming soon (mock)"));
-      document.getElementById("addMoneyBtn").addEventListener("click", ()=> showToast("success","₦10,000 added (mock)"));
-      document.getElementById("bankTransferBtn").addEventListener("click", ()=> showToast("warning","Bank list loading (mock)"));
-
-      // Services – open agent modal ONLY on click
-      document.querySelectorAll(".service-card").forEach(c=>{
-        c.addEventListener("click", () => {
-          if (c.dataset.service === "agent") openAgentModal();
-          else showToast("success", `${c.querySelector("h4").textContent} (mock)`);
-        });
-      });
-
-      // Agent modal events
-      document.getElementById("closeAgentModal").addEventListener("click", closeAgentModal);
-      document.getElementById("cancelAgentBtn").addEventListener("click", closeAgentModal);
-      document.getElementById("agentModal").addEventListener("click", (e)=> { if (e.target.id === "agentModal") closeAgentModal(); });
-      document.getElementById("submitAgentBtn").addEventListener("click", (e)=>{
-        e.preventDefault();
-        const full = document.getElementById("agentFullName").value.trim();
-        const nin  = document.getElementById("agentNIN").value.trim();
-        const pic  = document.getElementById("agentPhoto").files[0];
-        if (!full || nin.length !== 11 || !pic) { showToast("error","Please complete all fields (NIN must be 11 digits)"); return; }
-        closeAgentModal();
-        showToast("success","✅ Agent application submitted");
-      });
-
-      // Mock user header bits
-      document.getElementById("userName").textContent = currentUser.full_name.split(" ")[0];
-      document.getElementById("balanceAmount").textContent = fmtCurrency(mockBalance.balance);
-      document.getElementById("walletAddress").textContent = `Wallet: ${mockBalance.wallet_address}`;
-
-      // Transactions
-      renderTransactions(false);
-      document.getElementById("loadMoreBtn").addEventListener("click", ()=> renderTransactions(true));
+    // ---------- Theme toggle ----------
+    const themeToggle = $("#themeToggle");
+    const applyTheme = (mode)=>{
+      if(mode==="dark"){document.documentElement.classList.add("dark");themeToggle.textContent="☀️ Light Mode";}
+      else{document.documentElement.classList.remove("dark");themeToggle.textContent="🌙 Dark Mode";}
+      localStorage.setItem("dp_theme", mode);
+    };
+    applyTheme(localStorage.getItem("dp_theme")||"light");
+    themeToggle.addEventListener("click", ()=>{
+      const next = document.documentElement.classList.contains("dark") ? "light":"dark";
+      applyTheme(next);
+      showToast("success", next==="dark"?"🌙 Dark Mode Enabled":"☀️ Light Mode Restored", true);
     });
+
+    // ---------- User menu ----------
+    const userBtn = $("#userBtn"), userDropdown = $("#userDropdown");
+    userBtn.addEventListener("click", (e)=>{ e.stopPropagation(); userDropdown.classList.toggle("show"); });
+    document.addEventListener("click", ()=> userDropdown.classList.remove("show"));
+
+    // ---------- Open/Close modals ----------
+    $$("[data-open]").forEach(el=>{
+      el.addEventListener("click", ()=>{
+        const id = el.getAttribute("data-open");
+        const overlay = document.getElementById(id);
+        if(overlay) overlay.classList.add("show");
+      });
+    });
+    $$("[data-close]").forEach(el=>{
+      el.addEventListener("click", ()=> el.closest(".overlay").classList.remove("show"));
+    });
+    $$(".overlay").forEach(ov=>ov.addEventListener("click", e=>{
+      if(e.target===ov) ov.classList.remove("show");
+    }));
+
+    // ---------- Shop on the fly ----------
+    $("#shopCard").addEventListener("click", ()=>{
+      showToast("success","Opening moovinQ in a new tab…",true);
+      window.open("https://moovinqueue.com","_blank");
+    });
+
+    // ---------- Balance refresh ----------
+    $("#refreshBalanceBtn").addEventListener("click", ()=>{
+      // Mock: random nudge
+      const amt = (2000 + Math.random()*1000).toFixed(2);
+      $("#balanceAmount").textContent = `$${amt}`;
+      showToast("success","Balance refreshed");
+    });
+
+    // ---------- Send Money ----------
+    $("#sendConfirm").addEventListener("click", ()=>{
+      const email = $("#sendEmail").value.trim();
+      const amount = parseFloat($("#sendAmount").value);
+      if(!email || !amount || amount<=0){
+        showToast("error","Please enter a valid recipient and amount"); return;
+      }
+      // mock success
+      addTx({type:"Sent", name:email, note:$("#sendNote").value||"P2P transfer", amount:-amount, status:"completed"});
+      closeAllModals(); showToast("success",`Sent $${amount.toFixed(2)} to ${email}`);
+    });
+
+    // ---------- Receive ----------
+    $("#copyWallet").addEventListener("click", async ()=>{
+      const id = $("#walletId").value;
+      try{ await navigator.clipboard.writeText(id); showToast("success","Wallet ID copied", true);}
+      catch{ showToast("warning","Clipboard unavailable", true); }
+    });
+
+    // ---------- Funds ----------
+    $("#fundConfirm").addEventListener("click", ()=>{
+      const action = $("#fundAction").value;
+      const amount = parseFloat($("#fundAmount").value);
+      if(!amount || amount<=0){ showToast("error","Enter a valid amount"); return; }
+      const sign = action==="Add Funds" ? +1 : -1;
+      addTx({type: action==="Add Funds"?"Received":"Sent", name: action, note: $("#fundMethod").value, amount: sign*amount, status:"completed"});
+      closeAllModals(); showToast("success", `${action} successful`);
+    });
+
+    // ---------- Bank transfer ----------
+    $("#bankSend").addEventListener("click", ()=>{
+      const acc = $("#bankAcc").value.trim();
+      const amt = parseFloat($("#bankAmt").value);
+      if(!acc || !amt || amt<=0){ showToast("error","Enter account and amount"); return; }
+      addTx({type:"Sent", name:$("#bankSelect").value, note:`Acct ${acc}`, amount:-amt, status:"completed"});
+      closeAllModals(); showToast("success","Bank transfer sent");
+    });
+
+    // ---------- FX convert (mock rate) ----------
+    const fxCalc = ()=>{
+      const from = $("#fxFrom").value, to = $("#fxTo").value, v = parseFloat($("#fxInput").value)||0;
+      // simple mock rates
+      const rates = { USD:1, GBP:1.25, NGN:0.0013 };
+      const out = (v * (rates[to] / rates[from])).toFixed(2);
+      $("#fxOut").textContent = isNaN(out)?"—":`${out} ${to}`;
+    };
+    ["fxFrom","fxTo","fxInput"].forEach(id=>$("#"+id).addEventListener("input", fxCalc));
+
+    // ---------- Bills ----------
+    $("#billPay").addEventListener("click", ()=>{
+      showToast("success","Bill paid (mock)");
+      closeAllModals();
+    });
+
+    // ---------- Checkout ----------
+    $("#checkoutPay").addEventListener("click", ()=>{
+      addTx({type:"Sent", name:"DemoStore", note:"Online checkout", amount:-39.98, status:"completed"});
+      closeAllModals(); showToast("success","Payment successful");
+    });
+
+    // ---------- Savings ----------
+    $("#addGoal").addEventListener("click", ()=>{
+      const name = $("#goalName").value.trim();
+      if(!name){ showToast("warning","Enter a goal name"); return; }
+      showToast("success",`Goal “${name}” added`);
+      $("#goalName").value="";
+    });
+
+    // ---------- Logout ----------
+    $("#logoutLink").addEventListener("click", (e)=>{
+      e.preventDefault();
+      if(confirm("Are you sure you want to logout?")) {
+        showToast("success","Logged out (mock)");
+        setTimeout(()=>location.href="src/pages/login.html",600);
+      }
+    });
+
+    // ---------- Agent: camera capture ----------
+    let stream=null, snapData=null;
+    const cam = $("#cam"), snap = $("#snap"), prev = $("#preview");
+
+    $("#camStart").addEventListener("click", async ()=>{
+      try{
+        stream = await navigator.mediaDevices.getUserMedia({ video:true, audio:false });
+        cam.srcObject = stream;
+        showToast("success","Camera started", true);
+      }catch(e){ showToast("warning","Camera unavailable — use upload fallback", true); }
+    });
+    $("#camSnap").addEventListener("click", ()=>{
+      if(!cam.srcObject){ showToast("warning","Start the camera first", true); return; }
+      snap.width = cam.videoWidth; snap.height = cam.videoHeight;
+      const ctx = snap.getContext("2d");
+      ctx.drawImage(cam,0,0,snap.width,snap.height);
+      snapData = snap.toDataURL("image/png");
+      prev.src = snapData; prev.style.display="block";
+      showToast("success","Selfie captured");
+    });
+    $("#camStop").addEventListener("click", ()=>{
+      if(stream){ stream.getTracks().forEach(t=>t.stop()); cam.srcObject=null; stream=null; showToast("success","Camera stopped", true); }
+    });
+
+    $("#agentSubmit").addEventListener("click", ()=>{
+      const name = $("#agentName").value.trim();
+      const nin = $("#agentNIN").value.trim();
+      const file = $("#agentFile").files[0];
+      if(!name || nin.length!==11){ showToast("error","Enter full name and valid 11-digit NIN"); return; }
+      if(!snapData && !file){ showToast("warning","Provide a selfie (camera or upload)"); return; }
+      closeAllModals();
+      showToast("success","Agent application submitted ✅");
+    });
+
+    // ---------- Receive demo data ----------
+    const txList = $("#txList");
+    const mockTx = [
+      {type:"Received", name:"Upwork Ltd", note:"Freelance payout", amount:+500.00, status:"completed"},
+      {type:"Sent", name:"Netflix", note:"Monthly subscription", amount:-15.99, status:"completed"},
+      {type:"Sent", name:"Bolt", note:"Ride to Canary Wharf", amount:-12.80, status:"completed"},
+      {type:"Received", name:"Refund", note:"Store return", amount:+24.50, status:"completed"},
+      {type:"Sent", name:"Spotify", note:"Family plan", amount:-9.99, status:"pending"}
+    ];
+    function addTx(t){ mockTx.unshift(t); renderTx(); }
+    function renderTx(){
+      txList.innerHTML = mockTx.map(t=>`
+        <div class="tx">
+          <div class="left">
+            <div class="badge">${t.type}</div>
+            <div>
+              <div><strong>${t.type==="Sent"?"To":"From"} ${t.name}</strong></div>
+              <div class="muted">${t.note||"—"}</div>
+            </div>
+          </div>
+          <div style="text-align:right">
+            <div class="amount ${t.amount>=0?"pos":"neg"}">${t.amount>=0?"+":"-"}$${Math.abs(t.amount).toFixed(2)}</div>
+            <div class="status">${t.status}</div>
+          </div>
+        </div>
+      `).join("");
+    }
+    renderTx();
+
+    // ---------- Helpers ----------
+    function closeAllModals(){ $$(".overlay.show").forEach(o=>o.classList.remove("show")); }
+
+    // Welcome ping
+    setTimeout(()=>showToast("success","👋 Welcome back, Demi — wallet synced"),600);
   </script>
 </body>
 </html>
