@@ -3,705 +3,925 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>DemiPay v5.6 — Money Moves</title>
+  <title>DemiPay v5.7 — Money Moves</title>
 
-  <!-- ===== Base Reset & Vars ===== -->
+  <!-- Base (keep your external CSS if you like) -->
+  <link rel="stylesheet" href="./src/css/global.css"/>
+  <link rel="stylesheet" href="./src/css/dashboard.css"/>
+
   <style>
     :root{
-      --bg:#0f172a;            /* dark */
-      --bg-soft:#111827;
-      --text:#0f172a;          /* light text on light bg */
-      --text-inv:#f8fafc;      /* text on dark */
-      --card:#ffffff;
-      --muted:#64748b;
-      --line:#e5e7eb;
       --accent:#2dd4bf;
-      --accent-2:#3b82f6;
-      --radius:14px;
-      --shadow:0 10px 30px rgba(2,8,23,.08);
+      --accent2:#3b82f6;
+      --gradient: linear-gradient(90deg, var(--accent), var(--accent2));
+      --bg:#ffffff;
+      --ink:#0f172a;
+      --muted:#64748b;
+      --card:#f8fafc;
+      --border:#e2e8f0;
+      --ok:#16a34a; --warn:#f59e0b; --bad:#dc2626;
     }
+    body{margin:0;background:#fff;color:var(--ink);font:14px/1.45 system-ui,Segoe UI,Roboto,Inter,sans-serif;}
+    .container{max-width:1100px;margin:0 auto;padding:16px;}
 
-    *{box-sizing:border-box}
-    html,body{margin:0;padding:0;font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:#f8fafc;color:var(--text)}
-    .container{max-width:1100px;margin:0 auto;padding:24px}
-    h1,h2,h3,h4{margin:0 0 8px}
-    p{margin:0 0 6px;color:var(--muted)}
-    .grid{display:grid;gap:14px}
-    .btn{display:inline-flex;align-items:center;gap:8px;border:0;cursor:pointer;border-radius:12px;padding:10px 14px;background:var(--text);color:#fff;transition:.2s box-shadow,.2s transform}
-    .btn:hover{transform:translateY(-1px);box-shadow:0 10px 22px rgba(2,8,23,.12)}
-    .btn-primary{background:linear-gradient(90deg,var(--accent),var(--accent-2))}
-    .btn-secondary{background:#0ea5e9}
-    .btn-ghost{background:transparent;color:var(--text)}
-    .btn-sm{padding:8px 12px;border-radius:10px;font-size:.9rem}
-
-    /* ===== Navbar ===== */
-    .navbar{position:sticky;top:0;z-index:1000;background:#fff;border-bottom:1px solid var(--line);backdrop-filter:saturate(1.2) blur(6px);box-shadow:0 8px 22px rgba(2,8,23,.04)}
-    .nav-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:12px 24px;gap:16px}
-    .brand{display:flex;align-items:center;gap:10px;font-weight:700}
+    /* Navbar */
+    .navbar{position:sticky;top:0;z-index:1000;background:var(--bg);border-bottom:1px solid var(--border);box-shadow:0 2px 10px rgba(0,0,0,.04);backdrop-filter: blur(6px);}
+    .navbar-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:10px 16px;}
+    .brand{display:flex;align-items:center;gap:8px;font-weight:800;}
     .brand .logo{font-size:20px}
-    .version{margin-left:4px;font-weight:700;color:#2563eb}
-    .nav-center{display:flex;align-items:center;gap:10px}
-    .nav-right{display:flex;align-items:center;gap:12px}
-
-    /* User menu */
+    .version{font-size:12px;padding:2px 8px;border-radius:999px;background:#eef2ff;color:#3730a3;font-weight:700}
+    .nav-actions{display:flex;align-items:center;gap:10px}
+    .btn{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--border);background:#fff;border-radius:10px;padding:8px 12px;cursor:pointer;transition:.2s;user-select:none}
+    .btn:hover{transform:translateY(-1px)}
+    .btn-primary{background:var(--gradient);color:#fff;border:0}
     .user-menu{position:relative}
-    .user-btn{display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 10px;cursor:pointer}
-    .avatar{
-      width:28px;height:28px;border-radius:50%;
-      background:radial-gradient(circle at 65% 35%,#3b82f6, #1e293b);
-      display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.8rem
-    }
-    .user-dropdown{position:absolute;right:0;top:44px;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:6px;display:none;min-width:180px}
-    .user-dropdown.show{display:block;animation:fadeIn .18s ease}
-    .menu-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:10px;text-decoration:none;color:inherit}
-    .menu-item:hover{background:#f1f5f9}
-    .divider{height:1px;background:var(--line);margin:6px 0}
+    .user-menu-btn{display:flex;align-items:center;gap:8px;border:1px solid var(--border);background:#fff;border-radius:999px;padding:6px 10px;cursor:pointer}
+    .avatar{width:26px;height:26px;border-radius:50%;object-fit:cover;border:1px solid var(--border)}
+    .dropdown{position:absolute;right:0;top:44px;background:#fff;border:1px solid var(--border);border-radius:12px;box-shadow:0 10px 26px rgba(0,0,0,.08);display:none;min-width:220px;overflow:hidden}
+    .dropdown.show{display:block;animation:fadeIn .18s ease}
+    .drop-item{display:flex;gap:8px;padding:10px 12px;color:var(--ink);text-decoration:none;border-bottom:1px solid var(--border)}
+    .drop-item:last-child{border-bottom:0}
+    .drop-item:hover{background:#f8fafc}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
 
-    /* ===== Sections ===== */
-    .card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px}
-    .section-title{margin-bottom:12px}
-    .action-grid,.services-grid{
-      display:grid;gap:12px;
-      grid-template-columns:repeat(auto-fit,minmax(180px,1fr))
-    }
-    .action-card,.service-card{
-      background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;cursor:pointer;
-      display:flex;flex-direction:column;gap:6px;transition:.18s transform,.18s box-shadow
-    }
-    .action-card:hover,.service-card:hover{transform:translateY(-2px);box-shadow:0 16px 28px rgba(2,8,23,.08)}
-    .action-icon{font-size:22px}
-    .muted{color:var(--muted);font-size:.92rem}
+    /* Header / sections */
+    .welcome{padding:18px 0 8px}
+    .welcome h1{margin:0 0 6px}
+    .balance-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;display:flex;align-items:center;justify-content:space-between}
+    .wallet-meta{color:var(--muted);font-size:12px;margin-top:6px}
+    .banners{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0}
+    .banner{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--border);border-radius:14px;padding:12px;background:#fff}
+    .banner h4{margin:0 0 4px}
+    .muted{color:var(--muted)}
 
-    /* ===== Transactions ===== */
-    .tx-list{display:grid;gap:10px}
-    .tx{display:flex;align-items:center;justify-content:space-between;padding:12px;border:1px solid var(--line);border-radius:12px;background:#fff}
-    .tx .left{display:flex;gap:12px;align-items:center}
-    .tx .badge{font-size:12px;border-radius:999px;padding:4px 8px;background:#eef2ff;color:#3730a3}
-    .amount{font-weight:700}
-    .pos{color:#16a34a}.neg{color:#dc2626}
-    .status{font-size:12px;border:1px solid var(--line);border-radius:8px;padding:3px 8px;color:#475569}
+    /* Grids */
+    .grid{display:grid;gap:12px}
+    .grid-4{grid-template-columns:repeat(4,1fr)}
+    .grid-3{grid-template-columns:repeat(3,1fr)}
+    .card{border:1px solid var(--border);border-radius:16px;background:#fff;padding:14px}
 
-    /* ===== Modals ===== */
-    .overlay{position:fixed;inset:0;background:rgba(2,8,23,.55);display:none;align-items:center;justify-content:center;z-index:9999}
-    .overlay.show{display:flex;animation:fadeIn .18s ease}
-    .modal{background:#fff;border-radius:16px;max-width:520px;width:92%;box-shadow:var(--shadow);border:1px solid var(--line);overflow:hidden}
-    .modal-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--line)}
-    .modal-body{padding:16px}
-    .modal-footer{padding:12px 16px;border-top:1px solid var(--line);display:flex;gap:10px;justify-content:flex-end}
+    /* Money Moves & Services buttons */
+    .action-btn{display:flex;flex-direction:column;gap:6px;align-items:flex-start;border:1px solid var(--border);border-radius:14px;padding:14px;background:#fff;cursor:pointer;transition:.2s}
+    .action-btn .icon{font-size:20px}
+    .action-btn:hover{box-shadow:0 10px 26px rgba(59,130,246,.12);border-color:#c7d2fe;transform:translateY(-2px)}
+    .pulse-glow{box-shadow:none}          /* default: NO glow */
+    .action-btn:hover .pulse-glow{filter:drop-shadow(0 0 16px rgba(59,130,246,.35))}
 
-    label{font-size:.92rem;color:#334155}
-    .field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
-    input,select,textarea{
-      width:100%;padding:10px;border-radius:10px;border:1px solid var(--line);background:#fff;outline:none
-    }
-    .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    /* Transactions */
+    .tx-list{display:flex;flex-direction:column;gap:10px}
+    .tx{display:flex;align-items:center;justify-content:space-between;border:1px solid var(--border);border-radius:12px;padding:10px;background:#fff}
+    .tx-info{display:flex;gap:10px;align-items:center}
+    .tx-ico{width:36px;height:36px;border-radius:10px;background:#eef2ff;display:grid;place-items:center}
+    .tx-meta{font-size:12px;color:var(--muted)}
+    .amt{font-weight:700}
+    .amt.positive{color:var(--ok)}
+    .amt.negative{color:var(--bad)}
+    .status{font-size:12px;border-radius:999px;padding:2px 8px}
+    .completed{background:#ecfdf5;color:#065f46}
+    .pending{background:#fffbeb;color:#92400e}
 
-    /* Camera area */
-    .camera-wrap{display:grid;gap:8px}
-    video,canvas,.preview-img{width:100%;border-radius:12px;border:1px solid var(--line);background:#0b1220;min-height:220px;object-fit:cover}
-    .hint{font-size:.85rem;color:#6b7280}
+    /* Modals */
+    .overlay{position:fixed;inset:0;background:rgba(2,6,23,.5);display:none;align-items:center;justify-content:center;z-index:2000}
+    .overlay.show{display:flex}
+    .modal{width:min(560px,92vw);background:#fff;border-radius:16px;border:1px solid var(--border);box-shadow:0 20px 48px rgba(0,0,0,.18);overflow:hidden}
+    .modal header{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--border)}
+    .modal .body{padding:14px}
+    .modal footer{display:flex;gap:8px;justify-content:flex-end;padding:12px 14px;border-top:1px solid var(--border)}
+    .close-x{background:transparent;border:0;font-size:20px;cursor:pointer}
+
+    /* Forms */
+    .f{display:grid;gap:10px}
+    .row-2{grid-template-columns:1fr 1fr}
+    .label{font-size:12px;color:var(--muted)}
+    .input,.select,textarea{width:100%;padding:10px;border:1px solid var(--border);border-radius:10px;font:inherit}
+    textarea{resize:vertical;min-height:70px}
+
+    /* QR mock */
+    .qr-box{display:grid;place-items:center;background:#f8fafc;border:1px dashed var(--border);border-radius:12px;padding:12px}
 
     /* Toasts */
-    .toast{position:fixed;top:18px;right:18px;color:#fff;border-radius:12px;padding:12px 16px;box-shadow:var(--shadow);z-index:10000;opacity:0;transform:translateY(-16px);transition:.25s all}
+    .toast{position:fixed;top:18px;right:18px;background:linear-gradient(90deg,#22c55e,#16a34a);color:#fff;border-radius:10px;padding:10px 14px;box-shadow:0 10px 26px rgba(0,0,0,.14);opacity:0;transform:translateY(-10px);transition:.3s;z-index:4000}
     .toast.show{opacity:1;transform:translateY(0)}
-    .toast-success{background:linear-gradient(90deg,#22c55e,#16a34a)}
-    .toast-error{background:linear-gradient(90deg,#ef4444,#dc2626)}
-    .toast-warning{background:linear-gradient(90deg,#f59e0b,#f59e0b)}
-    .toast-bottom{bottom:18px;left:18px;right:auto;top:auto}
-
-    /* Animations */
-    @keyframes fadeIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
-    .pulse{animation:pulse 1.4s ease-in-out infinite}
-    @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(59,130,246,0.35)}50%{box-shadow:0 0 0 12px rgba(59,130,246,0)}}
+    .toast.error{background:linear-gradient(90deg,#ef4444,#dc2626)}
+    .toast.warn{background:linear-gradient(90deg,#facc15,#f59e0b)}
 
     /* Dark mode */
-    .dark body{background:var(--bg);color:var(--text-inv)}
-    .dark .navbar,.dark .card,.dark .action-card,.dark .service-card,.dark .tx{background:var(--bg-soft);border-color:#1f2937;color:var(--text-inv)}
-    .dark input,.dark select,.dark textarea{background:#0b1220;border-color:#1f2937;color:#e5e7eb}
-    .dark .menu-item:hover{background:#0b1220}
+    .dark body{background:#0b1220;color:#e5e7eb}
+    .dark .navbar,.dark .card,.dark .action-btn,.dark .tx,.dark .modal{background:#0f172a;color:#dbeafe;border-color:#1e293b}
+    .dark .balance-card{background:#0b1220}
+    .dark .banner{background:#0f172a}
+    .dark .input,.dark .select, .dark textarea{background:#0b1220;color:#e5e7eb;border-color:#1e293b}
+    .dark .dropdown{background:#0f172a;border-color:#1e293b}
+    .dark .drop-item{color:#e5e7eb;border-color:#1e293b}
+    .dark .drop-item:hover{background:#0b1220}
+    .dark .qr-box{background:#0b1220;border-color:#253045}
   </style>
 </head>
 <body>
-  <!-- ===== NAVBAR ===== -->
+  <!-- NAVBAR -->
   <nav class="navbar">
-    <div class="nav-inner">
-      <div class="brand">
-        <div class="logo">🚀</div>
-        <div>DemiPay <span class="version">v5.6</span></div>
+    <div class="navbar-inner">
+      <div class="brand" onclick="location.href='index.html'" style="cursor:pointer">
+        <span class="logo">🚀</span><span>DemiPay</span>
+        <span class="version">v5.7</span>
       </div>
-
-      <div class="nav-center">
-        <button id="themeToggle" class="btn btn-sm btn-ghost">🌙 Dark Mode</button>
-      </div>
-
-      <div class="nav-right">
-        <div class="user-menu">
-          <button id="userBtn" class="user-btn">
-            <div class="avatar" title="Demi">
-              <!-- Inline male avatar initial -->
-              D
-            </div>
-            <span id="userNameTop">Demi</span> ▾
+      <div class="nav-actions">
+        <button class="btn" id="themeToggle"><span id="themeIcon">🌙</span><span id="themeText">Dark Mode</span></button>
+        <div class="user-menu" id="userMenu">
+          <button class="user-menu-btn" id="userMenuBtn">
+            <img class="avatar" id="userAvatar" src="https://i.pravatar.cc/80?img=12" alt="User"/>
+            <span id="userName">Demi</span> ▾
           </button>
-          <div id="userDropdown" class="user-dropdown">
-            <a href="#" class="menu-item" data-open="profileModal">👤 Profile</a>
-            <a href="#" class="menu-item" data-open="settingsModal">⚙️ Settings</a>
-            <div class="divider"></div>
-            <a href="#" class="menu-item" id="logoutLink">🚪 Logout</a>
+          <div class="dropdown" id="userDropdown">
+            <a href="#" class="drop-item" id="profileBtn">👤 Profile</a>
+            <a href="#" class="drop-item" id="settingsBtn">⚙️ Settings</a>
+            <a href="#" class="drop-item" id="logoutBtn">🚪 Logout</a>
           </div>
         </div>
       </div>
     </div>
   </nav>
 
-  <!-- ===== MAIN ===== -->
-  <main>
-    <div class="container grid" style="gap:18px">
-      <!-- Welcome -->
-      <section class="card">
-        <h1>Welcome back, Demi 👋</h1>
-        <p>Here’s what’s happening with your wallet today.</p>
-      </section>
+  <!-- CONTENT -->
+  <main class="container">
+    <section class="welcome">
+      <h1>Welcome back, Demi 👋</h1>
+      <p class="muted">Here’s what’s happening with your wallet today.</p>
+    </section>
 
-      <!-- Balance -->
-      <section class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap">
-          <div>
-            <p class="muted">Total Balance</p>
-            <h2 id="balanceAmount">$2,450.87</h2>
-            <p id="walletAddress" class="muted">Wallet: DP-0x3F…9A2</p>
-            <p class="muted">KYC Level: <b>Tier 2 (Verified)</b></p>
-          </div>
-          <div style="display:flex;gap:10px">
-            <button id="refreshBalanceBtn" class="btn btn-primary">🔄 Refresh</button>
-          </div>
-        </div>
-      </section>
+    <section class="balance-card">
+      <div>
+        <div class="muted">Total Balance</div>
+        <h2 id="balanceAmount">$5,820.24</h2>
+        <div class="wallet-meta" id="walletAddress">Wallet: DPX-44F3-91A2-7C</div>
+        <div class="wallet-meta">Account No: <strong>DP-1029345678</strong> • KYC: <strong>Tier 2</strong></div>
+      </div>
+      <button class="btn btn-primary" id="refreshBalanceBtn">🔄 Refresh</button>
+    </section>
 
-      <!-- Money Moves -->
-      <section class="card">
-        <h3 class="section-title">Money Moves</h3>
-        <div class="action-grid">
-          <div class="action-card pulse" data-open="sendModal">
-            <div class="action-icon">💸</div>
-            <strong>Send Money</strong>
-            <span class="muted">Instant P2P transfer</span>
-          </div>
-          <div class="action-card" data-open="receiveModal">
-            <div class="action-icon">📥</div>
-            <strong>Receive Money</strong>
-            <span class="muted">Wallet ID & copy</span>
-          </div>
-          <div class="action-card" data-open="fundsModal">
-            <div class="action-icon">➕</div>
-            <strong>Add / Withdraw</strong>
-            <span class="muted">Card or bank (mock)</span>
-          </div>
-          <div class="action-card" data-open="bankModal">
-            <div class="action-icon">🏦</div>
-            <strong>Bank Transfer</strong>
-            <span class="muted">Multi-region banks</span>
-          </div>
-        </div>
-      </section>
+    <section class="banners">
+      <div class="banner">
+        <div>🔒</div>
+        <div><h4>Security</h4><div class="muted">Your wallet is protected with encryption and OTP verification.</div></div>
+      </div>
+      <div class="banner">
+        <div>💹</div>
+        <div><h4>Finance Updates</h4><div class="muted">FX: ₦1 ≈ $0.0013 • +5% APY bonus this week!</div></div>
+      </div>
+    </section>
 
-      <!-- Services -->
-      <section class="card">
-        <h3 class="section-title">Services</h3>
-        <div class="services-grid">
-          <div class="service-card" data-open="fxModal">🌍
-            <strong>Cross-Border Remittance</strong><span class="muted">Convert & send abroad</span>
-          </div>
-          <div class="service-card" data-open="savingsModal">💰
-            <strong>Savings</strong><span class="muted">Goals @ 10% APY</span>
-          </div>
-          <div class="service-card" data-open="billsModal">💡
-            <strong>Pay Bills & Top-Up</strong><span class="muted">Airtime • TV • Power</span>
-          </div>
-          <div class="service-card" data-open="cardsModal">💳
-            <strong>Virtual & Linked Cards</strong><span class="muted">Mock Visa</span>
-          </div>
-          <div class="service-card" data-open="checkoutModal">🛒
-            <strong>Pay Online</strong><span class="muted">Checkout simulation</span>
-          </div>
-          <div class="service-card" id="shopCard">🏬
-            <strong>Shop on the Fly</strong><span class="muted">Open moovinQ</span>
-          </div>
-          <div class="service-card" data-open="investModal">📈
-            <strong>Investments & Stocks</strong><span class="muted">Mock portfolio</span>
-          </div>
-          <div class="service-card" data-open="agentModal">🧍‍♂️
-            <strong>Become an Agent</strong><span class="muted">Live selfie + NIN</span>
-          </div>
-        </div>
-      </section>
+    <!-- MONEY MOVES -->
+    <section class="card">
+      <h3>Money Moves</h3>
+      <div class="grid grid-4" style="margin-top:10px">
+        <button class="action-btn" id="sendMoneyBtn">
+          <div class="icon pulse-glow">💸</div>
+          <strong>Send Money</strong>
+          <span class="muted">Instant P2P transfer</span>
+        </button>
+        <button class="action-btn" id="receiveMoneyBtn">
+          <div class="icon">📥</div>
+          <strong>Receive Money</strong>
+          <span class="muted">QR & account share</span>
+        </button>
+        <button class="action-btn" id="addMoneyBtn">
+          <div class="icon">➕</div>
+          <strong>Add / Withdraw</strong>
+          <span class="muted">Card or Bank (mock)</span>
+        </button>
+        <button class="action-btn" id="bankTransferBtn">
+          <div class="icon">🏦</div>
+          <strong>Bank Transfer</strong>
+          <span class="muted">Multi-region banks</span>
+        </button>
+      </div>
+    </section>
 
-      <!-- Transactions -->
-      <section class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-          <h3 class="section-title">Recent Transactions</h3>
-          <button id="viewAllBtn" class="btn btn-sm btn-ghost">View All</button>
-        </div>
-        <div id="txList" class="tx-list"></div>
-      </section>
-    </div>
+    <!-- SERVICES -->
+    <section class="card" style="margin-top:12px">
+      <h3>Services</h3>
+      <div class="grid grid-4" style="margin-top:10px">
+        <button class="action-btn" data-service="fx"><div class="icon">🌍</div><strong>Cross-Border Remittance</strong><span class="muted">Preview FX & Send</span></button>
+        <button class="action-btn" data-service="savings"><div class="icon">💰</div><strong>Savings</strong><span class="muted">Goals • SO • Chart</span></button>
+        <button class="action-btn" data-service="bills"><div class="icon">💡</div><strong>Pay Bills & Top-Up</strong><span class="muted">Smart dynamic form</span></button>
+        <button class="action-btn" data-service="cards"><div class="icon">💳</div><strong>Virtual & Linked Cards</strong><span class="muted">Add/Link • Default</span></button>
+        <button class="action-btn" data-service="payonline"><div class="icon">🛒</div><strong>Pay Online</strong><span class="muted">Checkout demo</span></button>
+        <button class="action-btn" data-service="shop"><div class="icon">🏬</div><strong>Shop on the Fly</strong><span class="muted">Affiliates hub</span></button>
+        <button class="action-btn" data-service="invest"><div class="icon">📈</div><strong>Investments & Stocks</strong><span class="muted">Buy or add to cart</span></button>
+        <button class="action-btn" data-service="agent"><div class="icon">🧍‍♂️</div><strong>Become an Agent</strong><span class="muted">Business • NIN • Photo</span></button>
+      </div>
+    </section>
+
+    <!-- TRANSACTIONS -->
+    <section class="card" style="margin-top:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h3>Recent Transactions</h3>
+        <button class="btn" id="viewAllBtn">View All</button>
+      </div>
+      <div class="tx-list" id="transactionsList"></div>
+    </section>
   </main>
 
-  <!-- ===== TOASTS ===== -->
-  <div id="toast" class="toast"></div>
-  <div id="toastSystem" class="toast toast-bottom"></div>
+  <!-- Toast -->
+  <div class="toast" id="globalToast"></div>
 
-  <!-- ===== MODALS (re-usable shell) ===== -->
-  <!-- Send Money -->
-  <div id="sendModal" class="overlay">
+  <!-- GENERIC MODAL OVERLAY -->
+  <div class="overlay" id="overlay">
     <div class="modal">
-      <div class="modal-header"><h4>Send Money</h4><button class="btn btn-ghost" data-close>✕</button></div>
-      <div class="modal-body">
-        <div class="field"><label>Recipient Email</label><input id="sendEmail" placeholder="user@example.com"/></div>
-        <div class="row">
-          <div class="field"><label>Amount (USD)</label><input id="sendAmount" type="number" min="1" step="0.01" placeholder="50.00"/></div>
-          <div class="field"><label>Note</label><input id="sendNote" placeholder="For lunch"/></div>
-        </div>
-        <p class="muted">Fee: 0.5% • Arrives instantly</p>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-ghost" data-close>Cancel</button>
-        <button id="sendConfirm" class="btn btn-primary">Send</button>
-      </div>
+      <header>
+        <h3 id="modalTitle">Modal</h3>
+        <button class="close-x" id="modalClose">✕</button>
+      </header>
+      <div class="body" id="modalBody"></div>
+      <footer id="modalFooter"></footer>
     </div>
   </div>
 
-  <!-- Receive Money -->
-  <div id="receiveModal" class="overlay">
+  <!-- PROFILE MODAL -->
+  <div class="overlay" id="profileOverlay">
     <div class="modal">
-      <div class="modal-header"><h4>Receive Money</h4><button class="btn btn-ghost" data-close>✕</button></div>
-      <div class="modal-body">
-        <div class="field"><label>Your Wallet ID</label>
-          <input id="walletId" value="DP-0x3F98A2-9912" readonly/>
+      <header>
+        <h3>Profile</h3>
+        <button class="close-x" data-close="#profileOverlay">✕</button>
+      </header>
+      <div class="body">
+        <div style="display:flex;gap:14px;align-items:center;margin-bottom:10px">
+          <img class="avatar" src="https://i.pravatar.cc/80?img=12" style="width:60px;height:60px"/>
+          <div><strong>Demi Olawoye</strong><div class="muted">Account: DP-1029345678</div></div>
         </div>
-        <button id="copyWallet" class="btn btn-secondary btn-sm">Copy Wallet ID</button>
-        <p class="hint">QR coming soon</p>
+        <div class="f">
+          <label class="label">Display Name</label>
+          <input class="input" value="Demi" />
+          <label class="label">Email</label>
+          <input class="input" value="demi@example.com"/>
+        </div>
       </div>
-      <div class="modal-footer">
-        <button class="btn btn-primary" data-close>Done</button>
-      </div>
+      <footer>
+        <button class="btn" data-close="#profileOverlay">Close</button>
+        <button class="btn btn-primary" onclick="toast('success','Profile saved')">Save</button>
+      </footer>
     </div>
   </div>
 
-  <!-- Add / Withdraw -->
-  <div id="fundsModal" class="overlay">
+  <!-- SETTINGS MODAL -->
+  <div class="overlay" id="settingsOverlay">
     <div class="modal">
-      <div class="modal-header"><h4>Add / Withdraw</h4><button class="btn btn-ghost" data-close>✕</button></div>
-      <div class="modal-body">
-        <div class="row">
-          <div class="field"><label>Action</label>
-            <select id="fundAction"><option>Add Funds</option><option>Withdraw</option></select>
-          </div>
-          <div class="field"><label>Amount</label><input id="fundAmount" type="number" min="1" step="0.01" placeholder="100.00"/></div>
-        </div>
-        <div class="field"><label>Method</label>
-          <select id="fundMethod"><option>Card (Mock)</option><option>Bank (Mock)</option></select>
+      <header>
+        <h3>Settings</h3>
+        <button class="close-x" data-close="#settingsOverlay">✕</button>
+      </header>
+      <div class="body">
+        <div class="f">
+          <label><input type="checkbox" id="settingSo" checked/> Enable Standing Orders</label>
+          <label><input type="checkbox" id="settingNotify" checked/> Notifications</label>
         </div>
       </div>
-      <div class="modal-footer">
-        <button class="btn btn-ghost" data-close>Cancel</button>
-        <button id="fundConfirm" class="btn btn-primary">Confirm</button>
-      </div>
+      <footer>
+        <button class="btn" data-close="#settingsOverlay">Close</button>
+        <button class="btn btn-primary" onclick="toast('success','Settings updated')">Save</button>
+      </footer>
     </div>
   </div>
 
-  <!-- Bank Transfer -->
-  <div id="bankModal" class="overlay">
-    <div class="modal">
-      <div class="modal-header"><h4>Bank Transfer</h4><button class="btn btn-ghost" data-close>✕</button></div>
-      <div class="modal-body">
-        <div class="field"><label>Bank</label>
-          <select id="bankSelect">
-            <option>Barclays (UK)</option><option>Monzo (UK)</option><option>GTBank (NG)</option><option>FCMB (NG)</option>
-          </select>
-        </div>
-        <div class="row">
-          <div class="field"><label>Account No.</label><input id="bankAcc" placeholder="01234567"/></div>
-          <div class="field"><label>Amount (USD)</label><input id="bankAmt" type="number" min="1" step="0.01"/></div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-ghost" data-close>Cancel</button>
-        <button id="bankSend" class="btn btn-primary">Send</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- FX -->
-  <div id="fxModal" class="overlay">
-    <div class="modal">
-      <div class="modal-header"><h4>Cross-Border Remittance</h4><button class="btn btn-ghost" data-close>✕</button></div>
-      <div class="modal-body">
-        <div class="row">
-          <div class="field"><label>From</label><select id="fxFrom"><option>NGN</option><option>USD</option><option>GBP</option></select></div>
-          <div class="field"><label>To</label><select id="fxTo"><option>USD</option><option>GBP</option><option>NGN</option></select></div>
-        </div>
-        <div class="field"><label>Amount</label><input id="fxInput" type="number" min="1" step="0.01" placeholder="10000"/></div>
-        <p class="muted" id="fxRate">Rate (mock): ₦1 → $0.0013</p>
-        <p><b>Converted:</b> <span id="fxOut">—</span></p>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-primary" data-close>Close</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Savings -->
-  <div id="savingsModal" class="overlay">
-    <div class="modal">
-      <div class="modal-header"><h4>Savings</h4><button class="btn btn-ghost" data-close>✕</button></div>
-      <div class="modal-body">
-        <div class="card" style="margin-bottom:10px">
-          <strong>Holiday 2026</strong><p class="muted">Target $2,000 • Saved $450</p>
-        </div>
-        <div class="card" style="margin-bottom:10px">
-          <strong>Emergency</strong><p class="muted">Target $1,500 • Saved $900</p>
-        </div>
-        <div class="field"><label>New Goal</label><input id="goalName" placeholder="Name"/></div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-ghost" data-close>Close</button>
-        <button id="addGoal" class="btn btn-primary">Add Goal</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Bills -->
-  <div id="billsModal" class="overlay">
-    <div class="modal">
-      <div class="modal-header"><h4>Pay Bills & Top-Up</h4><button class="btn btn-ghost" data-close>✕</button></div>
-      <div class="modal-body">
-        <div class="field"><label>Service</label>
-          <select id="billService"><option>Airtime</option><option>DSTV</option><option>Electricity</option></select>
-        </div>
-        <div class="field"><label>Plan</label><select id="billPlan"><option>₦500</option><option>₦1000</option><option>₦5000</option></select></div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-ghost" data-close>Cancel</button>
-        <button id="billPay" class="btn btn-primary">Pay</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Cards -->
-  <div id="cardsModal" class="overlay">
-    <div class="modal">
-      <div class="modal-header"><h4>Your Cards</h4><button class="btn btn-ghost" data-close>✕</button></div>
-      <div class="modal-body">
-        <div class="card" style="background:linear-gradient(120deg,#1e293b,#334155);color:#fff">
-          <p>VIRTUAL VISA</p>
-          <h2 style="letter-spacing:2px">4111 • 0023 • 8890 • 4452</h2>
-          <p>EXP 12/28 • CVV 902</p>
-          <p>NAME: DEMI OLAW OYE</p>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-primary" data-close>Close</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Checkout -->
-  <div id="checkoutModal" class="overlay">
-    <div class="modal">
-      <div class="modal-header"><h4>Checkout</h4><button class="btn btn-ghost" data-close>✕</button></div>
-      <div class="modal-body">
-        <p>Vendor: DemoStore</p>
-        <p>Items: 2 • Total: <b>$39.98</b></p>
-        <p class="muted">This is a mock checkout confirmation.</p>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-ghost" data-close>Cancel</button>
-        <button id="checkoutPay" class="btn btn-primary">Pay $39.98</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Invest -->
-  <div id="investModal" class="overlay">
-    <div class="modal">
-      <div class="modal-header"><h4>Investments & Stocks</h4><button class="btn btn-ghost" data-close>✕</button></div>
-      <div class="modal-body">
-        <div class="card" style="margin-bottom:10px"><strong>DemiTech PLC</strong><p class="muted">2 shares • $120</p></div>
-        <div class="card" style="margin-bottom:10px"><strong>MoovinQ Group</strong><p class="muted">5 shares • $200</p></div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-primary" data-close>Close</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Become an Agent (with camera) -->
-  <div id="agentModal" class="overlay">
-    <div class="modal" style="max-width:640px">
-      <div class="modal-header"><h4>Become an Agent</h4><button class="btn btn-ghost" data-close>✕</button></div>
-      <div class="modal-body">
-        <div class="row">
-          <div class="field"><label>Full Name</label><input id="agentName" placeholder="John Doe"/></div>
-          <div class="field"><label>NIN (11 digits)</label><input id="agentNIN" maxlength="11" placeholder="01234567890"/></div>
-        </div>
-
-        <div class="camera-wrap">
-          <label>Live Selfie (recommended)</label>
-          <video id="cam" playsinline autoplay muted></video>
-          <div style="display:flex;gap:10px">
-            <button id="camStart" class="btn btn-secondary btn-sm">🎥 Start Camera</button>
-            <button id="camSnap" class="btn btn-primary btn-sm">📸 Capture</button>
-            <button id="camStop" class="btn btn-ghost btn-sm">🛑 Stop</button>
-          </div>
-          <canvas id="snap" style="display:none"></canvas>
-          <img id="preview" class="preview-img" alt="Selfie preview" style="display:none"/>
-          <p class="hint">If camera access is denied or unavailable, upload a photo below.</p>
-          <div class="field"><label>Upload Photo (fallback)</label><input id="agentFile" type="file" accept="image/*"/></div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-ghost" data-close>Cancel</button>
-        <button id="agentSubmit" class="btn btn-primary">Submit Application</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Profile -->
-  <div id="profileModal" class="overlay">
-    <div class="modal">
-      <div class="modal-header"><h4>Profile</h4><button class="btn btn-ghost" data-close>✕</button></div>
-      <div class="modal-body">
-        <p><b>Name:</b> Demi Olawoye</p>
-        <p><b>Email:</b> demi.olawoye@yahoo.co.uk</p>
-        <p><b>Member since:</b> 2025</p>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-primary" data-close>Close</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Settings -->
-  <div id="settingsModal" class="overlay">
-    <div class="modal">
-      <div class="modal-header"><h4>Settings</h4><button class="btn btn-ghost" data-close>✕</button></div>
-      <div class="modal-body">
-        <div class="field"><label><input type="checkbox" id="settingNotify" checked/> Enable notifications</label></div>
-        <div class="field"><label><input type="checkbox" id="settingCompact"/> Compact layout</label></div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-primary" data-close>Save</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ===== SCRIPTS ===== -->
   <script>
-    // ---------- Utilities ----------
-    const $ = (q, root=document) => root.querySelector(q);
-    const $$ = (q, root=document) => Array.from(root.querySelectorAll(q));
-    const showToast = (type,msg, system=false)=>{
-      const el = system ? $("#toastSystem") : $("#toast");
-      el.className = "toast"+(system?" toast-bottom":"")+" toast-"+(type==="success"?"success":type);
-      el.textContent = msg;
-      el.classList.add("show");
-      setTimeout(()=>el.classList.remove("show"), 3200);
-    };
+    // UTIL
+    const $ = sel => document.querySelector(sel);
 
-    // ---------- Theme toggle ----------
-    const themeToggle = $("#themeToggle");
-    const applyTheme = (mode)=>{
-      if(mode==="dark"){document.documentElement.classList.add("dark");themeToggle.textContent="☀️ Light Mode";}
-      else{document.documentElement.classList.remove("dark");themeToggle.textContent="🌙 Dark Mode";}
-      localStorage.setItem("dp_theme", mode);
-    };
-    applyTheme(localStorage.getItem("dp_theme")||"light");
-    themeToggle.addEventListener("click", ()=>{
-      const next = document.documentElement.classList.contains("dark") ? "light":"dark";
-      applyTheme(next);
-      showToast("success", next==="dark"?"🌙 Dark Mode Enabled":"☀️ Light Mode Restored", true);
+    function toast(type='success', msg='Done'){
+      const t = $('#globalToast');
+      t.textContent = msg;
+      t.className = 'toast show'+(type==='error'?' error': type==='warn'?' warn':'');
+      setTimeout(()=>{ t.classList.remove('show') }, 3000);
+    }
+
+    // THEME
+    const prefersDark = localStorage.getItem('demipay_theme')==='dark';
+    if(prefersDark) document.documentElement.classList.add('dark');
+
+    $('#themeToggle').addEventListener('click',()=>{
+      document.documentElement.classList.toggle('dark');
+      const isDark = document.documentElement.classList.contains('dark');
+      localStorage.setItem('demipay_theme', isDark?'dark':'light');
+      $('#themeIcon').textContent = isDark ? '☀️':'🌙';
+      $('#themeText').textContent = isDark ? 'Light Mode':'Dark Mode';
+      toast('success', isDark?'🌙 Dark mode enabled':'☀️ Light mode restored');
     });
 
-    // ---------- User menu ----------
-    const userBtn = $("#userBtn"), userDropdown = $("#userDropdown");
-    userBtn.addEventListener("click", (e)=>{ e.stopPropagation(); userDropdown.classList.toggle("show"); });
-    document.addEventListener("click", ()=> userDropdown.classList.remove("show"));
+    // USER MENU
+    $('#userMenuBtn').addEventListener('click', (e)=>{
+      e.stopPropagation();
+      $('#userDropdown').classList.toggle('show');
+    });
+    document.addEventListener('click', ()=>{
+      $('#userDropdown').classList.remove('show');
+    });
 
-    // ---------- Open/Close modals ----------
-    $$("[data-open]").forEach(el=>{
-      el.addEventListener("click", ()=>{
-        const id = el.getAttribute("data-open");
-        const overlay = document.getElementById(id);
-        if(overlay) overlay.classList.add("show");
+    // Profile/Settings/Logout
+    $('#profileBtn').addEventListener('click', (e)=>{e.preventDefault(); $('#profileOverlay').classList.add('show')});
+    $('#settingsBtn').addEventListener('click', (e)=>{e.preventDefault(); $('#settingsOverlay').classList.add('show')});
+    $('#logoutBtn').addEventListener('click', (e)=>{
+      e.preventDefault();
+      toast('warn','Logging out…');
+      setTimeout(()=>{ location.href='src/pages/login.html' }, 800);
+    });
+    document.querySelectorAll('[data-close]').forEach(el=>{
+      el.addEventListener('click', ()=> document.querySelector(el.getAttribute('data-close')).classList.remove('show'));
+    });
+
+    // GENERIC MODAL
+    const overlay = $('#overlay');
+    const modalTitle = $('#modalTitle');
+    const modalBody = $('#modalBody');
+    const modalFooter = $('#modalFooter');
+    $('#modalClose').addEventListener('click', ()=> overlay.classList.remove('show'));
+    overlay.addEventListener('click', (e)=>{ if(e.target===overlay) overlay.classList.remove('show') });
+
+    // MONEY MOVES — handlers
+    $('#sendMoneyBtn').addEventListener('click', ()=>{
+      modalTitle.textContent='Send Money';
+      modalBody.innerHTML = `
+        <div class="f">
+          <div class="row-2">
+            <div>
+              <div class="label">Recipient Email</div>
+              <input class="input" id="sendEmail" placeholder="user@example.com"/>
+            </div>
+            <div>
+              <div class="label">Amount</div>
+              <input class="input" id="sendAmt" type="number" min="1" placeholder="0.00"/>
+            </div>
+          </div>
+          <div>
+            <div class="label">Note</div>
+            <textarea id="sendNote" class="input" placeholder="What’s this for?"></textarea>
+          </div>
+          <div class="muted">Fee 0.5% is applied at confirmation.</div>
+        </div>`;
+      modalFooter.innerHTML = `<button class="btn" id="sendCancel">Cancel</button><button class="btn btn-primary" id="sendConfirm">Send</button>`;
+      overlay.classList.add('show');
+      $('#sendCancel').onclick=()=>overlay.classList.remove('show');
+      $('#sendConfirm').onclick=()=>{
+        const a = parseFloat($('#sendAmt').value||0); if(a<=0) return toast('error','Enter a valid amount');
+        overlay.classList.remove('show'); toast('success',`Sent ${a.toLocaleString('en-US',{style:'currency',currency:'USD'})}`);
+        prependTx({type:'Sent',name:$('#sendEmail').value||'User',desc:$('#sendNote').value||'P2P Transfer',amount:-a,status:'completed'});
+      };
+    });
+
+    $('#receiveMoneyBtn').addEventListener('click', ()=>{
+      modalTitle.textContent='Receive Money';
+      // simple mock QR SVG
+      const qrSVG = `
+      <svg width="140" height="140" viewBox="0 0 100 100">
+        <rect width="100" height="100" fill="#0b1220"/>
+        <rect x="8" y="8" width="24" height="24" fill="#fff"/>
+        <rect x="68" y="8" width="24" height="24" fill="#fff"/>
+        <rect x="8" y="68" width="24" height="24" fill="#fff"/>
+        <rect x="34" y="34" width="10" height="10" fill="#fff"/>
+        <rect x="48" y="34" width="6" height="6" fill="#fff"/>
+        <rect x="34" y="48" width="6" height="6" fill="#fff"/>
+        <rect x="44" y="48" width="8" height="8" fill="#fff"/>
+        <rect x="56" y="44" width="10" height="10" fill="#fff"/>
+      </svg>`;
+      modalBody.innerHTML = `
+        <div class="f">
+          <div class="row-2">
+            <div>
+              <div class="label">Amount</div>
+              <input class="input" id="recvAmt" type="number" min="1" placeholder="0.00"/>
+            </div>
+            <div>
+              <div class="label">Sender name (optional)</div>
+              <input class="input" id="recvFrom" placeholder="External sender"/>
+            </div>
+          </div>
+          <div>
+            <div class="label">Note</div>
+            <textarea class="input" id="recvNote" placeholder="Optional message"></textarea>
+          </div>
+          <div class="label">Scan to pay</div>
+          <div class="qr-box">${qrSVG}<div class="muted" style="margin-top:8px">DP Wallet QR (mock)</div></div>
+        </div>`;
+      modalFooter.innerHTML = `<button class="btn" id="recvCancel">Cancel</button><button class="btn btn-primary" id="recvConfirm">Mark as Received</button>`;
+      overlay.classList.add('show');
+      $('#recvCancel').onclick=()=>overlay.classList.remove('show');
+      $('#recvConfirm').onclick=()=>{
+        const a = parseFloat($('#recvAmt').value||0); if(a<=0) return toast('error','Enter a valid amount');
+        overlay.classList.remove('show'); toast('success',`Received ${a.toLocaleString('en-US',{style:'currency',currency:'USD'})}`);
+        prependTx({type:'Received',name:$('#recvFrom').value||'External',desc:$('#recvNote').value||'Incoming transfer',amount:+a,status:'completed'});
+      };
+    });
+
+    $('#addMoneyBtn').addEventListener('click', ()=>{
+      modalTitle.textContent='Add / Withdraw';
+      modalBody.innerHTML = `
+        <div class="f">
+          <div class="row-2">
+            <div>
+              <div class="label">Action</div>
+              <select class="select" id="awAction"><option value="add">Add Money</option><option value="withdraw">Withdraw</option></select>
+            </div>
+            <div>
+              <div class="label">Amount</div>
+              <input class="input" id="awAmt" type="number" min="1" placeholder="0.00"/>
+            </div>
+          </div>
+          <div>
+            <div class="label">From / To</div>
+            <select class="select" id="awSrc"><option>Default Card (Visa •••• 4452)</option><option>DemiPay Wallet</option></select>
+          </div>
+        </div>`;
+      modalFooter.innerHTML = `<button class="btn" id="awCancel">Cancel</button><button class="btn btn-primary" id="awConfirm">Confirm</button>`;
+      overlay.classList.add('show');
+      $('#awCancel').onclick=()=>overlay.classList.remove('show');
+      $('#awConfirm').onclick=()=>{
+        const a = parseFloat($('#awAmt').value||0); if(a<=0) return toast('error','Enter a valid amount');
+        const act = $('#awAction').value==='add'?'Added':'Withdrew';
+        overlay.classList.remove('show'); toast('success',`${act} ${a.toLocaleString('en-US',{style:'currency',currency:'USD'})}`);
+        prependTx({type: act==='Added'?'Received':'Sent',name:$('#awSrc').value.includes('Wallet')?'Wallet':'Card',desc:`${act} via ${$('#awSrc').value}`,amount: act==='Added'?+a:-a,status:'completed'});
+      };
+    });
+
+    $('#bankTransferBtn').addEventListener('click', ()=>{
+      modalTitle.textContent='Bank Transfer';
+      modalBody.innerHTML = `
+        <div class="f">
+          <div class="label">Recipient Account Holder Name</div>
+          <input class="input" id="btName" placeholder="John A. Doe"/>
+          <div class="row-2">
+            <div>
+              <div class="label">Bank Name</div>
+              <input class="input" id="btBank" placeholder="e.g., Monzo"/>
+            </div>
+            <div>
+              <div class="label">Account Number</div>
+              <input class="input" id="btAcc" placeholder="0001234567"/>
+            </div>
+          </div>
+          <div class="row-2">
+            <div>
+              <div class="label">Amount</div>
+              <input class="input" id="btAmt" type="number" min="1" placeholder="0.00"/>
+            </div>
+            <div>
+              <div class="label">Currency</div>
+              <select class="select" id="btCur"><option>USD</option><option>GBP</option><option>EUR</option><option>NGN</option></select>
+            </div>
+          </div>
+          <div>
+            <div class="label">Notes / Reference</div>
+            <input class="input" id="btRef" placeholder="Invoice 10243"/>
+          </div>
+        </div>`;
+      modalFooter.innerHTML = `<button class="btn" id="btCancel">Cancel</button><button class="btn btn-primary" id="btConfirm">Send</button>`;
+      overlay.classList.add('show');
+      $('#btCancel').onclick=()=>overlay.classList.remove('show');
+      $('#btConfirm').onclick=()=>{
+        const a = parseFloat($('#btAmt').value||0); if(a<=0) return toast('error','Enter a valid amount');
+        overlay.classList.remove('show');
+        toast('success','Bank transfer sent');
+        prependTx({type:'Sent',name:$('#btName').value||$('#btBank').value||'Bank',desc:$('#btRef').value||'Bank transfer',amount:-a,status:'pending'});
+      };
+    });
+
+    // SERVICES router
+    document.querySelectorAll('[data-service]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const key = btn.dataset.service;
+        if(key==='fx') openFX();
+        if(key==='savings') openSavings();
+        if(key==='bills') openBills();
+        if(key==='cards') openCards();
+        if(key==='payonline') openPayOnline();
+        if(key==='shop') openShop();
+        if(key==='invest') openInvest();
+        if(key==='agent') openAgent();
       });
     });
-    $$("[data-close]").forEach(el=>{
-      el.addEventListener("click", ()=> el.closest(".overlay").classList.remove("show"));
-    });
-    $$(".overlay").forEach(ov=>ov.addEventListener("click", e=>{
-      if(e.target===ov) ov.classList.remove("show");
-    }));
 
-    // ---------- Shop on the fly ----------
-    $("#shopCard").addEventListener("click", ()=>{
-      showToast("success","Opening moovinQ in a new tab…",true);
-      window.open("https://moovinqueue.com","_blank");
-    });
-
-    // ---------- Balance refresh ----------
-    $("#refreshBalanceBtn").addEventListener("click", ()=>{
-      // Mock: random nudge
-      const amt = (2000 + Math.random()*1000).toFixed(2);
-      $("#balanceAmount").textContent = `$${amt}`;
-      showToast("success","Balance refreshed");
-    });
-
-    // ---------- Send Money ----------
-    $("#sendConfirm").addEventListener("click", ()=>{
-      const email = $("#sendEmail").value.trim();
-      const amount = parseFloat($("#sendAmount").value);
-      if(!email || !amount || amount<=0){
-        showToast("error","Please enter a valid recipient and amount"); return;
-      }
-      // mock success
-      addTx({type:"Sent", name:email, note:$("#sendNote").value||"P2P transfer", amount:-amount, status:"completed"});
-      closeAllModals(); showToast("success",`Sent $${amount.toFixed(2)} to ${email}`);
-    });
-
-    // ---------- Receive ----------
-    $("#copyWallet").addEventListener("click", async ()=>{
-      const id = $("#walletId").value;
-      try{ await navigator.clipboard.writeText(id); showToast("success","Wallet ID copied", true);}
-      catch{ showToast("warning","Clipboard unavailable", true); }
-    });
-
-    // ---------- Funds ----------
-    $("#fundConfirm").addEventListener("click", ()=>{
-      const action = $("#fundAction").value;
-      const amount = parseFloat($("#fundAmount").value);
-      if(!amount || amount<=0){ showToast("error","Enter a valid amount"); return; }
-      const sign = action==="Add Funds" ? +1 : -1;
-      addTx({type: action==="Add Funds"?"Received":"Sent", name: action, note: $("#fundMethod").value, amount: sign*amount, status:"completed"});
-      closeAllModals(); showToast("success", `${action} successful`);
-    });
-
-    // ---------- Bank transfer ----------
-    $("#bankSend").addEventListener("click", ()=>{
-      const acc = $("#bankAcc").value.trim();
-      const amt = parseFloat($("#bankAmt").value);
-      if(!acc || !amt || amt<=0){ showToast("error","Enter account and amount"); return; }
-      addTx({type:"Sent", name:$("#bankSelect").value, note:`Acct ${acc}`, amount:-amt, status:"completed"});
-      closeAllModals(); showToast("success","Bank transfer sent");
-    });
-
-    // ---------- FX convert (mock rate) ----------
-    const fxCalc = ()=>{
-      const from = $("#fxFrom").value, to = $("#fxTo").value, v = parseFloat($("#fxInput").value)||0;
-      // simple mock rates
-      const rates = { USD:1, GBP:1.25, NGN:0.0013 };
-      const out = (v * (rates[to] / rates[from])).toFixed(2);
-      $("#fxOut").textContent = isNaN(out)?"—":`${out} ${to}`;
-    };
-    ["fxFrom","fxTo","fxInput"].forEach(id=>$("#"+id).addEventListener("input", fxCalc));
-
-    // ---------- Bills ----------
-    $("#billPay").addEventListener("click", ()=>{
-      showToast("success","Bill paid (mock)");
-      closeAllModals();
-    });
-
-    // ---------- Checkout ----------
-    $("#checkoutPay").addEventListener("click", ()=>{
-      addTx({type:"Sent", name:"DemoStore", note:"Online checkout", amount:-39.98, status:"completed"});
-      closeAllModals(); showToast("success","Payment successful");
-    });
-
-    // ---------- Savings ----------
-    $("#addGoal").addEventListener("click", ()=>{
-      const name = $("#goalName").value.trim();
-      if(!name){ showToast("warning","Enter a goal name"); return; }
-      showToast("success",`Goal “${name}” added`);
-      $("#goalName").value="";
-    });
-
-    // ---------- Logout ----------
-    $("#logoutLink").addEventListener("click", (e)=>{
-      e.preventDefault();
-      if(confirm("Are you sure you want to logout?")) {
-        showToast("success","Logged out (mock)");
-        setTimeout(()=>location.href="src/pages/login.html",600);
-      }
-    });
-
-    // ---------- Agent: camera capture ----------
-    let stream=null, snapData=null;
-    const cam = $("#cam"), snap = $("#snap"), prev = $("#preview");
-
-    $("#camStart").addEventListener("click", async ()=>{
-      try{
-        stream = await navigator.mediaDevices.getUserMedia({ video:true, audio:false });
-        cam.srcObject = stream;
-        showToast("success","Camera started", true);
-      }catch(e){ showToast("warning","Camera unavailable — use upload fallback", true); }
-    });
-    $("#camSnap").addEventListener("click", ()=>{
-      if(!cam.srcObject){ showToast("warning","Start the camera first", true); return; }
-      snap.width = cam.videoWidth; snap.height = cam.videoHeight;
-      const ctx = snap.getContext("2d");
-      ctx.drawImage(cam,0,0,snap.width,snap.height);
-      snapData = snap.toDataURL("image/png");
-      prev.src = snapData; prev.style.display="block";
-      showToast("success","Selfie captured");
-    });
-    $("#camStop").addEventListener("click", ()=>{
-      if(stream){ stream.getTracks().forEach(t=>t.stop()); cam.srcObject=null; stream=null; showToast("success","Camera stopped", true); }
-    });
-
-    $("#agentSubmit").addEventListener("click", ()=>{
-      const name = $("#agentName").value.trim();
-      const nin = $("#agentNIN").value.trim();
-      const file = $("#agentFile").files[0];
-      if(!name || nin.length!==11){ showToast("error","Enter full name and valid 11-digit NIN"); return; }
-      if(!snapData && !file){ showToast("warning","Provide a selfie (camera or upload)"); return; }
-      closeAllModals();
-      showToast("success","Agent application submitted ✅");
-    });
-
-    // ---------- Receive demo data ----------
-    const txList = $("#txList");
-    const mockTx = [
-      {type:"Received", name:"Upwork Ltd", note:"Freelance payout", amount:+500.00, status:"completed"},
-      {type:"Sent", name:"Netflix", note:"Monthly subscription", amount:-15.99, status:"completed"},
-      {type:"Sent", name:"Bolt", note:"Ride to Canary Wharf", amount:-12.80, status:"completed"},
-      {type:"Received", name:"Refund", note:"Store return", amount:+24.50, status:"completed"},
-      {type:"Sent", name:"Spotify", note:"Family plan", amount:-9.99, status:"pending"}
-    ];
-    function addTx(t){ mockTx.unshift(t); renderTx(); }
-    function renderTx(){
-      txList.innerHTML = mockTx.map(t=>`
-        <div class="tx">
-          <div class="left">
-            <div class="badge">${t.type}</div>
+    // 1) CROSS-BORDER REMITTANCE
+    function openFX(){
+      modalTitle.textContent='Cross-Border Remittance';
+      modalBody.innerHTML = `
+        <div class="f">
+          <div class="label">Live Rate (mock): ₦1 = $0.0013</div>
+          <div class="row-2">
             <div>
-              <div><strong>${t.type==="Sent"?"To":"From"} ${t.name}</strong></div>
-              <div class="muted">${t.note||"—"}</div>
+              <div class="label">Recipient Name</div>
+              <input class="input" id="fxName" placeholder="Adaeze Obi"/>
+            </div>
+            <div>
+              <div class="label">Account / IBAN</div>
+              <input class="input" id="fxAcc" placeholder="GB12 MONZ 1234 5678 90"/>
+            </div>
+          </div>
+          <div class="row-2">
+            <div>
+              <div class="label">Amount (NGN)</div>
+              <input class="input" id="fxAmt" type="number" min="1" placeholder="100000"/>
+            </div>
+            <div>
+              <div class="label">Reason</div>
+              <select class="select" id="fxReason"><option>Family Support</option><option>Business</option><option>Education</option><option>Gift</option></select>
+            </div>
+          </div>
+          <div>
+            <div class="label">Notes</div>
+            <textarea class="input" id="fxNote" placeholder="Optional"></textarea>
+          </div>
+          <div class="muted">Converted preview appears on confirm.</div>
+        </div>`;
+      modalFooter.innerHTML = `<button class="btn" id="fxCancel">Cancel</button><button class="btn btn-primary" id="fxSend">Send</button>`;
+      overlay.classList.add('show');
+      $('#fxCancel').onclick=()=>overlay.classList.remove('show');
+      $('#fxSend').onclick=()=>{
+        const ngn = parseFloat($('#fxAmt').value||0); if(ngn<=0) return toast('error','Enter amount in NGN');
+        const usd = ngn*0.0013;
+        overlay.classList.remove('show');
+        toast('success',`Sent ₦${ngn.toLocaleString()} (~$${usd.toFixed(2)})`);
+        prependTx({type:'Sent',name:$('#fxName').value||'International',desc:'Remittance',amount:-(usd),status:'completed'});
+      };
+    }
+
+    // 2) SAVINGS
+    let goals = [
+      {name:'Holiday', target:1500, saved:450, color:'#22c55e'},
+      {name:'Car', target:8000, saved:1600, color:'#3b82f6'},
+      {name:'Rent', target:2400, saved:600, color:'#f59e0b'}
+    ];
+    function donutSVG(){
+      const total = goals.reduce((s,g)=>s+g.target,0)||1;
+      let acc=0, r=28, cx=32, cy=32, sw=10, arcs='';
+      goals.forEach(g=>{
+        const frac=g.target/total, a=frac*2*Math.PI;
+        const x1=cx + r*Math.cos(acc- Math.PI/2), y1=cy + r*Math.sin(acc- Math.PI/2);
+        acc+=a;
+        const x2=cx + r*Math.cos(acc- Math.PI/2), y2=cy + r*Math.sin(acc- Math.PI/2);
+        const large=a>Math.PI?1:0;
+        arcs+=`<path d="M ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2}" stroke="${g.color}" stroke-width="${sw}" fill="none"/>`
+      });
+      return `<svg width="80" height="80" viewBox="0 0 64 64"><circle cx="32" cy="32" r="${r}" stroke="#e2e8f0" stroke-width="${sw}" fill="none"/>${arcs}<circle cx="32" cy="32" r="${r-sw/2}" fill="#fff"/></svg>`;
+    }
+    function openSavings(){
+      modalTitle.textContent='Savings';
+      const badges = goals.map(g=>`<span style="display:inline-flex;gap:6px;align-items:center;border:1px solid var(--border);padding:6px 10px;border-radius:999px"><span style="width:10px;height:10px;border-radius:50%;background:${g.color}"></span>${g.name}: ${Math.round(100*g.saved/g.target)}%</span>`).join(' ');
+      modalBody.innerHTML = `
+        <div class="f">
+          <div style="display:flex;gap:12px;align-items:center">${donutSVG()} <div class="muted">Your goals overview</div></div>
+          <div>${badges}</div>
+          <hr/>
+          <div class="row-2">
+            <div>
+              <div class="label">New Goal Name</div>
+              <input class="input" id="sgName" placeholder="e.g., Laptop"/>
+            </div>
+            <div>
+              <div class="label">Target Amount</div>
+              <input class="input" id="sgTarget" type="number" min="1" placeholder="500.00"/>
+            </div>
+          </div>
+          <div class="row-2">
+            <div>
+              <div class="label">Standing Order</div>
+              <select class="select" id="sgSo"><option value="none">None</option><option>Weekly</option><option>Monthly</option></select>
+            </div>
+            <div>
+              <div class="label">Funding Source</div>
+              <select class="select" id="sgSrc"><option>DemiPay Wallet</option><option>Default Card</option></select>
+            </div>
+          </div>
+        </div>`;
+      modalFooter.innerHTML = `<button class="btn" id="sgClose">Close</button><button class="btn btn-primary" id="sgCreate">Create Goal</button>`;
+      overlay.classList.add('show');
+      $('#sgClose').onclick=()=>overlay.classList.remove('show');
+      $('#sgCreate').onclick=()=>{
+        const name=$('#sgName').value.trim(), target=parseFloat($('#sgTarget').value||0);
+        if(!name||target<=0) return toast('error','Enter goal name & target');
+        goals.push({name,target,saved:0,color:'#a855f7'});
+        overlay.classList.remove('show');
+        toast('success','Goal created');
+      };
+    }
+
+    // 3) BILLS/TOP-UP
+    function openBills(){
+      modalTitle.textContent='Pay Bills & Top-Up';
+      modalBody.innerHTML = `
+        <div class="f">
+          <div class="row-2">
+            <div>
+              <div class="label">Category</div>
+              <select class="select" id="billCat">
+                <option value="airtime">Airtime/Data</option>
+                <option value="electricity">Electricity</option>
+                <option value="water">Water</option>
+                <option value="dstv">DSTV</option>
+              </select>
+            </div>
+            <div>
+              <div class="label">Amount / Plan</div>
+              <input class="input" id="billAmt" placeholder="e.g., 1000 or Basic Plan"/>
+            </div>
+          </div>
+          <div id="billDynamic"></div>
+          <div>
+            <label><input type="checkbox" id="billSo"/> Set as recurring (standing order)</label>
+          </div>
+        </div>`;
+      modalFooter.innerHTML = `<button class="btn" id="billCancel">Cancel</button><button class="btn btn-primary" id="billPay">Pay</button>`;
+      overlay.classList.add('show');
+      const dynamic = $('#billDynamic');
+      function render(){
+        const c = $('#billCat').value;
+        if(c==='airtime'){
+          dynamic.innerHTML = `
+            <div class="row-2">
+              <div><div class="label">Airtime Provider</div>
+              <select class="select" id="airProv"><option>MTN</option><option>Glo</option><option>Airtel</option><option>9mobile</option></select></div>
+              <div><div class="label">Phone Number</div><input class="input" id="airPhone" placeholder="+234…"/></div>
+            </div>`;
+        } else if(c==='electricity' || c==='water'){
+          dynamic.innerHTML = `
+            <div class="row-2">
+              <div><div class="label">Provider</div>
+              <select class="select" id="utilProv"><option>Ikeja Electric</option><option>Eko Electric</option><option>Abuja Disco</option><option>Port Harcourt</option></select></div>
+              <div><div class="label">Meter / Account Number</div><input class="input" id="meterNo" placeholder="Meter/Account"/></div>
+            </div>`;
+        } else { // dstv
+          dynamic.innerHTML = `
+            <div class="row-2">
+              <div><div class="label">Account Number</div><input class="input" id="dstvAcc" placeholder="Smartcard no."/></div>
+              <div><div class="label">Notes</div><input class="input" id="dstvNote" placeholder="Optional"/></div>
+            </div>`;
+        }
+      }
+      $('#billCat').onchange=render; render();
+      $('#billCancel').onclick=()=>overlay.classList.remove('show');
+      $('#billPay').onclick=()=>{
+        overlay.classList.remove('show'); toast('success','Bill paid successfully');
+        prependTx({type:'Sent',name:$('#billCat').value.toUpperCase(),desc:'Bill/Top-up',amount:-Math.abs(parseFloat($('#billAmt').value)||0),status:'completed'});
+      };
+    }
+
+    // 4) CARDS
+    let cards = [
+      {id:'virt', brand:'DemiPay VISA', masked:'•••• 3321', type:'virtual', bank:'DemiPay', default:true},
+      {id:'lnk1', brand:'Visa', masked:'•••• 4452', type:'linked', bank:'GTBank'},
+      {id:'lnk2', brand:'Mastercard', masked:'•••• 9910', type:'linked', bank:'Monzo'}
+    ];
+    function renderCardsList(){
+      return cards.map(c=>`
+        <div style="display:flex;justify-content:space-between;align-items:center;border:1px solid var(--border);border-radius:12px;padding:10px;background:#fff">
+          <div style="display:flex;gap:10px;align-items:center">
+            <div style="width:46px;height:32px;border-radius:8px;background:${c.type==='virtual'?'#0f172a':'#e2e8f0'};color:${c.type==='virtual'?'#fff':'#111827'};display:grid;place-items:center; font-weight:700">
+              ${c.type==='virtual'?'VISA':(c.brand==='Mastercard'?'MC':'VISA')}
+            </div>
+            <div>
+              <div><strong>${c.type==='virtual'?'DemiPay VISA':c.bank+' '+c.brand'}</strong> ${c.default?'<span class="status completed" style="margin-left:6px">Default</span>':''}</div>
+              <div class="muted">${c.masked} • contactless</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn" onclick="setDefaultCard('${c.id}')">Set Default</button>
+            <button class="btn" onclick="removeCard('${c.id}')">Remove</button>
+          </div>
+        </div>`).join('');
+    }
+    function openCards(){
+      modalTitle.textContent='Virtual & Linked Cards';
+      modalBody.innerHTML = `
+        <div class="f">
+          <div class="label">Your Cards</div>
+          <div id="cardsList">${renderCardsList()}</div>
+          <hr/>
+          <div class="label">Add / Link Card</div>
+          <div class="row-2">
+            <div><input class="input" id="cardNo" placeholder="Card Number"/></div>
+            <div><input class="input" id="cardName" placeholder="Name on Card"/></div>
+          </div>
+          <div class="row-2">
+            <div><input class="input" id="cardExp" placeholder="MM/YY"/></div>
+            <div><input class="input" id="cardCvv" placeholder="CVV"/></div>
+          </div>
+        </div>`;
+      modalFooter.innerHTML = `<button class="btn" id="cardsClose">Close</button><button class="btn btn-primary" id="cardsAdd">Add/Link</button>`;
+      overlay.classList.add('show');
+      $('#cardsClose').onclick=()=>overlay.classList.remove('show');
+      $('#cardsAdd').onclick=()=>{
+        const no=$('#cardNo').value.trim(); if(no.length<12) return toast('error','Enter a valid card number');
+        cards.push({id:'lnk'+(Date.now()),brand:'Visa',masked:'•••• '+no.slice(-4),type:'linked',bank:'Linked'});
+        $('#cardsList').innerHTML=renderCardsList(); toast('success','Card linked');
+      };
+    }
+    window.setDefaultCard=(id)=>{
+      cards = cards.map(c=>({...c, default:c.id===id}));
+      if($('#cardsList')) $('#cardsList').innerHTML=renderCardsList();
+      toast('success','Default card set');
+    };
+    window.removeCard=(id)=>{
+      cards = cards.filter(c=>c.id!==id);
+      if($('#cardsList')) $('#cardsList').innerHTML=renderCardsList();
+      toast('warn','Card removed');
+    };
+
+    // 5) PAY ONLINE
+    function openPayOnline(){
+      modalTitle.textContent='Checkout — DemoStore';
+      modalBody.innerHTML = `
+        <div class="f">
+          <div class="label">Cart</div>
+          <div style="border:1px solid var(--border);border-radius:10px;padding:10px">
+            <div style="display:flex;justify-content:space-between"><span>Wireless Headset</span><strong>$49.00</strong></div>
+            <div style="display:flex;justify-content:space-between"><span>USB-C Cable</span><strong>$9.00</strong></div>
+            <div style="display:flex;justify-content:space-between;border-top:1px dashed var(--border);margin-top:6px;padding-top:6px"><span>Total</span><strong>$58.00</strong></div>
+          </div>
+          <div class="label">Payment Method</div>
+          <select class="select" id="coPay"><option>DemiPay Wallet</option><option>Default Card</option></select>
+        </div>`;
+      modalFooter.innerHTML = `<button class="btn" id="coCancel">Cancel</button><button class="btn btn-primary" id="coPayBtn">Pay Now</button>`;
+      overlay.classList.add('show');
+      $('#coCancel').onclick=()=>overlay.classList.remove('show');
+      $('#coPayBtn').onclick=()=>{ overlay.classList.remove('show'); toast('success','Payment successful ✅'); prependTx({type:'Sent',name:'DemoStore',desc:'Online purchase',amount:-58,status:'completed'}) };
+    }
+
+    // 6) SHOP ON THE FLY
+    function openShop(){
+      modalTitle.textContent='Shop on the Fly';
+      modalBody.innerHTML = `
+        <div class="grid grid-3">
+          <div class="card"><strong>Taxi</strong><div class="muted">Uber • Bolt</div><div style="margin-top:6px;display:flex;gap:8px"><a class="btn" href="#" onclick="toast('success','Redirect to Uber (mock)')">Uber</a><a class="btn" href="#" onclick="toast('success','Redirect to Bolt (mock)')">Bolt</a></div></div>
+          <div class="card"><strong>Entertainment</strong><div class="muted">Tickets</div><div style="margin-top:6px"><a class="btn" href="#" onclick="toast('success','Cinema (mock)')">Cinemas</a> <a class="btn" href="#" onclick="toast('success','Football tickets (mock)')">Football</a></div></div>
+          <div class="card"><strong>Shops</strong><div class="muted">eBay • Temu • AliExpress</div><div style="margin-top:6px"><a class="btn" href="#" onclick="toast('success','eBay (mock)')">eBay</a> <a class="btn" href="#" onclick="toast('success','Temu (mock)')">Temu</a> <a class="btn" href="#" onclick="toast('success','AliExpress (mock)')">AliExpress</a></div></div>
+          <div class="card"><strong>Food</strong><div class="muted">KFC • Domino’s</div><div style="margin-top:6px"><a class="btn" href="#" onclick="toast('success','KFC (mock)')">KFC</a> <a class="btn" href="#" onclick="toast('success','Domino’s (mock)')">Domino’s</a></div></div>
+        </div>`;
+      modalFooter.innerHTML = `<button class="btn" onclick="document.getElementById('overlay').classList.remove('show')">Close</button>`;
+      overlay.classList.add('show');
+    }
+
+    // 7) INVESTMENTS & STOCKS
+    let holdings = [];
+    function openInvest(){
+      modalTitle.textContent='Investments & Stocks';
+      modalBody.innerHTML = `
+        <div style="display:flex;gap:8px;margin-bottom:8px">
+          <button class="btn" id="tabStocks">Stocks</button>
+          <button class="btn" id="tabInvest">Investments</button>
+        </div>
+        <div id="invPane"></div>
+        <hr/>
+        <div>
+          <strong>My Holdings</strong>
+          <div id="myHoldings" class="muted">None yet</div>
+        </div>`;
+      modalFooter.innerHTML = `<button class="btn" onclick="document.getElementById('overlay').classList.remove('show')">Close</button>`;
+      overlay.classList.add('show');
+
+      const pane = $('#invPane');
+      function renderHoldings(){
+        $('#myHoldings').innerHTML = holdings.length? holdings.map(h=>`${h.symbol} • ${h.qty} @ $${h.price}`).join('<br/>'):'None yet';
+      }
+      function stocks(){
+        pane.innerHTML = `
+          <div class="f">
+            <div style="display:flex;justify-content:space-between;align-items:center;border:1px solid var(--border);border-radius:10px;padding:10px">
+              <div><strong>AAPL</strong><div class="muted">Apple Inc.</div></div><div>$185.20</div>
+              <button class="btn btn-primary" onclick="buyStock('AAPL',185.20)">Buy</button>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;border:1px solid var(--border);border-radius:10px;padding:10px">
+              <div><strong>MSFT</strong><div class="muted">Microsoft</div></div><div>$412.34</div>
+              <button class="btn btn-primary" onclick="buyStock('MSFT',412.34)">Buy</button>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;border:1px solid var(--border);border-radius:10px;padding:10px">
+              <div><strong>NVDA</strong><div class="muted">NVIDIA</div></div><div>$123.00</div>
+              <button class="btn btn-primary" onclick="buyStock('NVDA',123.00)">Buy</button>
+            </div>
+          </div>`;
+      }
+      function invest(){
+        pane.innerHTML = `
+          <div class="f">
+            <div style="display:flex;justify-content:space-between;align-items:center;border:1px solid var(--border);border-radius:10px;padding:10px">
+              <div><strong>T-Bill 6M</strong><div class="muted">Yield 9.2%</div></div><div>$100 min</div>
+              <button class="btn btn-primary" onclick="buyStock('TBILL6M',100)">Buy</button>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;border:1px solid var(--border);border-radius:10px;padding:10px">
+              <div><strong>Index Fund S&P</strong><div class="muted">Low fee</div></div><div>$50 min</div>
+              <button class="btn btn-primary" onclick="buyStock('SPINDEX',50)">Buy</button>
+            </div>
+          </div>`;
+      }
+      window.buyStock=(symbol,price)=>{
+        holdings.push({symbol,qty:1,price}); toast('success',`${symbol} purchased`);
+        renderHoldings();
+      };
+      $('#tabStocks').onclick=()=>stocks();
+      $('#tabInvest').onclick=()=>invest();
+      stocks(); renderHoldings();
+    }
+
+    // 8) BECOME AN AGENT (camera capture + required NIN + Business Name)
+    function openAgent(){
+      modalTitle.textContent='Become an Agent';
+      modalBody.innerHTML = `
+        <div class="f">
+          <div class="row-2">
+            <div>
+              <div class="label">Business Name</div>
+              <input class="input" id="agBiz" placeholder="e.g., Demi Ventures"/>
+            </div>
+            <div>
+              <div class="label">Full Name</div>
+              <input class="input" id="agName" placeholder="First Last"/>
+            </div>
+          </div>
+          <div>
+            <div class="label">National Identification Number (NIN) – required</div>
+            <input class="input" id="agNIN" maxlength="11" placeholder="11 digits"/>
+          </div>
+
+          <div class="label">Identity Photo</div>
+          <div style="display:grid;gap:8px">
+            <video id="agVideo" width="420" height="280" style="border:1px solid var(--border);border-radius:10px;background:#000" playsinline></video>
+            <canvas id="agCanvas" width="420" height="280" style="display:none"></canvas>
+            <div style="display:flex;gap:8px">
+              <button class="btn" id="camStart">Start Camera</button>
+              <button class="btn" id="camCapture">Capture</button>
+              <button class="btn" id="camStop">Stop Camera</button>
+            </div>
+            <img id="agPhoto" alt="Captured" style="max-width:100%;border-radius:10px;display:none;border:1px solid var(--border)"/>
+          </div>
+        </div>`;
+      modalFooter.innerHTML = `<button class="btn" id="agCancel">Cancel</button><button class="btn btn-primary" id="agSubmit">Submit Application</button>`;
+      overlay.classList.add('show');
+
+      let stream=null;
+      const video=$('#agVideo'), canvas=$('#agCanvas'), img=$('#agPhoto');
+      const startCam=async()=>{
+        try{
+          stream = await navigator.mediaDevices.getUserMedia({video:true});
+          video.srcObject=stream; video.onloadedmetadata=()=>video.play();
+        }catch(e){ toast('error','Camera not available'); }
+      };
+      const stopCam=()=>{ if(stream){ stream.getTracks().forEach(t=>t.stop()); stream=null; } };
+      const capture=()=>{
+        const ctx=canvas.getContext('2d');
+        ctx.drawImage(video,0,0,canvas.width,canvas.height);
+        img.src=canvas.toDataURL('image/png');
+        img.style.display='block';
+        toast('success','Photo captured');
+      };
+      $('#camStart').onclick=startCam;
+      $('#camStop').onclick=stopCam;
+      $('#camCapture').onclick=capture;
+      $('#agCancel').onclick=()=>{ stopCam(); overlay.classList.remove('show'); };
+      $('#agSubmit').onclick=()=>{
+        const nin = $('#agNIN').value.trim();
+        if(nin.length!==11) return toast('error','NIN must be 11 digits');
+        stopCam(); overlay.classList.remove('show');
+        toast('success','Agent application submitted');
+        prependTx({type:'Received',name:$('#agBiz').value||'Agent Onboarding',desc:'Bonus (mock)',amount:+25,status:'completed'});
+      };
+    }
+
+    // Recent Transactions — mock + alignment
+    const txEl = $('#transactionsList');
+    let txData = [
+      {type:'Sent',name:'Netflix',desc:'Subscription',amount:-15.99,status:'completed'},
+      {type:'Received',name:'Upwork Ltd',desc:'Invoice #1007',amount:+420,status:'completed'},
+      {type:'Sent',name:'Bolt',desc:'Ride payment',amount:-12.8,status:'completed'},
+      {type:'Received',name:'Refund',desc:'Order 5532',amount:+38.5,status:'pending'}
+    ];
+    function renderTx(){
+      txEl.innerHTML = txData.map(t=>`
+        <div class="tx">
+          <div class="tx-info">
+            <div class="tx-ico">${t.amount>0?'📥':'💸'}</div>
+            <div>
+              <div><strong>${t.type}</strong> • ${t.name}</div>
+              <div class="tx-meta">${t.desc}</div>
             </div>
           </div>
           <div style="text-align:right">
-            <div class="amount ${t.amount>=0?"pos":"neg"}">${t.amount>=0?"+":"-"}$${Math.abs(t.amount).toFixed(2)}</div>
-            <div class="status">${t.status}</div>
+            <div class="amt ${t.amount>0?'positive':'negative'}">
+              ${t.amount>0?'+':''}${t.amount.toLocaleString('en-US',{style:'currency',currency:'USD'})}
+            </div>
+            <div class="status ${t.status}">${t.status}</div>
           </div>
-        </div>
-      `).join("");
+        </div>`).join('');
     }
+    function prependTx(t){ txData.unshift(t); renderTx(); }
     renderTx();
 
-    // ---------- Helpers ----------
-    function closeAllModals(){ $$(".overlay.show").forEach(o=>o.classList.remove("show")); }
+    // Refresh balance (mock)
+    $('#refreshBalanceBtn').addEventListener('click', ()=>{
+      const delta = (Math.random()*50-25).toFixed(2);
+      const current = parseFloat($('#balanceAmount').textContent.replace(/[^0-9.]/g,''))||5820.24;
+      const next = Math.max(0, current + parseFloat(delta));
+      $('#balanceAmount').textContent = next.toLocaleString('en-US',{style:'currency',currency:'USD'});
+      toast('success','Balance refreshed');
+    });
 
-    // Welcome ping
-    setTimeout(()=>showToast("success","👋 Welcome back, Demi — wallet synced"),600);
+    // View All (mock)
+    $('#viewAllBtn').addEventListener('click', ()=> toast('success','History page coming soon'));
   </script>
 </body>
 </html>
