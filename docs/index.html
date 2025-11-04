@@ -1,1012 +1,1016 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>DemiPay v5.8 (₦ Edition) — Money Moves</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>DemiPay v6.0 — ₦ Edition</title>
 
-<!-- ===== Base Styles (scoped for demo) ===== -->
+<!-- ====== Fonts & Icons (optional) ====== -->
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<!-- ====== Chart.js (for Savings pie) ====== -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <style>
   :root{
-    --bg:#f7f9fc;
-    --card:#ffffff;
-    --text:#0f172a;
-    --muted:#64748b;
-    --brand:#2dd4bf;
-    --brand2:#3b82f6;
-    --danger:#ef4444;
-    --success:#22c55e;
-    --shadow:0 8px 24px rgba(0,0,0,.08);
-    --radius:16px;
-    --ring:0 0 0 3px rgba(59,130,246,.25);
+    --bg:#ffffff; --fg:#0f172a; --muted:#64748b; --card:#ffffff; --line:#eef2f7;
+    --primary:#2563eb; --primary-2:#3b82f6; --accent:#2dd4bf; --accent-2:#14b8a6;
+    --success:#16a34a; --warn:#f59e0b; --error:#dc2626;
+    --shadow:0 6px 18px rgba(15,23,42,.08);
+    --radius:14px; --gap:26px;
   }
   body.dark{
-    --bg:#0b1220;
-    --card:#0f172a;
-    --text:#e2e8f0;
-    --muted:#94a3b8;
-    --shadow:0 8px 24px rgba(0,0,0,.45);
+    --bg:#0b1220; --fg:#e2e8f0; --muted:#93a3b8; --card:#0f172a; --line:#1f2a44;
+    --primary:#60a5fa; --primary-2:#93c5fd; --accent:#34d399; --accent-2:#10b981;
+    --shadow:0 8px 22px rgba(2,6,23,.5);
   }
+
   *{box-sizing:border-box}
-  html,body{margin:0;padding:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text)}
-  a{color:inherit;text-decoration:none}
-  .container{max-width:1100px;margin:0 auto;padding:24px}
+  html,body{height:100%}
+  body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--fg);}
 
-  /* ===== Navbar ===== */
-  .navbar{
-    position:sticky;top:0;z-index:1000;background:var(--card);
-    border-bottom:1px solid rgba(148,163,184,.15);
-    backdrop-filter: blur(6px);
-    box-shadow: 0 2px 12px rgba(0,0,0,.05);
-  }
-  .nav-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:12px 16px;gap:12px}
+  /* ====== NAV ====== */
+  .navbar{position:sticky;top:0;z-index:1000;background:var(--card);border-bottom:1px solid var(--line);
+    box-shadow:0 4px 16px rgba(0,0,0,.04);backdrop-filter:blur(6px)}
+  .nav-wrap{max-width:1100px;margin:auto;display:flex;align-items:center;justify-content:space-between;padding:14px 18px}
   .brand{display:flex;align-items:center;gap:10px;font-weight:800}
-  .brand .logo{font-size:20px}
-  .badge{font-size:12px;border:1px solid rgba(148,163,184,.35);padding:2px 8px;border-radius:999px}
-  .menu{display:flex;align-items:center;gap:10px}
-  .btn{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(148,163,184,.35);background:var(--card);color:var(--text);padding:8px 12px;border-radius:10px;cursor:pointer}
-  .btn:hover{box-shadow:var(--shadow)}
-  .btn-primary{background:linear-gradient(90deg,var(--brand),var(--brand2));border:none;color:#fff}
-  .user-menu{position:relative}
-  .user-btn{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:10px;border:1px solid rgba(148,163,184,.35);background:var(--card);cursor:pointer}
-  .avatar{width:28px;height:28px;border-radius:50%;object-fit:cover;border:1px solid rgba(148,163,184,.35)}
-  .dropdown{position:absolute;right:0;top:44px;background:var(--card);border:1px solid rgba(148,163,184,.25);border-radius:12px;box-shadow:var(--shadow);display:none;min-width:200px;overflow:hidden}
-  .dropdown.show{display:block;animation:fadeIn .15s ease}
-  .dropdown a,.dropdown button{display:flex;width:100%;gap:8px;align-items:center;padding:10px 12px;background:none;border:none;color:var(--text);cursor:pointer}
-  .dropdown a:hover,.dropdown button:hover{background:rgba(148,163,184,.12)}
-  @keyframes fadeIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+  .brand .logo{font-size:22px}
+  .brand .name{font-size:18px;letter-spacing:.2px}
+  .badge{font-size:12px;padding:4px 8px;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--primary-2));color:#fff}
 
-  /* ===== Header / Balance ===== */
-  .welcome h1{margin:0 0 6px}
-  .muted{color:var(--muted)}
-  .grid{display:grid;gap:16px}
-  .card{background:var(--card);border:1px solid rgba(148,163,184,.15);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px}
-  .balance-row{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
-  .balance-amount{font-size:32px;font-weight:800;letter-spacing:.3px}
-  .wallet-meta{font-size:14px;color:var(--muted);margin-top:6px}
+  .nav-cta{display:flex;align-items:center;gap:12px}
+  .btn{display:inline-flex;align-items:center;gap:8px;border:0;border-radius:12px;padding:9px 12px;cursor:pointer;
+    background:#eef2ff;color:#1e293b;font-weight:600;transition:transform .18s ease, box-shadow .18s ease}
+  .btn:hover{transform:translateY(-1px);box-shadow:var(--shadow)}
+  .btn-primary{background:linear-gradient(90deg,var(--primary),var(--primary-2));color:#fff}
+  .btn-ghost{background:transparent;border:1px solid var(--line);color:var(--fg)}
+  .tiny{font-size:13px;padding:8px 10px;border-radius:10px}
 
-  /* ===== Banners ===== */
-  .banner{display:flex;gap:12px;align-items:center;border-left:6px solid var(--brand2)}
-  .banner .emoji{font-size:20px}
+  .user-menu{position:relative;display:flex;align-items:center;gap:8px}
+  .avatar{width:28px;height:28px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,.7);box-shadow:var(--shadow)}
+  .user-btn{display:flex;align-items:center;gap:8px;cursor:pointer;border:1px solid var(--line);padding:6px 10px;border-radius:12px;background:var(--card)}
+  .dropdown{position:absolute;right:0;top:46px;background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);display:none;min-width:200px;overflow:hidden}
+  .dropdown.show{display:block;animation:fadeIn .16s ease}
+  .dropdown a{display:flex;align-items:center;gap:8px;padding:10px 12px;text-decoration:none;color:var(--fg)}
+  .dropdown a:hover{background:rgba(99,102,241,.08)}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
 
-  /* ===== Money Moves & Services ===== */
-  .section-title{margin:0 0 8px}
-  .actions,.services{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
-  .action,.service{background:var(--card);border:1px solid rgba(148,163,184,.18);border-radius:14px;padding:16px;cursor:pointer;transition:.2s;display:flex;flex-direction:column;gap:4px}
-  .action:hover,.service:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
-  .action .icon,.service .icon{font-size:22px}
-  .action .title,.service .title{font-weight:700}
-  .action .desc,.service .desc{font-size:13px;color:var(--muted)}
-  .hover-pulse:hover{box-shadow:0 0 0 4px rgba(59,130,246,.15)}
+  /* ====== LAYOUT ====== */
+  .container{max-width:1100px;margin:0 auto;padding:22px 18px}
+  .section{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px}
+  .spacer{height:24px}
 
-  /* ===== Transactions ===== */
+  .headline{margin:0 0 6px 0;font-size:26px}
+  .sub{margin:0;color:var(--muted)}
+
+  /* ====== BALANCE ====== */
+  .balance{display:flex;align-items:center;justify-content:space-between;gap:22px}
+  .balance .amount{font-size:34px;margin:6px 0 8px 0}
+  .meta{color:var(--muted);font-size:14px}
+  .row{display:flex;gap:14px;flex-wrap:wrap}
+  .chip{padding:6px 10px;border-radius:999px;background:rgba(99,102,241,.09);color:var(--primary);font-weight:600;font-size:12px}
+
+  /* ====== BANNERS ====== */
+  .banner{display:flex;gap:12px;align-items:center;padding:14px;border-radius:12px;border:1px dashed var(--line);background:rgba(45,212,191,.08)}
+  .banner.fin{background:rgba(59,130,246,.08)}
+
+  /* ====== ACTION GRID ====== */
+  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  @media (max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}}
+  .card-btn{border:1px solid var(--line);background:var(--card);border-radius:14px;padding:16px;display:flex;gap:12px;align-items:center;justify-content:space-between;cursor:pointer;position:relative;overflow:hidden}
+  .card-btn:hover{box-shadow:var(--shadow);transform:translateY(-1px)}
+  .card-btn .l{display:flex;align-items:center;gap:12px}
+  .icon{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(180deg,var(--accent),var(--accent-2));color:#fff;font-size:22px}
+  .card-btn .title{font-weight:700}
+  .card-btn .desc{font-size:12px;color:var(--muted)}
+  .pulse-hover:hover::after{content:"";position:absolute;inset:-1px;border-radius:16px;box-shadow:0 0 0 6px rgba(45,212,191,.15);animation:pulse .9s ease forwards}
+  @keyframes pulse{from{opacity:1}to{opacity:0}}
+
+  /* ====== SERVICES ====== */
+  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  @media (max-width:900px){.grid-3{grid-template-columns:1fr}}
+  .svc{border:1px solid var(--line);background:var(--card);border-radius:14px;padding:16px;cursor:pointer}
+  .svc h4{margin:0 0 6px 0}
+  .svc p{margin:0;color:var(--muted);font-size:13px}
+  .svc:hover{box-shadow:var(--shadow);transform:translateY(-1px)}
+
+  /* ====== TRANSACTIONS ====== */
   .tx-list{display:flex;flex-direction:column;gap:10px}
-  .tx{display:flex;justify-content:space-between;align-items:center;border:1px solid rgba(148,163,184,.18);border-radius:12px;padding:12px;background:var(--card)}
-  .tx-left{display:flex;gap:10px;align-items:center}
-  .tx-ic{width:36px;height:36px;border-radius:8px;display:grid;place-items:center;font-size:18px;background:rgba(148,163,184,.12)}
-  .tx-right{text-align:right}
-  .positive{color:var(--success);font-weight:700}
-  .negative{color:var(--danger);font-weight:700}
-  .status{font-size:12px;color:var(--muted)}
+  .tx{display:flex;align-items:center;justify-content:space-between;border:1px solid var(--line);padding:10px 12px;border-radius:12px;background:var(--card)}
+  .tx .left{display:flex;align-items:center;gap:10px}
+  .tx .who{font-weight:700}
+  .tx .note{color:var(--muted);font-size:12px}
+  .amount.plus{color:var(--success);font-weight:800}
+  .amount.minus{color:var(--error);font-weight:800}
+  .status{font-size:11px;padding:4px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
 
-  /* ===== Modals ===== */
-  .overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:2000}
-  .overlay.show{display:flex;animation:fadeIn .15s ease}
-  .modal{width:min(560px,92vw);background:var(--card);border:1px solid rgba(148,163,184,.25);border-radius:16px;box-shadow:var(--shadow);overflow:hidden}
-  .modal-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid rgba(148,163,184,.2)}
-  .modal-body{padding:16px}
-  .modal-footer{padding:14px 16px;border-top:1px solid rgba(148,163,184,.2);display:flex;justify-content:flex-end;gap:10px}
-  .close-x{background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted)}
-  .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  .col{display:flex;flex-direction:column;gap:6px}
-  label{font-size:13px;color:var(--muted)}
-  input,select,textarea{padding:10px 12px;border-radius:10px;border:1px solid rgba(148,163,184,.35);background:var(--card);color:var(--text)}
-  input:focus,select:focus,textarea:focus{outline:none;box-shadow:var(--ring)}
-  textarea{min-height:84px;resize:vertical}
+  /* ====== MODALS ====== */
+  .overlay{position:fixed;inset:0;background:rgba(2,6,23,.6);display:none;align-items:center;justify-content:center;padding:18px;z-index:2000}
+  .overlay.show{display:flex;animation:fadeIn .12s ease}
+  .modal{background:var(--card);color:var(--fg);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);max-width:560px;width:100%;overflow:hidden}
+  .mod-h{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--line)}
+  .mod-b{padding:16px}
+  .mod-f{display:flex;gap:10px;justify-content:flex-end;padding:14px 16px;border-top:1px solid var(--line)}
+  .input{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--fg)}
+  label{font-size:12px;color:var(--muted)}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .help{font-size:12px;color:var(--muted)}
 
-  /* Toasts */
-  .toast{position:fixed;top:16px;right:16px;padding:12px 16px;border-radius:12px;color:#fff;z-index:3000;box-shadow:var(--shadow);opacity:0;transform:translateY(-12px);transition:.25s}
+  /* ====== Toasts ====== */
+  .toast{position:fixed;top:18px;right:18px;z-index:3000;padding:12px 16px;border-radius:12px;color:#fff;box-shadow:var(--shadow);opacity:0;transform:translateY(-10px);transition:all .25s ease}
   .toast.show{opacity:1;transform:translateY(0)}
-  .toast-success{background:linear-gradient(90deg,#22c55e,#16a34a)}
-  .toast-error{background:linear-gradient(90deg,#ef4444,#dc2626)}
-  .toast-warning{background:linear-gradient(90deg,#f59e0b,#d97706)}
-  .toast-bottom{position:fixed;bottom:16px;left:16px}
+  .toast.success{background:linear-gradient(90deg,#22c55e,#16a34a)}
+  .toast.error{background:linear-gradient(90deg,#ef4444,#dc2626)}
+  .toast.warn{background:linear-gradient(90deg,#f59e0b,#d97706)}
 
-  /* Scroll-to-top */
-  #scrollTop{position:fixed;bottom:20px;right:20px;width:44px;height:44px;border-radius:999px;border:none;background:linear-gradient(90deg,var(--brand),var(--brand2));color:#fff;display:none;align-items:center;justify-content:center;cursor:pointer;z-index:1200}
-  #scrollTop.show{display:flex}
+  .toast-bottom{position:fixed;left:18px;bottom:18px;z-index:3000;padding:12px 16px;border-radius:12px;color:#fff;box-shadow:var(--shadow);opacity:0;transform:translateY(10px);transition:all .25s ease}
+  .toast-bottom.show{opacity:1;transform:translateY(0)}
+  .toast-bottom.info{background:linear-gradient(90deg,#3b82f6,#2563eb)}
 
-  /* Small screens */
-  @media (max-width:900px){
-    .actions,.services{grid-template-columns:repeat(2,1fr)}
-    .row{grid-template-columns:1fr}
-    .balance-row{flex-direction:column}
-  }
+  /* ====== QR holder ====== */
+  .qr{display:grid;place-items:center;border:1px dashed var(--line);border-radius:12px;padding:14px}
+  canvas{max-width:100%}
 </style>
 </head>
-
 <body>
-  <!-- ===== NAVBAR ===== -->
-  <nav class="navbar">
-    <div class="nav-inner">
-      <div class="brand" onclick="location.href='index.html'" style="cursor:pointer">
-        <div class="logo">🚀</div>
-        <div>DemiPay</div>
-        <div class="badge">v5.8 (₦)</div>
-      </div>
 
-      <div class="menu">
-        <button class="btn" id="themeToggle"><span id="themeIcon">🌙</span><span id="themeText">Dark Mode</span></button>
-
-        <div class="user-menu">
-          <button class="user-btn" id="userMenuBtn">
-            <img class="avatar" id="userAvatar" alt="User" src="https://i.pravatar.cc/64?img=12" />
-            <span id="userName">Demi</span> ▾
-          </button>
-          <div class="dropdown" id="userDropdown">
-            <button id="openProfile">👤 Profile</button>
-            <button id="openSettings">⚙️ Settings</button>
-            <div style="height:1px;background:rgba(148,163,184,.2);margin:4px 0"></div>
-            <button id="logoutBtn">🚪 Logout</button>
-          </div>
-        </div>
-      </div>
+<!-- ================= NAV ================= -->
+<nav class="navbar">
+  <div class="nav-wrap">
+    <div class="brand" onclick="location.href='index.html'">
+      <div class="logo">🚀</div>
+      <div class="name">DemiPay</div>
+      <span class="badge">v6.0 ₦ Edition</span>
     </div>
-  </nav>
 
-  <!-- ===== PAGE ===== -->
-  <main class="container">
-    <!-- Welcome -->
-    <section class="card welcome">
-      <h1>Welcome back, Demi 👋</h1>
-      <div class="muted">Here’s what’s happening with your wallet today.</div>
-    </section>
-
-    <!-- Balance -->
-    <section class="card">
-      <div class="balance-row">
-        <div>
-          <div class="muted">Total Balance</div>
-          <div class="balance-amount" id="balanceAmount">₦0.00</div>
-          <div class="wallet-meta" id="walletAddress">Wallet: Loading…</div>
-          <div class="wallet-meta">Account No: <b>DP-1029345678</b> • KYC: <b>Tier 2 (Verified)</b></div>
+    <div class="nav-cta">
+      <button id="themeBtn" class="btn tiny">🌙 Dark Mode</button>
+      <div class="user-menu">
+        <div class="user-btn" id="userBtn">
+          <img id="userAvatar" class="avatar" src="https://i.pravatar.cc/80?img=12" alt="User">
+          <span id="userName">Demi</span> ▾
         </div>
-        <div style="display:flex;gap:10px">
-          <button class="btn" id="refreshBalance"><span>🔄</span>Refresh</button>
-          <button class="btn btn-primary" id="addMoneyQuick">➕ Add Money</button>
+        <div class="dropdown" id="userDrop">
+          <a href="#" id="profileLink">👤 Profile</a>
+          <a href="#" id="settingsLink">⚙️ Settings</a>
+          <a href="#" id="logoutLink">🚪 Logout</a>
         </div>
-      </div>
-    </section>
-
-    <!-- Banners -->
-    <section class="grid">
-      <div class="card banner">
-        <div class="emoji">🔒</div>
-        <div>
-          <div class="title" style="font-weight:700">Security</div>
-          <div class="muted">Your wallet is protected with encryption and OTP verification.</div>
-        </div>
-      </div>
-      <div class="card banner" style="border-left-color:var(--brand)">
-        <div class="emoji">💹</div>
-        <div>
-          <div class="title" style="font-weight:700">Finance Updates</div>
-          <div class="muted">FX: ₦1 ≈ $0.0012 • Earn +5% APY bonus this week!</div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Money Moves -->
-    <section class="card">
-      <h3 class="section-title">Money Moves</h3>
-      <div class="actions">
-        <div class="action hover-pulse" id="sendMoney">
-          <div class="icon">💸</div>
-          <div class="title">Send Money</div>
-          <div class="desc">Instant P2P transfer</div>
-        </div>
-        <div class="action hover-pulse" id="receiveMoney">
-          <div class="icon">📥</div>
-          <div class="title">Receive Money</div>
-          <div class="desc">QR & account share</div>
-        </div>
-        <div class="action hover-pulse" id="addWithdraw">
-          <div class="icon">➕</div>
-          <div class="title">Add / Withdraw</div>
-          <div class="desc">Card or bank (mock)</div>
-        </div>
-        <div class="action hover-pulse" id="bankTransfer">
-          <div class="icon">🏦</div>
-          <div class="title">Bank Transfer</div>
-          <div class="desc">Multi-region banks</div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Services -->
-    <section class="card">
-      <h3 class="section-title">Services</h3>
-      <div class="services">
-        <div class="service" data-service="fx">
-          <div class="icon">🌍</div>
-          <div class="title">Cross-Border Remittance</div>
-          <div class="desc">Preview FX & send abroad</div>
-        </div>
-        <div class="service" data-service="savings">
-          <div class="icon">💰</div>
-          <div class="title">Savings</div>
-          <div class="desc">Goals • SO • Chart</div>
-        </div>
-        <div class="service" data-service="bills">
-          <div class="icon">💡</div>
-          <div class="title">Pay Bills & Top-Up</div>
-          <div class="desc">Utilities • Airtime</div>
-        </div>
-        <div class="service" data-service="cards">
-          <div class="icon">💳</div>
-          <div class="title">Virtual & Linked Cards</div>
-          <div class="desc">Add • Link • Default</div>
-        </div>
-        <div class="service" data-service="payonline">
-          <div class="icon">🛒</div>
-          <div class="title">Pay Online</div>
-          <div class="desc">Checkout (₦ / $)</div>
-        </div>
-        <div class="service" data-service="shop">
-          <div class="icon">🏬</div>
-          <div class="title">Shop on the Fly</div>
-          <div class="desc">Affiliates & deals</div>
-        </div>
-        <div class="service" data-service="invest">
-          <div class="icon">📈</div>
-          <div class="title">Investments & Stocks</div>
-          <div class="desc">$ prices • buy</div>
-        </div>
-        <div class="service" data-service="agent">
-          <div class="icon">🧍‍♂️</div>
-          <div class="title">Become an Agent</div>
-          <div class="desc">Photo + NIN + Biz</div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Transactions -->
-    <section class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <h3 class="section-title">Recent Transactions</h3>
-        <button class="btn" id="viewAllTx">View All</button>
-      </div>
-      <div class="tx-list" id="txList"></div>
-    </section>
-  </main>
-
-  <!-- Scroll to top -->
-  <button id="scrollTop" title="Back to top">⬆️</button>
-
-  <!-- ========= Modals (reused overlay) ========= -->
-  <div class="overlay" id="overlay">
-    <div class="modal" role="dialog" aria-modal="true">
-      <div class="modal-header">
-        <div id="modalTitle" style="font-weight:800">Title</div>
-        <button class="close-x" id="modalClose">✕</button>
-      </div>
-      <div class="modal-body" id="modalBody">
-        <!-- dynamic content -->
-      </div>
-      <div class="modal-footer" id="modalFooter">
-        <!-- dynamic buttons -->
       </div>
     </div>
   </div>
+</nav>
 
-  <!-- Toasts -->
-  <div id="toastTop" class="toast"></div>
-  <div id="toastBottom" class="toast toast-bottom"></div>
+<div class="container">
+  <!-- ================= WELCOME ================= -->
+  <section class="section">
+    <h1 class="headline">Welcome back, Demi 👋</h1>
+    <p class="sub">Here’s what’s happening with your wallet today.</p>
+  </section>
 
-<script>
-/* ==========================
-   Utilities / Mock Data
-========================== */
-const state = {
-  user: { id:'u_1', name:'Demi', avatar:'https://i.pravatar.cc/64?img=12', wallet:'DPX-7FA1-AB12' },
-  balance: 125000, // NGN
-  tx: [
-    { id:'t1', kind:'Received', name:'Upwork Ltd', desc:'Freelance Payment', amount:+52000, status:'completed', ts:Date.now()-3600e3 },
-    { id:'t2', kind:'Sent', name:'Bolt', desc:'Ride Payment', amount:-1800, status:'completed', ts:Date.now()-2*3600e3 },
-    { id:'t3', kind:'Sent', name:'Netflix', desc:'Monthly Subscription', amount:-6500, status:'pending', ts:Date.now()-26*3600e3 },
-    { id:'t4', kind:'Received', name:'Jane Smith', desc:'Refund', amount:+12000, status:'completed', ts:Date.now()-3*24*3600e3 },
-    { id:'t5', kind:'Sent', name:'Airtime', desc:'Top-up MTN', amount:-1500, status:'completed', ts:Date.now()-6*24*3600e3 },
-  ],
-  fxRate: 1500, // ₦ per $ (mock)
-  defaultCard: 'virtual',
-  cards: [
-    { id:'virtual', brand:'DemiPay VISA', last4:'8844', type:'virtual', bank:'DemiPay', contactless:true },
-    { id:'gtb', brand:'GTBank', last4:'1022', type:'linked', bank:'GTBank', contactless:true },
-    { id:'uba', brand:'UBA', last4:'5590', type:'linked', bank:'UBA', contactless:true },
-    { id:'zen', brand:'Zenith', last4:'3311', type:'linked', bank:'Zenith', contactless:true },
-  ],
-  savings: [
-    { id:'sv1', name:'Emergency', amount:60000, color:'#3b82f6' },
-    { id:'sv2', name:'Rent', amount:100000, color:'#22c55e' },
-    { id:'sv3', name:'Holiday', amount:30000, color:'#f59e0b' },
-  ],
-  cart: []
-};
+  <div class="spacer"></div>
 
-const qs = (sel, root=document)=>root.querySelector(sel);
-const qsa = (sel, root=document)=>Array.from(root.querySelectorAll(sel));
-const fmtNGN = v => '₦'+(Number(v||0)).toLocaleString('en-NG', {maximumFractionDigits:2});
-const fmtUSD = v => '$'+(Number(v||0)).toLocaleString('en-US', {maximumFractionDigits:2});
-const ago = t => {
-  const d = Math.floor((Date.now()-t)/1e3);
-  if(d<60) return d+'s ago';
-  const m=Math.floor(d/60); if(m<60) return m+'m ago';
-  const h=Math.floor(m/60); if(h<24) return h+'h ago';
-  const day=Math.floor(h/24); return day+'d ago';
-};
-function showToast(type='success', msg='') {
-  const el = qs('#toastTop');
-  el.className = `toast toast-${type==='success'?'toast-success':type==='error'?'toast-error':'toast-warning'}`;
-  el.textContent = msg;
-  requestAnimationFrame(()=>{ el.classList.add('show'); });
-  setTimeout(()=>el.classList.remove('show'), 2800);
-}
-function showSystemToast(type='success', msg='') {
-  const el = qs('#toastBottom');
-  el.className = `toast toast-bottom ${type==='success'?'toast-success':type==='error'?'toast-error':'toast-warning'}`;
-  el.textContent = msg;
-  requestAnimationFrame(()=>{ el.classList.add('show'); });
-  setTimeout(()=>el.classList.remove('show'), 3200);
-}
-
-/* ==========================
-   Navbar & Theme
-========================== */
-(function initNavbar(){
-  qs('#userAvatar').src = state.user.avatar;
-  qs('#userName').textContent = state.user.name;
-
-  const dd = qs('#userDropdown');
-  qs('#userMenuBtn').addEventListener('click', e=>{
-    e.stopPropagation();
-    dd.classList.toggle('show');
-  });
-  document.addEventListener('click', ()=>dd.classList.remove('show'));
-
-  qs('#openProfile').addEventListener('click', ()=>openProfile());
-  qs('#openSettings').addEventListener('click', ()=>openSettings());
-  qs('#logoutBtn').addEventListener('click', ()=>{ showToast('success','Logged out'); setTimeout(()=>location.reload(),600); });
-
-  const savedTheme = localStorage.getItem('demipay_theme') || 'light';
-  if(savedTheme==='dark'){ document.body.classList.add('dark'); qs('#themeIcon').textContent='☀️'; qs('#themeText').textContent='Light Mode'; }
-  qs('#themeToggle').addEventListener('click', ()=>{
-    document.body.classList.toggle('dark');
-    const dark = document.body.classList.contains('dark');
-    localStorage.setItem('demipay_theme', dark?'dark':'light');
-    qs('#themeIcon').textContent = dark?'☀️':'🌙';
-    qs('#themeText').textContent = dark?'Light Mode':'Dark Mode';
-    showToast('success', dark?'🌙 Dark mode enabled':'☀️ Light mode restored');
-  });
-})();
-
-/* ==========================
-   Header / Balance
-========================== */
-function refreshHeader(){
-  qs('#balanceAmount').textContent = fmtNGN(state.balance);
-  qs('#walletAddress').textContent = `Wallet: ${state.user.wallet}`;
-}
-refreshHeader();
-qs('#refreshBalance').addEventListener('click', ()=>{
-  // mock: +₦1,000
-  state.balance += 1000;
-  refreshHeader();
-  showToast('success','Balance updated (+₦1,000)');
-});
-qs('#addMoneyQuick').addEventListener('click', ()=>openAddWithdraw('add'));
-
-/* ==========================
-   Transactions
-========================== */
-function renderTx(){
-  const root = qs('#txList'); root.innerHTML='';
-  state.tx.slice(0,6).forEach(t=>{
-    const isPos = t.amount>0;
-    const el = document.createElement('div');
-    el.className='tx';
-    el.innerHTML = `
-      <div class="tx-left">
-        <div class="tx-ic">${isPos?'📥':'💸'}</div>
-        <div>
-          <div style="font-weight:700">${t.kind} ${t.name}</div>
-          <div class="muted" style="font-size:13px">${t.desc} • ${ago(t.ts)}</div>
+  <!-- ================= BALANCE ================= -->
+  <section class="section">
+    <div class="balance">
+      <div>
+        <div class="chip">KYC: Tier 2 (Verified)</div>
+        <div class="amount" id="balanceAmount">₦0.00</div>
+        <div class="meta">Wallet: <span id="walletAddr">DPW-23F9-88Q1</span></div>
+        <div class="row" style="margin-top:10px">
+          <button class="btn tiny btn-primary" id="refreshBalance">🔄 Refresh</button>
         </div>
       </div>
-      <div class="tx-right">
-        <div class="${isPos?'positive':'negative'}">${isPos?'+':'−'}${fmtNGN(Math.abs(t.amount))}</div>
-        <div class="status">${t.status}</div>
+      <div>
+        <div class="meta">Account No: <strong>DP-1029345678</strong></div>
+        <div class="meta">Summary: <span id="summaryBar">0 tx • ₦0 in • ₦0 out</span></div>
       </div>
-    `;
-    root.appendChild(el);
-  });
-}
-renderTx();
-qs('#viewAllTx').addEventListener('click', ()=>showSystemToast('warning','Full transaction history is coming soon.'));
-
-window.addEventListener('scroll', ()=>{
-  if(scrollY>240) qs('#scrollTop').classList.add('show'); else qs('#scrollTop').classList.remove('show');
-});
-qs('#scrollTop').addEventListener('click', ()=>window.scrollTo({top:0,behavior:'smooth'}));
-
-/* ==========================
-   Reusable Modal
-========================== */
-const overlay = qs('#overlay');
-qs('#modalClose').addEventListener('click', closeModal);
-overlay.addEventListener('click', e=>{ if(e.target===overlay) closeModal(); });
-function openModal(title, bodyHTML, footerHTML){
-  qs('#modalTitle').textContent = title;
-  qs('#modalBody').innerHTML = bodyHTML;
-  qs('#modalFooter').innerHTML = footerHTML || `<button class="btn" onclick="closeModal()">Cancel</button>`;
-  overlay.classList.add('show');
-}
-function closeModal(){ overlay.classList.remove('show'); }
-
-/* ==========================
-   Money Moves
-========================== */
-qs('#sendMoney').addEventListener('click', openSendMoney);
-qs('#receiveMoney').addEventListener('click', openReceiveMoney);
-qs('#addWithdraw').addEventListener('click', ()=>openAddWithdraw('add'));
-qs('#bankTransfer').addEventListener('click', openBankTransfer);
-
-function openSendMoney(){
-  openModal('Send Money (₦)', `
-    <div class="row">
-      <div class="col"><label>Recipient (Email / @Tag)</label><input id="sm_to" placeholder="e.g. jane@demipay.com or @janesmith"></div>
-      <div class="col"><label>Amount (₦)</label><input id="sm_amt" type="number" min="1" placeholder="1000"></div>
     </div>
-    <div class="col"><label>Note</label><textarea id="sm_note" placeholder="What’s this for?"></textarea></div>
-    <div class="col"><label>Fee (0.5%)</label><input id="sm_fee" disabled></div>
-    <div class="col"><label>Total</label><input id="sm_total" disabled></div>
-  `, `
-    <button class="btn" onclick="closeModal()">Cancel</button>
-    <button class="btn btn-primary" id="sm_send">Send</button>
-  `);
-  const amt = qs('#sm_amt'); const fee = qs('#sm_fee'); const total = qs('#sm_total');
-  const calc = ()=>{
-    const v = Number(amt.value||0);
-    const f = +(v*0.005).toFixed(2);
-    fee.value = fmtNGN(f);
-    total.value = fmtNGN(v+f);
-  };
-  amt.addEventListener('input', calc); calc();
-  qs('#sm_send').addEventListener('click', ()=>{
-    const to = qs('#sm_to').value.trim(); const v=Number(amt.value||0);
-    if(!to || v<=0) return showToast('error','Enter recipient and valid amount');
-    if(v>state.balance) return showToast('error','Insufficient balance');
-    state.balance -= v; state.tx.unshift({id:crypto.randomUUID(),kind:'Sent',name:to,desc:qs('#sm_note').value||'P2P transfer',amount:-v,status:'completed',ts:Date.now()});
-    refreshHeader(); renderTx(); closeModal(); showToast('success',`Sent ${fmtNGN(v)} to ${to}`);
-  });
-}
+  </section>
 
-function openReceiveMoney(){
-  openModal('Receive Money (₦)', `
-    <div class="row">
-      <div class="col"><label>Amount (₦)</label><input id="rm_amt" type="number" min="1" placeholder="5000"></div>
-      <div class="col"><label>Sender Name</label><input id="rm_from" placeholder="External Sender"></div>
-    </div>
-    <div class="col"><label>Note</label><textarea id="rm_note" placeholder="e.g. Refund"></textarea></div>
-    <div class="col"><label>Scan this QR to pay</label>
-      <div id="rm_qr" style="border:1px dashed rgba(148,163,184,.4);border-radius:12px;display:grid;place-items:center;height:160px;font-size:48px">▦</div>
-    </div>
-  `, `
-    <button class="btn" onclick="closeModal()">Cancel</button>
-    <button class="btn btn-primary" id="rm_receive">Mark as Received</button>
-  `);
-  qs('#rm_receive').addEventListener('click', ()=>{
-    const v = Number(qs('#rm_amt').value||0); const from = qs('#rm_from').value||'External Sender';
-    if(v<=0) return showToast('error','Enter a valid amount');
-    state.balance += v; state.tx.unshift({id:crypto.randomUUID(),kind:'Received',name:from,desc:qs('#rm_note').value||'QR payment',amount:+v,status:'completed',ts:Date.now()});
-    refreshHeader(); renderTx(); closeModal(); showToast('success',`Received ${fmtNGN(v)}`);
-  });
-}
+  <div class="spacer"></div>
 
-function openAddWithdraw(mode='add'){
-  openModal(`${mode==='add'?'Add':'Withdraw'} Money`, `
-    <div class="row">
-      <div class="col"><label>Method</label>
-        <select id="aw_method">
-          <option value="card">Card</option>
-          <option value="bank">Bank</option>
+  <!-- ================= BANNERS ================= -->
+  <section class="section banner">
+    <div>🔒</div>
+    <div>
+      <strong>Security:</strong> Your wallet is protected with encryption and OTP verification.
+    </div>
+  </section>
+
+  <div class="spacer"></div>
+
+  <section class="section banner fin">
+    <div>💹</div>
+    <div>
+      <strong>Finance Updates:</strong> FX: ₦1 ≈ $0.00130 • Savings bonus +5% APY this week!
+    </div>
+  </section>
+
+  <div class="spacer"></div>
+
+  <!-- ================= MONEY MOVES ================= -->
+  <section class="section">
+    <h3 style="margin:0 0 10px 0;">Money Moves</h3>
+    <div class="grid">
+      <button class="card-btn pulse-hover" id="sendBtn">
+        <div class="l">
+          <div class="icon">💸</div>
+          <div>
+            <div class="title">Send Money</div>
+            <div class="desc">Instant P2P • ₦</div>
+          </div>
+        </div>
+        ➜
+      </button>
+
+      <button class="card-btn pulse-hover" id="recvBtn">
+        <div class="l">
+          <div class="icon">📥</div>
+          <div>
+            <div class="title">Receive Money</div>
+            <div class="desc">QR & Share Link</div>
+          </div>
+        </div>
+        ➜
+      </button>
+
+      <button class="card-btn pulse-hover" id="addBtn">
+        <div class="l">
+          <div class="icon">➕</div>
+          <div>
+            <div class="title">Add / Withdraw</div>
+            <div class="desc">Card or Bank (Mock)</div>
+          </div>
+        </div>
+        ➜
+      </button>
+
+      <button class="card-btn pulse-hover" id="bankBtn">
+        <div class="l">
+          <div class="icon">🏦</div>
+          <div>
+            <div class="title">Bank Transfer</div>
+            <div class="desc">Multi-Region Banks</div>
+          </div>
+        </div>
+        ➜
+      </button>
+    </div>
+  </section>
+
+  <div class="spacer"></div>
+
+  <!-- ================= SERVICES ================= -->
+  <section class="section">
+    <h3 style="margin:0 0 10px 0;">Services</h3>
+    <div class="grid-3">
+      <div class="svc" id="svcFx">🌍
+        <h4>Cross-Border Remittance</h4>
+        <p>Preview FX & Send Abroad</p>
+      </div>
+      <div class="svc" id="svcSave">💰
+        <h4>Savings</h4>
+        <p>Create • Add • Withdraw • Standing Orders</p>
+      </div>
+      <div class="svc" id="svcBills">💡
+        <h4>Pay Bills & Top-Up</h4>
+        <p>Water • Electricity • DSTV • Airtime</p>
+      </div>
+      <div class="svc" id="svcCards">💳
+        <h4>Virtual & Linked Cards</h4>
+        <p>Link & Set Default • Contactless</p>
+      </div>
+      <div class="svc" id="svcShop">🏬
+        <h4>Shop on the Fly</h4>
+        <p>Taxi • Entertainment • Shops • Food</p>
+      </div>
+      <div class="svc" id="svcInvest">📈
+        <h4>Investments & Stocks</h4>
+        <p>USD quotes • Pay in ₦ or $</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="spacer"></div>
+
+  <!-- ================= TRANSACTIONS ================= -->
+  <section class="section">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <h3 style="margin:0">Recent Transactions</h3>
+      <button class="btn tiny btn-ghost" id="loadMore">Load more</button>
+    </div>
+    <div id="txList" class="tx-list" style="margin-top:10px"></div>
+  </section>
+
+  <div class="spacer" style="height:40px"></div>
+</div>
+
+<!-- ================= MODALS ================= -->
+
+<!-- Send Money -->
+<div class="overlay" id="sendModal">
+  <div class="modal">
+    <div class="mod-h">
+      <strong>Send Money</strong>
+      <button class="btn tiny btn-ghost" data-close="sendModal">✕</button>
+    </div>
+    <div class="mod-b">
+      <div class="grid-2">
+        <div>
+          <label>Recipient Email / Wallet ID</label>
+          <input id="sendTo" class="input" placeholder="user@example.com" />
+        </div>
+        <div>
+          <label>Amount (₦)</label>
+          <input id="sendAmt" type="number" min="1" class="input" placeholder="5000" />
+        </div>
+      </div>
+      <div style="margin-top:10px">
+        <label>Note / Reference</label>
+        <input id="sendNote" class="input" placeholder="Thanks!" />
+      </div>
+      <p class="help" id="sendFee">Fee: ₦0 • Total: ₦0</p>
+    </div>
+    <div class="mod-f">
+      <button class="btn tiny btn-ghost" data-close="sendModal">Cancel</button>
+      <button class="btn tiny btn-primary" id="sendConfirm">Send</button>
+    </div>
+  </div>
+</div>
+
+<!-- Receive Money -->
+<div class="overlay" id="recvModal">
+  <div class="modal">
+    <div class="mod-h">
+      <strong>Receive Money</strong>
+      <button class="btn tiny btn-ghost" data-close="recvModal">✕</button>
+    </div>
+    <div class="mod-b">
+      <div class="grid-2">
+        <div>
+          <label>Your Link</label>
+          <input id="recvLink" class="input" value="https://demipay.app/pay/Demi" />
+        </div>
+        <div style="display:flex;align-items:flex-end">
+          <button class="btn tiny" id="copyLink">Copy Link</button>
+        </div>
+      </div>
+      <div style="margin-top:10px">
+        <label>QR Code</label>
+        <div class="qr"><canvas id="qrCanvas" width="220" height="220"></canvas></div>
+      </div>
+    </div>
+    <div class="mod-f">
+      <button class="btn tiny btn-ghost" data-close="recvModal">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add / Withdraw (mock) -->
+<div class="overlay" id="addModal">
+  <div class="modal">
+    <div class="mod-h">
+      <strong>Add / Withdraw</strong>
+      <button class="btn tiny btn-ghost" data-close="addModal">✕</button>
+    </div>
+    <div class="mod-b">
+      <div class="grid-2">
+        <div>
+          <label>Type</label>
+          <select id="addType" class="input">
+            <option value="add">Add Money</option>
+            <option value="withdraw">Withdraw</option>
+          </select>
+        </div>
+        <div>
+          <label>Amount (₦)</label>
+          <input id="addAmt" type="number" min="1" class="input" placeholder="10000" />
+        </div>
+      </div>
+      <p class="help">This is a mock flow. Balance updates locally.</p>
+    </div>
+    <div class="mod-f">
+      <button class="btn tiny btn-ghost" data-close="addModal">Cancel</button>
+      <button class="btn tiny btn-primary" id="addConfirm">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- Bank Transfer -->
+<div class="overlay" id="bankModal">
+  <div class="modal">
+    <div class="mod-h">
+      <strong>Bank Transfer</strong>
+      <button class="btn tiny btn-ghost" data-close="bankModal">✕</button>
+    </div>
+    <div class="mod-b">
+      <div>
+        <label>Recipient Name</label>
+        <input id="bankRecName" class="input" placeholder="Account holder full name" />
+      </div>
+      <div class="grid-2" style="margin-top:10px">
+        <div>
+          <label>Bank Name</label>
+          <input id="bankName" class="input" placeholder="e.g. GTBank" />
+        </div>
+        <div>
+          <label>Account Number</label>
+          <input id="bankAcc" class="input" maxlength="10" placeholder="0123456789" />
+        </div>
+      </div>
+      <div class="grid-2" style="margin-top:10px">
+        <div>
+          <label>Amount (₦)</label>
+          <input id="bankAmt" type="number" min="1" class="input" placeholder="20000" />
+        </div>
+        <div>
+          <label>Notes / Reference</label>
+          <input id="bankRef" class="input" placeholder="School Fees / Rent..." />
+        </div>
+      </div>
+      <p class="help" id="bankFee">Fee: ₦0 • Total: ₦0</p>
+    </div>
+    <div class="mod-f">
+      <button class="btn tiny btn-ghost" data-close="bankModal">Cancel</button>
+      <button class="btn tiny btn-primary" id="bankConfirm">Transfer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Remittance -->
+<div class="overlay" id="fxModal">
+  <div class="modal">
+    <div class="mod-h">
+      <strong>Cross-Border Remittance</strong>
+      <button class="btn tiny btn-ghost" data-close="fxModal">✕</button>
+    </div>
+    <div class="mod-b">
+      <div class="grid-2">
+        <div>
+          <label>Recipient Name</label>
+          <input id="fxName" class="input" placeholder="Jane Doe" />
+        </div>
+        <div>
+          <label>Account Number / IBAN</label>
+          <input id="fxAcc" class="input" placeholder="XX00 0000 0000 0000" />
+        </div>
+      </div>
+      <div class="grid-2" style="margin-top:10px">
+        <div>
+          <label>Amount (₦)</label>
+          <input id="fxAmt" type="number" min="1" class="input" placeholder="150000" />
+        </div>
+        <div>
+          <label>Reason for Sending</label>
+          <input id="fxReason" class="input" placeholder="Family support, tuition..." />
+        </div>
+      </div>
+      <div style="margin-top:10px">
+        <label>Notes</label>
+        <input id="fxNote" class="input" placeholder="Optional message" />
+      </div>
+      <p class="help">Mock rate: ₦1 → $0.0013 • Preview only.</p>
+    </div>
+    <div class="mod-f">
+      <button class="btn tiny btn-ghost" data-close="fxModal">Cancel</button>
+      <button class="btn tiny btn-primary" id="fxConfirm">Send</button>
+    </div>
+  </div>
+</div>
+
+<!-- Savings -->
+<div class="overlay" id="saveModal">
+  <div class="modal" style="max-width:720px">
+    <div class="mod-h">
+      <strong>Savings</strong>
+      <button class="btn tiny btn-ghost" data-close="saveModal">✕</button>
+    </div>
+    <div class="mod-b">
+      <div class="grid-2">
+        <div>
+          <label>New Goal Name</label>
+          <input id="goalName" class="input" placeholder="School Fees, New Phone..." />
+        </div>
+        <div>
+          <label>Target (₦)</label>
+          <input id="goalTarget" type="number" min="1" class="input" placeholder="500000" />
+        </div>
+      </div>
+      <div class="grid-2" style="margin-top:10px">
+        <div>
+          <label>Standing Order (₦ / month)</label>
+          <input id="goalSO" type="number" min="0" class="input" placeholder="20000" />
+        </div>
+        <div style="display:flex;align-items:flex-end">
+          <button class="btn tiny" id="goalCreate">Create Goal</button>
+        </div>
+      </div>
+      <div style="margin-top:10px">
+        <canvas id="saveChart" height="120"></canvas>
+      </div>
+      <div style="margin-top:10px">
+        <div id="goalBadges" class="row"></div>
+      </div>
+      <p class="help">Tip: Goals, contributions and standing orders persist locally.</p>
+    </div>
+    <div class="mod-f">
+      <button class="btn tiny btn-ghost" data-close="saveModal">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Bills & Top-up -->
+<div class="overlay" id="billsModal">
+  <div class="modal">
+    <div class="mod-h">
+      <strong>Pay Bills & Top-Up</strong>
+      <button class="btn tiny btn-ghost" data-close="billsModal">✕</button>
+    </div>
+    <div class="mod-b">
+      <div>
+        <label>Category</label>
+        <select id="billCat" class="input">
+          <option>Water</option>
+          <option>Electricity</option>
+          <option>DSTV</option>
+          <option>Airtime</option>
         </select>
       </div>
-      <div class="col"><label>Amount (₦)</label><input id="aw_amt" type="number" min="1" placeholder="10000"></div>
+      <div id="billDyn" style="margin-top:10px"></div>
+      <p class="help">Optionally set a recurring payment (links to your default card).</p>
     </div>
-  `, `
-    <button class="btn" onclick="closeModal()">Cancel</button>
-    <button class="btn btn-primary" id="aw_do">${mode==='add'?'Add':'Withdraw'}</button>
-  `);
-  qs('#aw_do').addEventListener('click', ()=>{
-    const v = Number(qs('#aw_amt').value||0);
-    if(v<=0) return showToast('error','Enter amount');
-    if(mode==='add'){ state.balance+=v; showToast('success',`Added ${fmtNGN(v)}`);}
-    else { if(v>state.balance) return showToast('error','Insufficient balance'); state.balance-=v; showToast('success',`Withdrew ${fmtNGN(v)}`);}
-    state.tx.unshift({id:crypto.randomUUID(),kind:mode==='add'?'Received':'Sent',name:mode==='add'?'Card/Bank':'Withdrawal',desc:`Wallet ${mode}`,amount:mode==='add'?+v:-v,status:'completed',ts:Date.now()});
-    refreshHeader(); renderTx(); closeModal();
-  });
-}
+    <div class="mod-f">
+      <button class="btn tiny btn-ghost" data-close="billsModal">Cancel</button>
+      <button class="btn tiny btn-primary" id="billsPay">Pay</button>
+    </div>
+  </div>
+</div>
 
-function openBankTransfer(){
-  openModal('Bank Transfer (₦)', `
-    <div class="row">
-      <div class="col"><label>Recipient Name</label><input id="bt_name" placeholder="Account holder name"></div>
-      <div class="col"><label>Bank Name</label><input id="bt_bank" placeholder="e.g. GTBank"></div>
+<!-- Cards -->
+<div class="overlay" id="cardsModal">
+  <div class="modal" style="max-width:720px">
+    <div class="mod-h">
+      <strong>Virtual & Linked Cards</strong>
+      <button class="btn tiny btn-ghost" data-close="cardsModal">✕</button>
     </div>
-    <div class="row">
-      <div class="col"><label>Account Number</label><input id="bt_acct" placeholder="0123456789" maxlength="12"></div>
-      <div class="col"><label>Amount (₦)</label><input id="bt_amt" type="number" min="1" placeholder="15000"></div>
-    </div>
-    <div class="col"><label>Notes / Reference</label><input id="bt_note" placeholder="e.g. Rent, May 2026"></div>
-  `, `
-    <button class="btn" onclick="closeModal()">Cancel</button>
-    <button class="btn btn-primary" id="bt_send">Send</button>
-  `);
-  qs('#bt_send').addEventListener('click', ()=>{
-    const v = Number(qs('#bt_amt').value||0), name = qs('#bt_name').value.trim();
-    if(!name || v<=0) return showToast('error','Name & amount required');
-    if(v>state.balance) return showToast('error','Insufficient balance');
-    state.balance -= v; state.tx.unshift({id:crypto.randomUUID(),kind:'Sent',name,desc:`Bank transfer • ${qs('#bt_bank').value||'Bank'}`,amount:-v,status:'completed',ts:Date.now()});
-    refreshHeader(); renderTx(); closeModal(); showToast('success',`Transferred ${fmtNGN(v)} to ${name}`);
-  });
-}
-
-/* ==========================
-   Services
-========================== */
-qsa('.service').forEach(s=>s.addEventListener('click', ()=>{
-  const k = s.dataset.service;
-  if(k==='fx') return openFX();
-  if(k==='savings') return openSavings();
-  if(k==='bills') return openBills();
-  if(k==='cards') return openCards();
-  if(k==='payonline') return openCheckout();
-  if(k==='shop') return openShop();
-  if(k==='invest') return openInvest();
-  if(k==='agent') return openAgent();
-}));
-
-function openFX(){
-  openModal('Cross-Border Remittance', `
-    <div class="row">
-      <div class="col"><label>Recipient Name</label><input id="fx_name" placeholder="e.g. John Doe"></div>
-      <div class="col"><label>Account Number</label><input id="fx_acct" placeholder="IBAN / Acct No."></div>
-    </div>
-    <div class="row">
-      <div class="col"><label>Reason</label><input id="fx_reason" placeholder="Family support"></div>
-      <div class="col"><label>Amount (₦)</label><input id="fx_amt" type="number" min="1" placeholder="200000"></div>
-    </div>
-    <div class="col"><label>Notes</label><textarea id="fx_note" placeholder="Optional message"></textarea></div>
-    <div class="card" style="margin-top:10px">
-      <div class="muted">Preview</div>
-      <div id="fx_preview" style="font-weight:700">₦0 → $0.00 @ ₦${state.fxRate}/$</div>
-    </div>
-  `, `
-    <button class="btn" onclick="closeModal()">Cancel</button>
-    <button class="btn btn-primary" id="fx_send">Send</button>
-  `);
-  const amt=qs('#fx_amt'); const prev=qs('#fx_preview');
-  const upd=()=>{ const n=Number(amt.value||0); prev.textContent = `${fmtNGN(n)} → ${fmtUSD((n/state.fxRate).toFixed(2))} @ ₦${state.fxRate}/$`; };
-  amt.addEventListener('input',upd); upd();
-  qs('#fx_send').addEventListener('click', ()=>{
-    const n=Number(amt.value||0); if(n<=0) return showToast('error','Enter amount');
-    if(n>state.balance) return showToast('error','Insufficient balance');
-    state.balance-=n; state.tx.unshift({id:crypto.randomUUID(),kind:'Sent',name:qs('#fx_name').value||'Recipient',desc:`Remittance (${qs('#fx_reason').value||'Transfer'})`,amount:-n,status:'completed',ts:Date.now()});
-    refreshHeader(); renderTx(); closeModal(); showToast('success','Remittance sent');
-  });
-}
-
-function openSavings(){
-  openModal('Savings & Standing Orders', `
-    <div class="row">
-      <div class="col"><label>New Goal Name</label><input id="sv_name" placeholder="e.g. Car"></div>
-      <div class="col"><label>Initial Amount (₦)</label><input id="sv_amt" type="number" min="0" placeholder="5000"></div>
-    </div>
-    <div class="row">
-      <div class="col"><label>Standing Order</label>
-        <select id="sv_so"><option value="none">None</option><option>Daily</option><option>Weekly</option><option>Monthly</option></select>
+    <div class="mod-b">
+      <div class="row">
+        <div class="card-vis" style="flex:1;min-width:260px;border:1px solid var(--line);border-radius:14px;padding:16px;background:linear-gradient(135deg,#111827,#1f2937);color:#fff">
+          <div style="display:flex;justify-content:space-between"><div>DEMIPAY VISA</div><div>📶</div></div>
+          <div style="font-size:20px;margin:16px 0">4111 1111 1111 1111</div>
+          <div style="display:flex;justify-content:space-between;font-size:12px"><span>12/28</span><span>DEMILADE O.</span></div>
+        </div>
+        <div class="card-bank" style="flex:1;min-width:260px;border:1px solid var(--line);border-radius:14px;padding:16px;background:linear-gradient(135deg,#0ea5e9,#0284c7);color:#fff">
+          <div style="display:flex;justify-content:space-between"><div>GTBank</div><div>📶</div></div>
+          <div style="font-size:20px;margin:16px 0">5061 **** **** 9981</div>
+          <div style="display:flex;justify-content:space-between;font-size:12px"><span>08/27</span><span>DEMILADE O.</span></div>
+        </div>
+        <div class="card-bank" style="flex:1;min-width:260px;border:1px solid var(--line);border-radius:14px;padding:16px;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff">
+          <div style="display:flex;justify-content:space-between"><div>UBA</div><div>📶</div></div>
+          <div style="font-size:20px;margin:16px 0">5356 **** **** 2222</div>
+          <div style="display:flex;justify-content:space-between;font-size:12px"><span>04/29</span><span>DEMILADE O.</span></div>
+        </div>
       </div>
-      <div class="col"><label>SO Amount (₦)</label><input id="sv_so_amt" type="number" min="0" placeholder="10000"></div>
+
+      <div style="margin-top:14px">
+        <button class="btn tiny" id="linkCardBtn">Add / Link Card</button>
+        <button class="btn tiny btn-ghost" id="setDefaultCard">Set Default (VISA)</button>
+      </div>
     </div>
-    <div class="card">
-      <canvas id="sv_chart" width="520" height="160"></canvas>
-      <div id="sv_badges" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"></div>
+    <div class="mod-f">
+      <button class="btn tiny btn-ghost" data-close="cardsModal">Close</button>
     </div>
-  `, `
-    <button class="btn" onclick="closeModal()">Close</button>
-    <button class="btn btn-primary" id="sv_add">Add Goal</button>
-  `);
-  drawSavingsChart(); renderSavingsBadges();
-  qs('#sv_add').addEventListener('click', ()=>{
-    const name = qs('#sv_name').value.trim(); const v = Number(qs('#sv_amt').value||0);
-    if(!name) return showToast('error','Enter goal name');
-    state.savings.push({ id:crypto.randomUUID(), name, amount:v, color:'#'+Math.floor(Math.random()*0xffffff).toString(16).padStart(6,'0') });
-    drawSavingsChart(); renderSavingsBadges(); showToast('success','Goal added');
-  });
+  </div>
+</div>
+
+<!-- Shop on the Fly -->
+<div class="overlay" id="shopModal">
+  <div class="modal">
+    <div class="mod-h">
+      <strong>Shop on the Fly</strong>
+      <button class="btn tiny btn-ghost" data-close="shopModal">✕</button>
+    </div>
+    <div class="mod-b">
+      <div class="grid-2">
+        <div>
+          <label>Category</label>
+          <select id="shopCat" class="input">
+            <option>Taxi</option><option>Entertainment</option><option>Shops</option><option>Food</option>
+          </select>
+        </div>
+        <div style="display:flex;align-items:flex-end">
+          <button class="btn tiny" id="shopGo">Open</button>
+        </div>
+      </div>
+      <p class="help">Affiliate redirects (Bolt, Uber, Cinemas, Jiji, eBay, AliExpress, KFC, etc.).</p>
+    </div>
+    <div class="mod-f"><button class="btn tiny btn-ghost" data-close="shopModal">Close</button></div>
+  </div>
+</div>
+
+<!-- Investments & Stocks -->
+<div class="overlay" id="investModal">
+  <div class="modal">
+    <div class="mod-h">
+      <strong>Investments & Stocks</strong>
+      <button class="btn tiny btn-ghost" data-close="investModal">✕</button>
+    </div>
+    <div class="mod-b">
+      <div class="grid-2">
+        <div>
+          <label>Ticker</label>
+          <select id="stk" class="input">
+            <option value="AAPL">AAPL — Apple</option>
+            <option value="MSFT">MSFT — Microsoft</option>
+            <option value="NVDA">NVDA — NVIDIA</option>
+          </select>
+        </div>
+        <div>
+          <label>Qty</label>
+          <input id="stkQty" class="input" type="number" min="1" value="1" />
+        </div>
+      </div>
+      <div class="grid-2" style="margin-top:10px">
+        <div>
+          <label>Quote (USD)</label>
+          <input id="stkPrice" class="input" value="120.00" />
+        </div>
+        <div>
+          <label>Pay In</label>
+          <select id="payIn" class="input">
+            <option value="NGN">₦ NGN</option>
+            <option value="USD">$ USD</option>
+          </select>
+        </div>
+      </div>
+      <p class="help" id="stkTotal">Total: $120.00 • ≈ ₦92,308</p>
+    </div>
+    <div class="mod-f">
+      <button class="btn tiny btn-ghost" data-close="investModal">Cancel</button>
+      <button class="btn tiny btn-primary" id="stkBuy">Buy Now</button>
+    </div>
+  </div>
+</div>
+
+<!-- Become an Agent (+ camera) -->
+<div class="overlay" id="agentModal">
+  <div class="modal">
+    <div class="mod-h">
+      <strong>Become an Agent</strong>
+      <button class="btn tiny btn-ghost" data-close="agentModal">✕</button>
+    </div>
+    <div class="mod-b">
+      <div>
+        <label>Business Name</label>
+        <input id="agBiz" class="input" placeholder="Your registered business" />
+      </div>
+      <div class="grid-2" style="margin-top:10px">
+        <div>
+          <label>Full Name</label>
+          <input id="agName" class="input" placeholder="Surname Firstname" />
+        </div>
+        <div>
+          <label>NIN (11-digit) • Required</label>
+          <input id="agNin" class="input" maxlength="11" placeholder="00000000000" />
+        </div>
+      </div>
+
+      <div style="margin-top:10px">
+        <label>Capture Photo (front camera if available)</label>
+        <div class="qr" style="gap:10px">
+          <video id="cam" width="260" height="180" autoplay muted playsinline style="border-radius:12px;background:#000"></video>
+          <canvas id="shot" width="260" height="180" style="display:none"></canvas>
+          <div>
+            <button class="btn tiny" id="camStart">Start Camera</button>
+            <button class="btn tiny btn-ghost" id="camSnap">Capture</button>
+          </div>
+        </div>
+      </div>
+      <p class="help">Your selfie is stored in-memory for verification (mock).</p>
+    </div>
+    <div class="mod-f">
+      <button class="btn tiny btn-ghost" data-close="agentModal">Cancel</button>
+      <button class="btn tiny btn-primary" id="agSubmit">Submit Application</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Toast anchors ===== -->
+<div id="toast" class="toast"></div>
+<div id="sToast" class="toast-bottom info"></div>
+
+<script>
+/* ===================== UTIL ===================== */
+const fmtNGN = (n)=> new Intl.NumberFormat('en-NG',{style:'currency',currency:'NGN',maximumFractionDigits:2}).format(Number(n||0));
+const fmtUSD = (n)=> new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:2}).format(Number(n||0));
+
+function toast(type,msg){
+  const t=document.getElementById('toast');
+  t.className='toast '+(type==='success'?'success':type==='warn'?'warn':'error');
+  t.textContent=msg; t.classList.add('show');
+  playDing();
+  setTimeout(()=>t.classList.remove('show'),3000);
 }
-function drawSavingsChart(){
-  const c = qs('#sv_chart'); const ctx = c.getContext('2d'); ctx.clearRect(0,0,c.width,c.height);
-  const total = state.savings.reduce((a,b)=>a+b.amount,0) || 1;
-  let start = -Math.PI/2;
-  const cx = c.width/2, cy = c.height/2, r = 60;
-  state.savings.forEach(s=>{
-    const ang = 2*Math.PI*(s.amount/total);
-    ctx.beginPath(); ctx.moveTo(cx,cy);
-    ctx.arc(cx,cy,r,start,start+ang); ctx.closePath();
-    ctx.fillStyle = s.color; ctx.fill();
-    start += ang;
-  });
-  // legend
-  let x=20,y=20;
-  state.savings.forEach(s=>{
-    ctx.fillStyle=s.color; ctx.fillRect(x,y,12,12);
-    ctx.fillStyle='currentColor'; ctx.fillText(`${s.name}: ${fmtNGN(s.amount)}`, x+18, y+11);
-    y+=18;
-  });
-}
-function renderSavingsBadges(){
-  const root = qs('#sv_badges'); root.innerHTML='';
-  state.savings.forEach(s=>{
-    const b = document.createElement('div');
-    b.style = `border:1px solid rgba(148,163,184,.3);padding:6px 10px;border-radius:999px;display:flex;gap:6px;align-items:center`;
-    b.innerHTML = `<span style="width:10px;height:10px;border-radius:999px;background:${s.color};display:inline-block"></span> ${s.name} • <b>${fmtNGN(s.amount)}</b>`;
-    root.appendChild(b);
-  });
+function sToast(msg){
+  const t=document.getElementById('sToast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3500);
 }
 
-function openBills(){
-  openModal('Pay Bills & Top-Up', `
-    <div class="col">
-      <label>Category</label>
-      <select id="bl_cat">
-        <option value="electricity">Electricity</option>
-        <option value="water">Water</option>
-        <option value="dstv">DSTV</option>
-        <option value="airtime">Airtime</option>
-      </select>
-    </div>
-    <div id="bl_dynamic"></div>
-    <div class="col">
-      <label>Make it recurring?</label>
-      <select id="bl_rec"><option>None</option><option>Weekly</option><option>Monthly</option></select>
-    </div>
-  `, `
-    <button class="btn" onclick="closeModal()">Cancel</button>
-    <button class="btn btn-primary" id="bl_pay">Pay</button>
-  `);
-  const dyn = qs('#bl_dynamic');
-  function renderForm(){
-    const v = qs('#bl_cat').value; dyn.innerHTML='';
-    if(v==='airtime'){
-      dyn.innerHTML = `
-        <div class="row">
-          <div class="col"><label>Provider</label>
-            <select id="bl_air"><option>MTN</option><option>Glo</option><option>Airtel</option><option>9mobile</option></select>
-          </div>
-          <div class="col"><label>Phone Number</label><input id="bl_phone" placeholder="080..."></div>
-        </div>
-        <div class="col"><label>Amount (₦)</label><input id="bl_amt" type="number" min="100" placeholder="1000"></div>
-      `;
-    } else if(v==='electricity' || v==='water'){
-      dyn.innerHTML = `
-        <div class="row">
-          <div class="col"><label>Provider</label><input id="bl_prov" placeholder="e.g. Ikeja Electric"></div>
-          <div class="col"><label>Account/Meter Number</label><input id="bl_acc" placeholder="Meter/Acct"></div>
-        </div>
-        <div class="row">
-          <div class="col"><label>Plan</label>
-            <select id="bl_plan"><option>₦500</option><option>₦1,000</option><option>₦2,000</option><option>₦5,000</option></select>
-          </div>
-          <div class="col"><label>Amount (₦)</label><input id="bl_amt" type="number" min="500" placeholder="2000"></div>
-        </div>
-      `;
-    } else { // DSTV
-      dyn.innerHTML = `
-        <div class="row">
-          <div class="col"><label>Account Number</label><input id="bl_acc" placeholder="Smartcard No."></div>
-          <div class="col"><label>Plan</label>
-            <select id="bl_plan"><option>Compact</option><option>Compact Plus</option><option>Premium</option></select>
-          </div>
-        </div>
-        <div class="col"><label>Amount (₦)</label><input id="bl_amt" type="number" min="1000" placeholder="10000"></div>
-      `;
+function playDing(){
+  // tiny click sound via WebAudio
+  try{
+    const ctx=new (window.AudioContext||window.webkitAudioContext)();
+    const o=ctx.createOscillator(); const g=ctx.createGain();
+    o.type='sine'; o.frequency.value=880; g.gain.value=0.04;
+    o.connect(g); g.connect(ctx.destination); o.start();
+    setTimeout(()=>{o.stop();ctx.close();},120);
+  }catch(e){}
+}
+
+function save(k,v){localStorage.setItem(k,JSON.stringify(v))}
+function load(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}}
+
+/* ===================== STATE ===================== */
+let balance = load('dp_balance', 250000);     // ₦
+let transactions = load('dp_tx', [
+  {type:'in', who:'Upwork Ltd', note:'Freelance payment', amt:320000, status:'completed', t:Date.now()-86400000*1},
+  {type:'out', who:'Netflix', note:'Subscription', amt:4500, status:'completed', t:Date.now()-86400000*2},
+  {type:'out', who:'Bolt', note:'Ride', amt:1800, status:'completed', t:Date.now()-86400000*3},
+  {type:'in', who:'Refund', note:'Card reversal', amt:15000, status:'completed', t:Date.now()-86400000*4},
+  {type:'out', who:'John Doe', note:'P2P transfer', amt:15000, status:'completed', t:Date.now()-86400000*5},
+]);
+
+const el = (id)=>document.getElementById(id);
+
+/* ===================== THEME + USER MENU ===================== */
+(function initTheme(){
+  const saved = load('dp_theme','light');
+  if(saved==='dark'){document.body.classList.add('dark'); el('themeBtn').textContent='☀️ Light Mode'}
+  el('themeBtn').onclick = ()=>{
+    document.body.classList.toggle('dark');
+    const dark = document.body.classList.contains('dark');
+    el('themeBtn').textContent = dark?'☀️ Light Mode':'🌙 Dark Mode';
+    save('dp_theme', dark?'dark':'light');
+    toast('success', dark?'Dark mode enabled':'Light mode restored');
+  };
+})();
+
+(function userMenu(){
+  const btn = el('userBtn'), dd=el('userDrop');
+  btn.onclick = ()=> dd.classList.toggle('show');
+  document.addEventListener('click',(e)=>{ if(!btn.contains(e.target) && !dd.contains(e.target)) dd.classList.remove('show'); });
+  el('profileLink').onclick=(e)=>{e.preventDefault(); sToast('Profile screen coming soon');};
+  el('settingsLink').onclick=(e)=>{e.preventDefault(); sToast('Settings opening soon');};
+  el('logoutLink').onclick=(e)=>{e.preventDefault(); sToast('You have been logged out (mock)');};
+})();
+
+/* ===================== BALANCE + SUMMARY ===================== */
+function refreshUI(){
+  el('balanceAmount').textContent = fmtNGN(balance);
+  renderTx();
+  renderSummary();
+}
+function renderSummary(){
+  const inSum = transactions.filter(t=>t.type==='in').reduce((a,b)=>a+b.amt,0);
+  const outSum = transactions.filter(t=>t.type==='out').reduce((a,b)=>a+b.amt,0);
+  el('summaryBar').textContent = `${transactions.length} tx • ${fmtNGN(inSum)} in • ${fmtNGN(outSum)} out`;
+}
+el('refreshBalance').onclick = ()=>{ toast('success','Balance refreshed'); refreshUI(); };
+refreshUI();
+
+/* ===================== TX RENDER ===================== */
+let txPage = 5;
+function renderTx(){
+  const list = el('txList'); list.innerHTML='';
+  const slice = transactions.slice(0,txPage);
+  slice.forEach(tx=>{
+    const row = document.createElement('div'); row.className='tx';
+    const left = document.createElement('div'); left.className='left';
+    left.innerHTML = `<div>${tx.type==='in'?'📥':'💸'}</div>
+      <div><div class="who">${tx.who}</div><div class="note">${tx.note}</div></div>`;
+    const right = document.createElement('div');
+    right.innerHTML = `<div class="amount ${tx.type==='in'?'plus':'minus'}">${tx.type==='in'?'+':''}${fmtNGN(tx.amt)}</div>
+      <div class="status">${tx.status}</div>`;
+    row.appendChild(left); row.appendChild(right); list.appendChild(row);
+  });
+}
+el('loadMore').onclick = ()=>{ txPage = Math.min(transactions.length, txPage+5); renderTx(); };
+
+/* ===================== MODAL HELPERS ===================== */
+function open(id){el(id).classList.add('show');}
+function close(id){el(id).classList.remove('show');}
+document.querySelectorAll('[data-close]').forEach(b=> b.onclick = ()=> close(b.dataset.close) );
+
+/* ===================== MONEY MOVES ===================== */
+// Send
+el('sendBtn').onclick = ()=> open('sendModal');
+el('sendAmt').oninput = ()=>{
+  const amt=Number(el('sendAmt').value||0); const fee = Math.round(amt*0.005);
+  el('sendFee').textContent = `Fee: ${fmtNGN(fee)} • Total: ${fmtNGN(amt+fee)}`;
+};
+el('sendConfirm').onclick = ()=>{
+  const to=el('sendTo').value.trim(), amt=Number(el('sendAmt').value||0);
+  if(!to || amt<=0){ toast('error','Enter recipient and valid amount'); return; }
+  const fee=Math.round(amt*0.005), total=amt+fee;
+  if(total>balance){ toast('error','Insufficient balance'); return; }
+  balance-=total;
+  transactions.unshift({type:'out', who:to, note:el('sendNote').value||'P2P', amt:amt, status:'completed', t:Date.now()});
+  save('dp_balance',balance); save('dp_tx',transactions);
+  refreshUI(); close('sendModal'); toast('success',`Sent ${fmtNGN(amt)} to ${to}`);
+};
+
+// Receive + QR
+el('recvBtn').onclick = ()=>{ open('recvModal'); drawQR(el('recvLink').value); };
+el('copyLink').onclick = async ()=>{
+  try{ await navigator.clipboard.writeText(el('recvLink').value); toast('success','Link copied'); }
+  catch(e){ toast('error','Copy failed'); }
+};
+function drawQR(text){
+  // Simple QR via tiny algorithm – fallback sketch (not a full QR implementation)
+  // For demo fidelity, draw blocks based on hash of text.
+  const c=el('qrCanvas'), ctx=c.getContext('2d'); ctx.clearRect(0,0,c.width,c.height);
+  const size=22, cells=22, pad=10; const cell=(c.width-pad*2)/cells;
+  // background
+  ctx.fillStyle='#fff'; ctx.fillRect(0,0,c.width,c.height);
+  ctx.fillStyle='#0b1220';
+  const h = Array.from(text).reduce((a,ch)=>((a<<5)-a)+ch.charCodeAt(0),0);
+  for(let y=0;y<cells;y++){
+    for(let x=0;x<cells;x++){
+      const v = Math.abs(Math.sin((x+1)*(y+1)*(h%97+1)));
+      if(v>0.62){ ctx.fillRect(pad+x*cell,pad+y*cell,cell-1,cell-1); }
     }
   }
-  qs('#bl_cat').addEventListener('change', renderForm); renderForm();
-
-  qs('#bl_pay').addEventListener('click', ()=>{
-    const amount = Number(qs('#bl_amt')?.value||0);
-    if(amount<=0) return showToast('error','Enter amount');
-    if(amount>state.balance) return showToast('error','Insufficient balance');
-    state.balance -= amount;
-    state.tx.unshift({id:crypto.randomUUID(),kind:'Sent',name:'Bills/TopUp',desc:qs('#bl_cat').value,amount:-amount,status:'completed',ts:Date.now()});
-    refreshHeader(); renderTx(); closeModal(); showToast('success','Bill paid');
-  });
 }
 
-function openCards(){
-  openModal('Virtual & Linked Cards', `
-    <div class="grid" style="grid-template-columns:repeat(2,1fr)">
-      ${state.cards.map(c=>cardHTML(c)).join('')}
-    </div>
-    <div style="height:10px"></div>
-    <button class="btn" id="addCardBtn">Add / Link Card</button>
-    <div id="addCardForm" style="display:none;margin-top:10px">
-      <div class="row">
-        <div class="col"><label>Cardholder Name</label><input id="cc_name" placeholder="Demi Olawoye"></div>
-        <div class="col"><label>Card Number</label><input id="cc_no" placeholder="4111 1111 1111 1111" maxlength="19"></div>
-      </div>
-      <div class="row">
-        <div class="col"><label>Expiry</label><input id="cc_exp" placeholder="MM/YY" maxlength="5"></div>
-        <div class="col"><label>CVV</label><input id="cc_cvv" placeholder="123" maxlength="4"></div>
-      </div>
-      <button class="btn btn-primary" id="cc_save">Link Card</button>
-    </div>
-  `, `<button class="btn" onclick="closeModal()">Close</button>`);
-  qs('#addCardBtn').addEventListener('click', ()=>{
-    qs('#addCardForm').style.display = qs('#addCardForm').style.display==='none'?'block':'none';
-  });
-  qs('#cc_save').addEventListener('click', ()=>{
-    const last4 = (qs('#cc_no').value||'0000').replace(/\s+/g,'').slice(-4)||'0000';
-    state.cards.push({id:crypto.randomUUID(),brand:'Linked Card',last4, type:'linked',bank:'Linked',contactless:true});
-    showToast('success','Card linked');
-    closeModal(); openCards();
-  });
-  qsa('[data-card-id]').forEach(btn=>{
-    btn.addEventListener('click', ()=>{
-      state.defaultCard = btn.dataset.cardId;
-      showToast('success','Default card set');
-      closeModal(); openCards();
-    });
-  });
-}
-function cardHTML(c){
-  const isDefault = state.defaultCard===c.id;
-  return `
-    <div class="card" style="position:relative;overflow:hidden">
-      <div style="position:absolute;inset:0;background:linear-gradient(135deg, rgba(45,212,191,.2), rgba(59,130,246,.15));pointer-events:none"></div>
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <div><div style="font-weight:800">${c.brand}</div><div class="muted">${c.bank} • **** ${c.last4}</div></div>
-        <div>${c.contactless?'📶':''}</div>
-      </div>
-      <div style="margin-top:8px">
-        ${isDefault?'<span class="badge">Default</span>':''}
-        <button class="btn" data-card-id="${c.id}" style="float:right">${isDefault?'Selected':'Set Default'}</button>
-      </div>
-    </div>`;
-}
-
-function openCheckout(){
-  openModal('Pay Online — Checkout', `
-    <div class="row">
-      <div class="col"><label>Item</label><input id="po_item" value="Concert Ticket"></div>
-      <div class="col"><label>Price (USD)</label><input id="po_usd" type="number" step="0.01" value="25"></div>
-    </div>
-    <div class="row">
-      <div class="col"><label>Pay In</label>
-        <select id="po_ccy"><option value="ngn">₦ NGN</option><option value="usd">$ USD</option></select>
-      </div>
-      <div class="col"><label>Converted (₦)</label><input id="po_ngn" disabled></div>
-    </div>
-    <div class="col"><label>Card</label>
-      <select id="po_card">
-        ${state.cards.map(c=>`<option value="${c.id}" ${c.id===state.defaultCard?'selected':''}>${c.brand} • ****${c.last4}</option>`).join('')}
-      </select>
-    </div>
-  `, `
-    <button class="btn" onclick="closeModal()">Cancel</button>
-    <button class="btn btn-primary" id="po_pay">Pay</button>
-  `);
-  const upd=()=>{
-    const usd=Number(qs('#po_usd').value||0); qs('#po_ngn').value = fmtNGN(usd*state.fxRate);
-  }; upd(); qs('#po_usd').addEventListener('input',upd);
-  qs('#po_pay').addEventListener('click', ()=>{
-    const usd = Number(qs('#po_usd').value||0); if(usd<=0) return showToast('error','Enter price');
-    const payIn = qs('#po_ccy').value;
-    const debit = payIn==='usd' ? (usd*state.fxRate) : (usd*state.fxRate); // both reduce NGN wallet in this mock
-    if(debit>state.balance) return showToast('error','Insufficient balance');
-    state.balance -= debit;
-    state.tx.unshift({id:crypto.randomUUID(),kind:'Sent',name:'Online Checkout',desc:`${qs('#po_item').value} (${payIn.toUpperCase()})`,amount:-debit,status:'completed',ts:Date.now()});
-    refreshHeader(); renderTx(); closeModal(); showToast('success','Payment complete');
-  });
-}
-
-function openShop(){
-  openModal('Shop on the Fly', `
-    <div class="grid" style="grid-template-columns:repeat(3,1fr)">
-      ${[
-        {cat:'Taxi', items:['Uber','Bolt','InDrive']},
-        {cat:'Entertainment', items:['Filmhouse','O2 Arena','Ticketmaster']},
-        {cat:'Shops', items:['Jiji','AliExpress','ASOS']},
-        {cat:'Food', items:['Domino’s','KFC','Chicken Republic']}
-      ].map(g=>`
-        <div class="card">
-          <div style="font-weight:800;margin-bottom:6px">${g.cat}</div>
-          ${g.items.map(i=>`<a href="#" onclick="showSystemToast('success','Opening ${i}…');return false;" style="display:block;padding:6px 0;color:var(--brand2)">${i} ↗</a>`).join('')}
-        </div>
-      `).join('')}
-    </div>
-  `, `<button class="btn" onclick="closeModal()">Close</button>`);
-}
-
-function openInvest(){
-  openModal('Investments & Stocks', `
-    <div class="row">
-      <div class="col"><label>View</label>
-        <select id="inv_tab"><option value="stocks">Stocks</option><option value="invest">Investments</option></select>
-      </div>
-      <div class="col"><label>FX</label><input disabled value="₦${state.fxRate} per $"></div>
-    </div>
-    <div id="inv_list" style="margin-top:10px"></div>
-    <div class="card" style="margin-top:10px">
-      <div style="font-weight:700;margin-bottom:6px">My Stocks</div>
-      <div id="inv_mine" class="muted">No holdings yet.</div>
-    </div>
-  `, `
-    <button class="btn" onclick="closeModal()">Close</button>
-  `);
-  const list = qs('#inv_list');
-  const stocks = [
-    {sym:'AAPL', name:'Apple', px:230.12},
-    {sym:'MSFT', name:'Microsoft', px:407.33},
-    {sym:'NVDA', name:'NVIDIA', px:120.15},
-  ];
-  const invests = [
-    {sym:'TBILL', name:'Nigeria T-Bill (90d)', px:100.00},
-    {sym:'AGRI', name:'Agri Fund', px:12.45},
-  ];
-  function render(which='stocks'){
-    const data = which==='stocks'?stocks:invests;
-    list.innerHTML = data.map(x=>`
-      <div class="tx" style="align-items:center">
-        <div class="tx-left">
-          <div class="tx-ic">📈</div>
-          <div><div style="font-weight:700">${x.name} (${x.sym})</div><div class="muted">Market: USD</div></div>
-        </div>
-        <div class="tx-right">
-          <div style="font-weight:800">${fmtUSD(x.px)}</div>
-          <button class="btn btn-primary" onclick="addToCart('${x.sym}','${x.name}',${x.px})">Buy</button>
-        </div>
-      </div>
-    `).join('');
+// Add / Withdraw
+el('addBtn').onclick = ()=> open('addModal');
+el('addConfirm').onclick = ()=>{
+  const type=el('addType').value, amt=Number(el('addAmt').value||0);
+  if(amt<=0){ toast('error','Enter amount'); return; }
+  if(type==='add'){ balance+=amt; transactions.unshift({type:'in',who:'Top-up',note:'Card/Bank',amt,status:'completed',t:Date.now()}); }
+  else{
+    if(amt>balance){ toast('error','Insufficient balance'); return; }
+    balance-=amt; transactions.unshift({type:'out',who:'Cash Out',note:'Withdraw',amt,status:'completed',t:Date.now()});
   }
-  qs('#inv_tab').addEventListener('change', e=>render(e.target.value));
-  render('stocks');
-}
-function addToCart(sym,name,px){
-  // checkout with currency toggle
-  openModal(`Buy ${name} (${sym})`, `
-    <div class="row">
-      <div class="col"><label>Units</label><input id="iv_qty" type="number" min="1" value="1"></div>
-      <div class="col"><label>Price (USD)</label><input disabled value="${fmtUSD(px)}"></div>
-    </div>
-    <div class="row">
-      <div class="col"><label>Pay In</label><select id="iv_ccy"><option value="usd">$ USD</option><option value="ngn">₦ NGN</option></select></div>
-      <div class="col"><label>Estimated (₦)</label><input id="iv_ngn" disabled></div>
-    </div>
-  `, `
-    <button class="btn" onclick="closeModal()">Cancel</button>
-    <button class="btn btn-primary" id="iv_buy">Buy Now</button>
-  `);
-  const qty=qs('#iv_qty'), ngn=qs('#iv_ngn');
-  const upd=()=>{ ngn.value = fmtNGN((Number(qty.value||0)*px*state.fxRate)); }; upd(); qty.addEventListener('input',upd);
-  qs('#iv_buy').addEventListener('click', ()=>{
-    const q=Number(qty.value||0); if(q<=0) return showToast('error','Enter units');
-    const pay = q*px*state.fxRate; if(pay>state.balance) return showToast('error','Insufficient balance');
-    state.balance -= pay;
-    state.tx.unshift({id:crypto.randomUUID(),kind:'Sent',name:`Buy ${sym}`,desc:`${name} • ${q} unit(s)`,amount:-pay,status:'completed',ts:Date.now()});
-    refreshHeader(); renderTx(); closeModal(); showToast('success','Purchase complete (paid in ₦).');
-  });
-}
+  save('dp_balance',balance); save('dp_tx',transactions); refreshUI(); close('addModal'); toast('success','Done');
+};
 
-function openAgent(){
-  openModal('Become an Agent', `
-    <div class="row">
-      <div class="col"><label>Full Name</label><input id="ag_name" placeholder="John Doe" required></div>
-      <div class="col"><label>Business Name</label><input id="ag_biz" placeholder="Doe Ventures Ltd"></div>
-    </div>
-    <div class="row">
-      <div class="col"><label>NIN (required)</label><input id="ag_nin" placeholder="11-digit NIN" maxlength="11" required></div>
-      <div class="col"><label>Photo ID — Capture</label>
-        <div style="display:flex;gap:8px">
-          <button class="btn" id="ag_cam">Open Camera</button>
-          <input type="file" id="ag_file" accept="image/*" capture="environment" style="flex:1">
-        </div>
-      </div>
-    </div>
-    <div class="card" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-      <video id="ag_video" autoplay playsinline style="width:100%;border-radius:12px;display:none"></video>
-      <canvas id="ag_canvas" width="320" height="240" style="width:100%;border-radius:12px;background:rgba(148,163,184,.12)"></canvas>
-      <button class="btn" id="ag_snap" style="grid-column:span 2">📸 Take Photo</button>
-    </div>
-  `, `
-    <button class="btn" onclick="closeModal()">Cancel</button>
-    <button class="btn btn-primary" id="ag_submit">Submit Application</button>
-  `);
+// Bank Transfer
+el('bankBtn').onclick = ()=> open('bankModal');
+el('bankAmt').oninput = ()=>{
+  const a=Number(el('bankAmt').value||0), f=Math.round(a*0.004);
+  el('bankFee').textContent = `Fee: ${fmtNGN(f)} • Total: ${fmtNGN(a+f)}`;
+};
+el('bankConfirm').onclick = ()=>{
+  const name=el('bankRecName').value.trim(), acc=el('bankAcc').value.trim(), bank=el('bankName').value.trim();
+  const amt=Number(el('bankAmt').value||0);
+  if(!name||!acc||!bank||amt<=0){ toast('error','Fill all fields'); return; }
+  const fee=Math.round(amt*0.004), total=amt+fee;
+  if(total>balance){ toast('error','Insufficient balance'); return; }
+  balance-=total;
+  transactions.unshift({type:'out',who:`${name} • ${bank}`,note:el('bankRef').value||'Bank transfer',amt,status:'completed',t:Date.now()});
+  save('dp_balance',balance); save('dp_tx',transactions); refreshUI(); close('bankModal'); toast('success','Transfer sent');
+};
 
-  let stream=null;
-  qs('#ag_cam').addEventListener('click', async ()=>{
-    try{
-      stream = await navigator.mediaDevices.getUserMedia({video:true});
-      const v = qs('#ag_video'); v.srcObject = stream; v.style.display='block';
-      showSystemToast('success','Camera ready — take a photo');
-    }catch(e){ showToast('error','Camera access denied'); }
-  });
-  qs('#ag_snap').addEventListener('click', ()=>{
-    const v=qs('#ag_video'); const c=qs('#ag_canvas'); const ctx=c.getContext('2d');
-    if(!v.srcObject) return showToast('warning','Open camera first');
-    ctx.drawImage(v,0,0,c.width,c.height);
-    showToast('success','Photo captured');
-  });
-  qs('#ag_file').addEventListener('change', e=>{
-    const f=e.target.files[0]; if(!f) return;
-    const img=new Image(); img.onload=()=>{ const c=qs('#ag_canvas'); const ctx=c.getContext('2d'); ctx.drawImage(img,0,0,c.width,c.height); showToast('success','Photo loaded'); };
-    img.src = URL.createObjectURL(f);
-  });
-  qs('#ag_submit').addEventListener('click', ()=>{
-    const nin = qs('#ag_nin').value.trim();
-    if(nin.length!==11) return showToast('error','NIN must be 11 digits');
-    if(stream){ stream.getTracks().forEach(t=>t.stop()); }
-    closeModal(); showToast('success','Agent application submitted');
-  });
-}
+/* ===================== SERVICES ===================== */
+// Remittance
+el('svcFx').onclick = ()=> open('fxModal');
+el('fxConfirm').onclick = ()=>{
+  const n=el('fxName').value.trim(), a=Number(el('fxAmt').value||0);
+  if(!n||a<=0){ toast('error','Enter recipient and amount'); return; }
+  const usd = a*0.0013; sToast(`Preview: ${fmtUSD(usd.toFixed(2))} (mock)`);
+  toast('success','Remittance queued (mock)');
+  close('fxModal');
+};
 
-/* ==========================
-   Profile / Settings
-========================== */
-function openProfile(){
-  openModal('Profile', `
-    <div class="row">
-      <div class="col"><label>Full Name</label><input id="pr_name" value="${state.user.name}"></div>
-      <div class="col"><label>Wallet</label><input disabled value="${state.user.wallet}"></div>
-    </div>
-    <div class="col"><label>Avatar URL</label><input id="pr_avatar" value="${state.user.avatar}"></div>
-  `, `
-    <button class="btn" onclick="closeModal()">Close</button>
-    <button class="btn btn-primary" id="pr_save">Save</button>
-  `);
-  qs('#pr_save').addEventListener('click', ()=>{
-    state.user.name = qs('#pr_name').value || state.user.name;
-    state.user.avatar = qs('#pr_avatar').value || state.user.avatar;
-    qs('#userName').textContent = state.user.name;
-    qs('#userAvatar').src = state.user.avatar;
-    closeModal(); showToast('success','Profile updated');
+// Savings (chart + goals)
+let saveState = load('dp_savings',{goals:[], amounts:[]});
+let chart;
+function renderSave(){
+  // badges
+  const host=el('goalBadges'); host.innerHTML='';
+  saveState.goals.forEach((g,i)=>{
+    const pct = Math.min(100, Math.round((saveState.amounts[i]/g.target)*100||0));
+    const cap = document.createElement('div');
+    cap.className='chip'; cap.textContent = `${g.name}: ${fmtNGN(saveState.amounts[i]||0)} / ${fmtNGN(g.target)} • ${pct}%`;
+    host.appendChild(cap);
   });
+  // chart
+  const data = saveState.goals.map((g,i)=> saveState.amounts[i]||0);
+  const labels = saveState.goals.map(g=> g.name);
+  const ctx = el('saveChart').getContext('2d');
+  chart && chart.destroy();
+  chart = new Chart(ctx,{type:'pie',data:{labels,datasets:[{data}]},options:{plugins:{legend:{position:'bottom'}}}});
 }
-function openSettings(){
-  openModal('Settings', `
-    <div class="col"><label>Theme</label>
-      <select id="st_theme"><option value="light">Light</option><option value="dark">Dark</option></select>
-    </div>
-  `, `
-    <button class="btn" onclick="closeModal()">Close</button>
-    <button class="btn btn-primary" id="st_save">Save</button>
-  `);
-  qs('#st_theme').value = document.body.classList.contains('dark')?'dark':'light';
-  qs('#st_save').addEventListener('click', ()=>{
-    const v = qs('#st_theme').value; if(v==='dark') document.body.classList.add('dark'); else document.body.classList.remove('dark');
-    localStorage.setItem('demipay_theme', v);
-    closeModal(); showToast('success','Settings saved');
-  });
-}
+el('svcSave').onclick = ()=>{ open('saveModal'); renderSave(); };
+el('goalCreate').onclick = ()=>{
+  const name=el('goalName').value.trim(); const target=Number(el('goalTarget').value||0); const so=Number(el('goalSO').value||0);
+  if(!name||target<=0){ toast('error','Enter goal name & target'); return; }
+  saveState.goals.push({name,target,so}); saveState.amounts.push(0);
+  save('dp_savings',saveState); renderSave(); toast('success','Goal created');
+};
 
-/* ==========================
-   Safety: global error -> toast
-========================== */
-window.addEventListener('error', e=>{
-  console.error(e.error||e.message);
-  showSystemToast('error','An error occurred in the page script.');
+// Bills
+el('svcBills').onclick = ()=>{ open('billsModal'); drawBillFields(); };
+el('billCat').onchange = drawBillFields;
+function drawBillFields(){
+  const c=el('billCat').value; const host=el('billDyn');
+  const providerField = `<div><label>Provider</label><input id="billProv" class="input" placeholder="${c==='DSTV'?'Multichoice':'Disco / Utility'}" /></div>`;
+  const acctField = `<div><label>Account / Meter Number</label><input id="billAcc" class="input" placeholder="Enter account / meter number" /></div>`;
+  const planField = `<div><label>Plan</label><select id="billPlan" class="input"><option>₦500</option><option>₦1000</option><option>₦5000</option></select></div>`;
+  const recurField = `<div><label>Recurring?</label><select id="billRec" class="input"><option>No</option><option>Weekly</option><option>Monthly</option></select></div>`;
+  const airtimeFields = `
+    <div class="grid-2"><div><label>Airtime Provider</label>
+      <select id="airProv" class="input"><option>MTN</option><option>Glo</option><option>Airtel</option><option>9mobile</option></select></div>
+      <div><label>Phone Number</label><input id="airPhone" class="input" placeholder="080..." /></div></div>
+    <div style="margin-top:10px">${planField}</div>
+    <div style="margin-top:10px">${recurField}</div>`;
+  if(c==='Airtime'){ host.innerHTML = airtimeFields; }
+  else{
+    host.innerHTML = `
+      ${acctField}
+      ${c!=='Water' && c!=='Electricity' ? '' : `<div style="margin-top:10px">${providerField}</div>`}
+      <div style="margin-top:10px">${planField}</div>
+      <div style="margin-top:10px">${recurField}</div>`;
+  }
+}
+el('billsPay').onclick = ()=>{ toast('success','Bill paid (mock)'); close('billsModal'); };
+
+// Cards
+el('svcCards').onclick = ()=> open('cardsModal');
+el('linkCardBtn').onclick = ()=> sToast('Card link form coming up (mock)');
+el('setDefaultCard').onclick = ()=> sToast('Default card set: DEMIPAY VISA');
+
+// Shop
+el('svcShop').onclick = ()=> open('shopModal');
+el('shopGo').onclick = ()=>{
+  const cat=el('shopCat').value;
+  sToast(`Opening partners in ${cat}… (mock)`);
+  close('shopModal');
+};
+
+// Invest
+el('svcInvest').onclick = ()=> open('investModal');
+function updateStkTotal(){
+  const qty=Number(el('stkQty').value||0), p=Number(el('stkPrice').value||0), pay=el('payIn').value;
+  const totalUSD = qty*p; const rate = 760; // mock conversion
+  el('stkTotal').textContent = `Total: ${fmtUSD(totalUSD)} • ≈ ${fmtNGN(Math.round(totalUSD*rate))}`;
+}
+['stkQty','stkPrice','payIn'].forEach(id=> el(id).oninput = updateStkTotal); updateStkTotal();
+el('stkBuy').onclick = ()=>{
+  const qty=Number(el('stkQty').value||0), p=Number(el('stkPrice').value||0), pay=el('payIn').value;
+  if(qty<=0||p<=0){ toast('error','Enter valid quantity/price'); return; }
+  const totalUSD = qty*p; const rate=760; const cost = pay==='USD' ? totalUSD : totalUSD*rate;
+  const okInNaira = (pay==='NGN');
+  if(okInNaira && cost>balance){ toast('error','Insufficient ₦ balance'); return; }
+  if(okInNaira){ balance-=cost; save('dp_balance',balance); }
+  transactions.unshift({type:'out',who:'Stocks',note:`${el('stk').value} x${qty} (${pay})`,amt: okInNaira?cost:Math.round(totalUSD*rate), status:'completed', t:Date.now()});
+  save('dp_tx',transactions); refreshUI(); close('investModal'); toast('success','Order placed');
+};
+
+/* ===================== AGENT (camera) ===================== */
+let stream=null, snapshot=null;
+el('camStart').onclick = async ()=>{
+  try{
+    stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'}});
+    el('cam').srcObject = stream; toast('success','Camera on');
+  }catch(e){ toast('error','Camera unavailable'); }
+};
+el('camSnap').onclick = ()=>{
+  const v=el('cam'), c=el('shot'), ctx=c.getContext('2d');
+  if(!v.srcObject){ toast('error','Start camera first'); return; }
+  ctx.drawImage(v,0,0,c.width,c.height); snapshot = c.toDataURL('image/png');
+  c.style.display='block'; toast('success','Captured');
+};
+el('agSubmit').onclick = ()=>{
+  const biz=el('agBiz').value.trim(), name=el('agName').value.trim(), nin=el('agNin').value.trim();
+  if(!biz||!name||nin.length!==11){ toast('error','Fill business, name & valid NIN'); return; }
+  if(!snapshot){ sToast('Note: photo not captured'); }
+  close('agentModal'); toast('success','Agent application submitted');
+  if(stream){ stream.getTracks().forEach(t=>t.stop()); }
+};
+
+/* ===================== MONEY MOVES OPENERS ===================== */
+el('sendBtn').addEventListener('click',()=> sToast('P2P transfer ready'));
+el('recvBtn').addEventListener('click',()=> sToast('Scan or share your link'));
+el('addBtn').addEventListener('click',()=> sToast('Top up or withdraw'));
+el('bankBtn').addEventListener('click',()=> sToast('Local/Regional transfer'));
+
+/* ===================== EXTRA: Keyboard shortcuts ===================== */
+document.addEventListener('keydown', (e)=>{
+  if(e.key==='Escape') document.querySelectorAll('.overlay.show').forEach(m=>m.classList.remove('show'));
 });
+
+/* ===================== QUICK ENTRY: open agent from Services ===================== */
+document.addEventListener('click',(e)=>{
+  // allow clicking a text "Become an Agent" not present now, but hook for future CTAs
+  if(e.target.matches('[data-open-agent]')) open('agentModal');
+});
+
+// Ready
+sToast('Welcome back, Demi — your wallet is synced.');
 </script>
 </body>
 </html>
