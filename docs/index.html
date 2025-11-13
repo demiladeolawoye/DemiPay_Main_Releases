@@ -1,1016 +1,736 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>DemiPay v6.0 — ₦ Edition</title>
-
-<!-- ====== Fonts & Icons (optional) ====== -->
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
-<!-- ====== Chart.js (for Savings pie) ====== -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<style>
-  :root{
-    --bg:#ffffff; --fg:#0f172a; --muted:#64748b; --card:#ffffff; --line:#eef2f7;
-    --primary:#2563eb; --primary-2:#3b82f6; --accent:#2dd4bf; --accent-2:#14b8a6;
-    --success:#16a34a; --warn:#f59e0b; --error:#dc2626;
-    --shadow:0 6px 18px rgba(15,23,42,.08);
-    --radius:14px; --gap:26px;
-  }
-  body.dark{
-    --bg:#0b1220; --fg:#e2e8f0; --muted:#93a3b8; --card:#0f172a; --line:#1f2a44;
-    --primary:#60a5fa; --primary-2:#93c5fd; --accent:#34d399; --accent-2:#10b981;
-    --shadow:0 8px 22px rgba(2,6,23,.5);
-  }
-
-  *{box-sizing:border-box}
-  html,body{height:100%}
-  body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--fg);}
-
-  /* ====== NAV ====== */
-  .navbar{position:sticky;top:0;z-index:1000;background:var(--card);border-bottom:1px solid var(--line);
-    box-shadow:0 4px 16px rgba(0,0,0,.04);backdrop-filter:blur(6px)}
-  .nav-wrap{max-width:1100px;margin:auto;display:flex;align-items:center;justify-content:space-between;padding:14px 18px}
-  .brand{display:flex;align-items:center;gap:10px;font-weight:800}
-  .brand .logo{font-size:22px}
-  .brand .name{font-size:18px;letter-spacing:.2px}
-  .badge{font-size:12px;padding:4px 8px;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--primary-2));color:#fff}
-
-  .nav-cta{display:flex;align-items:center;gap:12px}
-  .btn{display:inline-flex;align-items:center;gap:8px;border:0;border-radius:12px;padding:9px 12px;cursor:pointer;
-    background:#eef2ff;color:#1e293b;font-weight:600;transition:transform .18s ease, box-shadow .18s ease}
-  .btn:hover{transform:translateY(-1px);box-shadow:var(--shadow)}
-  .btn-primary{background:linear-gradient(90deg,var(--primary),var(--primary-2));color:#fff}
-  .btn-ghost{background:transparent;border:1px solid var(--line);color:var(--fg)}
-  .tiny{font-size:13px;padding:8px 10px;border-radius:10px}
-
-  .user-menu{position:relative;display:flex;align-items:center;gap:8px}
-  .avatar{width:28px;height:28px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,.7);box-shadow:var(--shadow)}
-  .user-btn{display:flex;align-items:center;gap:8px;cursor:pointer;border:1px solid var(--line);padding:6px 10px;border-radius:12px;background:var(--card)}
-  .dropdown{position:absolute;right:0;top:46px;background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);display:none;min-width:200px;overflow:hidden}
-  .dropdown.show{display:block;animation:fadeIn .16s ease}
-  .dropdown a{display:flex;align-items:center;gap:8px;padding:10px 12px;text-decoration:none;color:var(--fg)}
-  .dropdown a:hover{background:rgba(99,102,241,.08)}
-  @keyframes fadeIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
-
-  /* ====== LAYOUT ====== */
-  .container{max-width:1100px;margin:0 auto;padding:22px 18px}
-  .section{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px}
-  .spacer{height:24px}
-
-  .headline{margin:0 0 6px 0;font-size:26px}
-  .sub{margin:0;color:var(--muted)}
-
-  /* ====== BALANCE ====== */
-  .balance{display:flex;align-items:center;justify-content:space-between;gap:22px}
-  .balance .amount{font-size:34px;margin:6px 0 8px 0}
-  .meta{color:var(--muted);font-size:14px}
-  .row{display:flex;gap:14px;flex-wrap:wrap}
-  .chip{padding:6px 10px;border-radius:999px;background:rgba(99,102,241,.09);color:var(--primary);font-weight:600;font-size:12px}
-
-  /* ====== BANNERS ====== */
-  .banner{display:flex;gap:12px;align-items:center;padding:14px;border-radius:12px;border:1px dashed var(--line);background:rgba(45,212,191,.08)}
-  .banner.fin{background:rgba(59,130,246,.08)}
-
-  /* ====== ACTION GRID ====== */
-  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
-  @media (max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}}
-  .card-btn{border:1px solid var(--line);background:var(--card);border-radius:14px;padding:16px;display:flex;gap:12px;align-items:center;justify-content:space-between;cursor:pointer;position:relative;overflow:hidden}
-  .card-btn:hover{box-shadow:var(--shadow);transform:translateY(-1px)}
-  .card-btn .l{display:flex;align-items:center;gap:12px}
-  .icon{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(180deg,var(--accent),var(--accent-2));color:#fff;font-size:22px}
-  .card-btn .title{font-weight:700}
-  .card-btn .desc{font-size:12px;color:var(--muted)}
-  .pulse-hover:hover::after{content:"";position:absolute;inset:-1px;border-radius:16px;box-shadow:0 0 0 6px rgba(45,212,191,.15);animation:pulse .9s ease forwards}
-  @keyframes pulse{from{opacity:1}to{opacity:0}}
-
-  /* ====== SERVICES ====== */
-  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-  @media (max-width:900px){.grid-3{grid-template-columns:1fr}}
-  .svc{border:1px solid var(--line);background:var(--card);border-radius:14px;padding:16px;cursor:pointer}
-  .svc h4{margin:0 0 6px 0}
-  .svc p{margin:0;color:var(--muted);font-size:13px}
-  .svc:hover{box-shadow:var(--shadow);transform:translateY(-1px)}
-
-  /* ====== TRANSACTIONS ====== */
-  .tx-list{display:flex;flex-direction:column;gap:10px}
-  .tx{display:flex;align-items:center;justify-content:space-between;border:1px solid var(--line);padding:10px 12px;border-radius:12px;background:var(--card)}
-  .tx .left{display:flex;align-items:center;gap:10px}
-  .tx .who{font-weight:700}
-  .tx .note{color:var(--muted);font-size:12px}
-  .amount.plus{color:var(--success);font-weight:800}
-  .amount.minus{color:var(--error);font-weight:800}
-  .status{font-size:11px;padding:4px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
-
-  /* ====== MODALS ====== */
-  .overlay{position:fixed;inset:0;background:rgba(2,6,23,.6);display:none;align-items:center;justify-content:center;padding:18px;z-index:2000}
-  .overlay.show{display:flex;animation:fadeIn .12s ease}
-  .modal{background:var(--card);color:var(--fg);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);max-width:560px;width:100%;overflow:hidden}
-  .mod-h{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--line)}
-  .mod-b{padding:16px}
-  .mod-f{display:flex;gap:10px;justify-content:flex-end;padding:14px 16px;border-top:1px solid var(--line)}
-  .input{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--fg)}
-  label{font-size:12px;color:var(--muted)}
-  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-  .help{font-size:12px;color:var(--muted)}
-
-  /* ====== Toasts ====== */
-  .toast{position:fixed;top:18px;right:18px;z-index:3000;padding:12px 16px;border-radius:12px;color:#fff;box-shadow:var(--shadow);opacity:0;transform:translateY(-10px);transition:all .25s ease}
-  .toast.show{opacity:1;transform:translateY(0)}
-  .toast.success{background:linear-gradient(90deg,#22c55e,#16a34a)}
-  .toast.error{background:linear-gradient(90deg,#ef4444,#dc2626)}
-  .toast.warn{background:linear-gradient(90deg,#f59e0b,#d97706)}
-
-  .toast-bottom{position:fixed;left:18px;bottom:18px;z-index:3000;padding:12px 16px;border-radius:12px;color:#fff;box-shadow:var(--shadow);opacity:0;transform:translateY(10px);transition:all .25s ease}
-  .toast-bottom.show{opacity:1;transform:translateY(0)}
-  .toast-bottom.info{background:linear-gradient(90deg,#3b82f6,#2563eb)}
-
-  /* ====== QR holder ====== */
-  .qr{display:grid;place-items:center;border:1px dashed var(--line);border-radius:12px;padding:14px}
-  canvas{max-width:100%}
-</style>
-</head>
-<body>
-
-<!-- ================= NAV ================= -->
-<nav class="navbar">
-  <div class="nav-wrap">
-    <div class="brand" onclick="location.href='index.html'">
-      <div class="logo">🚀</div>
-      <div class="name">DemiPay</div>
-      <span class="badge">v6.0 ₦ Edition</span>
-    </div>
-
-    <div class="nav-cta">
-      <button id="themeBtn" class="btn tiny">🌙 Dark Mode</button>
-      <div class="user-menu">
-        <div class="user-btn" id="userBtn">
-          <img id="userAvatar" class="avatar" src="https://i.pravatar.cc/80?img=12" alt="User">
-          <span id="userName">Demi</span> ▾
-        </div>
-        <div class="dropdown" id="userDrop">
-          <a href="#" id="profileLink">👤 Profile</a>
-          <a href="#" id="settingsLink">⚙️ Settings</a>
-          <a href="#" id="logoutLink">🚪 Logout</a>
-        </div>
-      </div>
-    </div>
-  </div>
-</nav>
-
-<div class="container">
-  <!-- ================= WELCOME ================= -->
-  <section class="section">
-    <h1 class="headline">Welcome back, Demi 👋</h1>
-    <p class="sub">Here’s what’s happening with your wallet today.</p>
-  </section>
-
-  <div class="spacer"></div>
-
-  <!-- ================= BALANCE ================= -->
-  <section class="section">
-    <div class="balance">
-      <div>
-        <div class="chip">KYC: Tier 2 (Verified)</div>
-        <div class="amount" id="balanceAmount">₦0.00</div>
-        <div class="meta">Wallet: <span id="walletAddr">DPW-23F9-88Q1</span></div>
-        <div class="row" style="margin-top:10px">
-          <button class="btn tiny btn-primary" id="refreshBalance">🔄 Refresh</button>
-        </div>
-      </div>
-      <div>
-        <div class="meta">Account No: <strong>DP-1029345678</strong></div>
-        <div class="meta">Summary: <span id="summaryBar">0 tx • ₦0 in • ₦0 out</span></div>
-      </div>
-    </div>
-  </section>
-
-  <div class="spacer"></div>
-
-  <!-- ================= BANNERS ================= -->
-  <section class="section banner">
-    <div>🔒</div>
-    <div>
-      <strong>Security:</strong> Your wallet is protected with encryption and OTP verification.
-    </div>
-  </section>
-
-  <div class="spacer"></div>
-
-  <section class="section banner fin">
-    <div>💹</div>
-    <div>
-      <strong>Finance Updates:</strong> FX: ₦1 ≈ $0.00130 • Savings bonus +5% APY this week!
-    </div>
-  </section>
-
-  <div class="spacer"></div>
-
-  <!-- ================= MONEY MOVES ================= -->
-  <section class="section">
-    <h3 style="margin:0 0 10px 0;">Money Moves</h3>
-    <div class="grid">
-      <button class="card-btn pulse-hover" id="sendBtn">
-        <div class="l">
-          <div class="icon">💸</div>
-          <div>
-            <div class="title">Send Money</div>
-            <div class="desc">Instant P2P • ₦</div>
-          </div>
-        </div>
-        ➜
-      </button>
-
-      <button class="card-btn pulse-hover" id="recvBtn">
-        <div class="l">
-          <div class="icon">📥</div>
-          <div>
-            <div class="title">Receive Money</div>
-            <div class="desc">QR & Share Link</div>
-          </div>
-        </div>
-        ➜
-      </button>
-
-      <button class="card-btn pulse-hover" id="addBtn">
-        <div class="l">
-          <div class="icon">➕</div>
-          <div>
-            <div class="title">Add / Withdraw</div>
-            <div class="desc">Card or Bank (Mock)</div>
-          </div>
-        </div>
-        ➜
-      </button>
-
-      <button class="card-btn pulse-hover" id="bankBtn">
-        <div class="l">
-          <div class="icon">🏦</div>
-          <div>
-            <div class="title">Bank Transfer</div>
-            <div class="desc">Multi-Region Banks</div>
-          </div>
-        </div>
-        ➜
-      </button>
-    </div>
-  </section>
-
-  <div class="spacer"></div>
-
-  <!-- ================= SERVICES ================= -->
-  <section class="section">
-    <h3 style="margin:0 0 10px 0;">Services</h3>
-    <div class="grid-3">
-      <div class="svc" id="svcFx">🌍
-        <h4>Cross-Border Remittance</h4>
-        <p>Preview FX & Send Abroad</p>
-      </div>
-      <div class="svc" id="svcSave">💰
-        <h4>Savings</h4>
-        <p>Create • Add • Withdraw • Standing Orders</p>
-      </div>
-      <div class="svc" id="svcBills">💡
-        <h4>Pay Bills & Top-Up</h4>
-        <p>Water • Electricity • DSTV • Airtime</p>
-      </div>
-      <div class="svc" id="svcCards">💳
-        <h4>Virtual & Linked Cards</h4>
-        <p>Link & Set Default • Contactless</p>
-      </div>
-      <div class="svc" id="svcShop">🏬
-        <h4>Shop on the Fly</h4>
-        <p>Taxi • Entertainment • Shops • Food</p>
-      </div>
-      <div class="svc" id="svcInvest">📈
-        <h4>Investments & Stocks</h4>
-        <p>USD quotes • Pay in ₦ or $</p>
-      </div>
-    </div>
-  </section>
-
-  <div class="spacer"></div>
-
-  <!-- ================= TRANSACTIONS ================= -->
-  <section class="section">
-    <div style="display:flex;align-items:center;justify-content:space-between">
-      <h3 style="margin:0">Recent Transactions</h3>
-      <button class="btn tiny btn-ghost" id="loadMore">Load more</button>
-    </div>
-    <div id="txList" class="tx-list" style="margin-top:10px"></div>
-  </section>
-
-  <div class="spacer" style="height:40px"></div>
-</div>
-
-<!-- ================= MODALS ================= -->
-
-<!-- Send Money -->
-<div class="overlay" id="sendModal">
-  <div class="modal">
-    <div class="mod-h">
-      <strong>Send Money</strong>
-      <button class="btn tiny btn-ghost" data-close="sendModal">✕</button>
-    </div>
-    <div class="mod-b">
-      <div class="grid-2">
-        <div>
-          <label>Recipient Email / Wallet ID</label>
-          <input id="sendTo" class="input" placeholder="user@example.com" />
-        </div>
-        <div>
-          <label>Amount (₦)</label>
-          <input id="sendAmt" type="number" min="1" class="input" placeholder="5000" />
-        </div>
-      </div>
-      <div style="margin-top:10px">
-        <label>Note / Reference</label>
-        <input id="sendNote" class="input" placeholder="Thanks!" />
-      </div>
-      <p class="help" id="sendFee">Fee: ₦0 • Total: ₦0</p>
-    </div>
-    <div class="mod-f">
-      <button class="btn tiny btn-ghost" data-close="sendModal">Cancel</button>
-      <button class="btn tiny btn-primary" id="sendConfirm">Send</button>
-    </div>
-  </div>
-</div>
-
-<!-- Receive Money -->
-<div class="overlay" id="recvModal">
-  <div class="modal">
-    <div class="mod-h">
-      <strong>Receive Money</strong>
-      <button class="btn tiny btn-ghost" data-close="recvModal">✕</button>
-    </div>
-    <div class="mod-b">
-      <div class="grid-2">
-        <div>
-          <label>Your Link</label>
-          <input id="recvLink" class="input" value="https://demipay.app/pay/Demi" />
-        </div>
-        <div style="display:flex;align-items:flex-end">
-          <button class="btn tiny" id="copyLink">Copy Link</button>
-        </div>
-      </div>
-      <div style="margin-top:10px">
-        <label>QR Code</label>
-        <div class="qr"><canvas id="qrCanvas" width="220" height="220"></canvas></div>
-      </div>
-    </div>
-    <div class="mod-f">
-      <button class="btn tiny btn-ghost" data-close="recvModal">Close</button>
-    </div>
-  </div>
-</div>
-
-<!-- Add / Withdraw (mock) -->
-<div class="overlay" id="addModal">
-  <div class="modal">
-    <div class="mod-h">
-      <strong>Add / Withdraw</strong>
-      <button class="btn tiny btn-ghost" data-close="addModal">✕</button>
-    </div>
-    <div class="mod-b">
-      <div class="grid-2">
-        <div>
-          <label>Type</label>
-          <select id="addType" class="input">
-            <option value="add">Add Money</option>
-            <option value="withdraw">Withdraw</option>
-          </select>
-        </div>
-        <div>
-          <label>Amount (₦)</label>
-          <input id="addAmt" type="number" min="1" class="input" placeholder="10000" />
-        </div>
-      </div>
-      <p class="help">This is a mock flow. Balance updates locally.</p>
-    </div>
-    <div class="mod-f">
-      <button class="btn tiny btn-ghost" data-close="addModal">Cancel</button>
-      <button class="btn tiny btn-primary" id="addConfirm">Confirm</button>
-    </div>
-  </div>
-</div>
-
-<!-- Bank Transfer -->
-<div class="overlay" id="bankModal">
-  <div class="modal">
-    <div class="mod-h">
-      <strong>Bank Transfer</strong>
-      <button class="btn tiny btn-ghost" data-close="bankModal">✕</button>
-    </div>
-    <div class="mod-b">
-      <div>
-        <label>Recipient Name</label>
-        <input id="bankRecName" class="input" placeholder="Account holder full name" />
-      </div>
-      <div class="grid-2" style="margin-top:10px">
-        <div>
-          <label>Bank Name</label>
-          <input id="bankName" class="input" placeholder="e.g. GTBank" />
-        </div>
-        <div>
-          <label>Account Number</label>
-          <input id="bankAcc" class="input" maxlength="10" placeholder="0123456789" />
-        </div>
-      </div>
-      <div class="grid-2" style="margin-top:10px">
-        <div>
-          <label>Amount (₦)</label>
-          <input id="bankAmt" type="number" min="1" class="input" placeholder="20000" />
-        </div>
-        <div>
-          <label>Notes / Reference</label>
-          <input id="bankRef" class="input" placeholder="School Fees / Rent..." />
-        </div>
-      </div>
-      <p class="help" id="bankFee">Fee: ₦0 • Total: ₦0</p>
-    </div>
-    <div class="mod-f">
-      <button class="btn tiny btn-ghost" data-close="bankModal">Cancel</button>
-      <button class="btn tiny btn-primary" id="bankConfirm">Transfer</button>
-    </div>
-  </div>
-</div>
-
-<!-- Remittance -->
-<div class="overlay" id="fxModal">
-  <div class="modal">
-    <div class="mod-h">
-      <strong>Cross-Border Remittance</strong>
-      <button class="btn tiny btn-ghost" data-close="fxModal">✕</button>
-    </div>
-    <div class="mod-b">
-      <div class="grid-2">
-        <div>
-          <label>Recipient Name</label>
-          <input id="fxName" class="input" placeholder="Jane Doe" />
-        </div>
-        <div>
-          <label>Account Number / IBAN</label>
-          <input id="fxAcc" class="input" placeholder="XX00 0000 0000 0000" />
-        </div>
-      </div>
-      <div class="grid-2" style="margin-top:10px">
-        <div>
-          <label>Amount (₦)</label>
-          <input id="fxAmt" type="number" min="1" class="input" placeholder="150000" />
-        </div>
-        <div>
-          <label>Reason for Sending</label>
-          <input id="fxReason" class="input" placeholder="Family support, tuition..." />
-        </div>
-      </div>
-      <div style="margin-top:10px">
-        <label>Notes</label>
-        <input id="fxNote" class="input" placeholder="Optional message" />
-      </div>
-      <p class="help">Mock rate: ₦1 → $0.0013 • Preview only.</p>
-    </div>
-    <div class="mod-f">
-      <button class="btn tiny btn-ghost" data-close="fxModal">Cancel</button>
-      <button class="btn tiny btn-primary" id="fxConfirm">Send</button>
-    </div>
-  </div>
-</div>
-
-<!-- Savings -->
-<div class="overlay" id="saveModal">
-  <div class="modal" style="max-width:720px">
-    <div class="mod-h">
-      <strong>Savings</strong>
-      <button class="btn tiny btn-ghost" data-close="saveModal">✕</button>
-    </div>
-    <div class="mod-b">
-      <div class="grid-2">
-        <div>
-          <label>New Goal Name</label>
-          <input id="goalName" class="input" placeholder="School Fees, New Phone..." />
-        </div>
-        <div>
-          <label>Target (₦)</label>
-          <input id="goalTarget" type="number" min="1" class="input" placeholder="500000" />
-        </div>
-      </div>
-      <div class="grid-2" style="margin-top:10px">
-        <div>
-          <label>Standing Order (₦ / month)</label>
-          <input id="goalSO" type="number" min="0" class="input" placeholder="20000" />
-        </div>
-        <div style="display:flex;align-items:flex-end">
-          <button class="btn tiny" id="goalCreate">Create Goal</button>
-        </div>
-      </div>
-      <div style="margin-top:10px">
-        <canvas id="saveChart" height="120"></canvas>
-      </div>
-      <div style="margin-top:10px">
-        <div id="goalBadges" class="row"></div>
-      </div>
-      <p class="help">Tip: Goals, contributions and standing orders persist locally.</p>
-    </div>
-    <div class="mod-f">
-      <button class="btn tiny btn-ghost" data-close="saveModal">Close</button>
-    </div>
-  </div>
-</div>
-
-<!-- Bills & Top-up -->
-<div class="overlay" id="billsModal">
-  <div class="modal">
-    <div class="mod-h">
-      <strong>Pay Bills & Top-Up</strong>
-      <button class="btn tiny btn-ghost" data-close="billsModal">✕</button>
-    </div>
-    <div class="mod-b">
-      <div>
-        <label>Category</label>
-        <select id="billCat" class="input">
-          <option>Water</option>
-          <option>Electricity</option>
-          <option>DSTV</option>
-          <option>Airtime</option>
-        </select>
-      </div>
-      <div id="billDyn" style="margin-top:10px"></div>
-      <p class="help">Optionally set a recurring payment (links to your default card).</p>
-    </div>
-    <div class="mod-f">
-      <button class="btn tiny btn-ghost" data-close="billsModal">Cancel</button>
-      <button class="btn tiny btn-primary" id="billsPay">Pay</button>
-    </div>
-  </div>
-</div>
-
-<!-- Cards -->
-<div class="overlay" id="cardsModal">
-  <div class="modal" style="max-width:720px">
-    <div class="mod-h">
-      <strong>Virtual & Linked Cards</strong>
-      <button class="btn tiny btn-ghost" data-close="cardsModal">✕</button>
-    </div>
-    <div class="mod-b">
-      <div class="row">
-        <div class="card-vis" style="flex:1;min-width:260px;border:1px solid var(--line);border-radius:14px;padding:16px;background:linear-gradient(135deg,#111827,#1f2937);color:#fff">
-          <div style="display:flex;justify-content:space-between"><div>DEMIPAY VISA</div><div>📶</div></div>
-          <div style="font-size:20px;margin:16px 0">4111 1111 1111 1111</div>
-          <div style="display:flex;justify-content:space-between;font-size:12px"><span>12/28</span><span>DEMILADE O.</span></div>
-        </div>
-        <div class="card-bank" style="flex:1;min-width:260px;border:1px solid var(--line);border-radius:14px;padding:16px;background:linear-gradient(135deg,#0ea5e9,#0284c7);color:#fff">
-          <div style="display:flex;justify-content:space-between"><div>GTBank</div><div>📶</div></div>
-          <div style="font-size:20px;margin:16px 0">5061 **** **** 9981</div>
-          <div style="display:flex;justify-content:space-between;font-size:12px"><span>08/27</span><span>DEMILADE O.</span></div>
-        </div>
-        <div class="card-bank" style="flex:1;min-width:260px;border:1px solid var(--line);border-radius:14px;padding:16px;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff">
-          <div style="display:flex;justify-content:space-between"><div>UBA</div><div>📶</div></div>
-          <div style="font-size:20px;margin:16px 0">5356 **** **** 2222</div>
-          <div style="display:flex;justify-content:space-between;font-size:12px"><span>04/29</span><span>DEMILADE O.</span></div>
-        </div>
-      </div>
-
-      <div style="margin-top:14px">
-        <button class="btn tiny" id="linkCardBtn">Add / Link Card</button>
-        <button class="btn tiny btn-ghost" id="setDefaultCard">Set Default (VISA)</button>
-      </div>
-    </div>
-    <div class="mod-f">
-      <button class="btn tiny btn-ghost" data-close="cardsModal">Close</button>
-    </div>
-  </div>
-</div>
-
-<!-- Shop on the Fly -->
-<div class="overlay" id="shopModal">
-  <div class="modal">
-    <div class="mod-h">
-      <strong>Shop on the Fly</strong>
-      <button class="btn tiny btn-ghost" data-close="shopModal">✕</button>
-    </div>
-    <div class="mod-b">
-      <div class="grid-2">
-        <div>
-          <label>Category</label>
-          <select id="shopCat" class="input">
-            <option>Taxi</option><option>Entertainment</option><option>Shops</option><option>Food</option>
-          </select>
-        </div>
-        <div style="display:flex;align-items:flex-end">
-          <button class="btn tiny" id="shopGo">Open</button>
-        </div>
-      </div>
-      <p class="help">Affiliate redirects (Bolt, Uber, Cinemas, Jiji, eBay, AliExpress, KFC, etc.).</p>
-    </div>
-    <div class="mod-f"><button class="btn tiny btn-ghost" data-close="shopModal">Close</button></div>
-  </div>
-</div>
-
-<!-- Investments & Stocks -->
-<div class="overlay" id="investModal">
-  <div class="modal">
-    <div class="mod-h">
-      <strong>Investments & Stocks</strong>
-      <button class="btn tiny btn-ghost" data-close="investModal">✕</button>
-    </div>
-    <div class="mod-b">
-      <div class="grid-2">
-        <div>
-          <label>Ticker</label>
-          <select id="stk" class="input">
-            <option value="AAPL">AAPL — Apple</option>
-            <option value="MSFT">MSFT — Microsoft</option>
-            <option value="NVDA">NVDA — NVIDIA</option>
-          </select>
-        </div>
-        <div>
-          <label>Qty</label>
-          <input id="stkQty" class="input" type="number" min="1" value="1" />
-        </div>
-      </div>
-      <div class="grid-2" style="margin-top:10px">
-        <div>
-          <label>Quote (USD)</label>
-          <input id="stkPrice" class="input" value="120.00" />
-        </div>
-        <div>
-          <label>Pay In</label>
-          <select id="payIn" class="input">
-            <option value="NGN">₦ NGN</option>
-            <option value="USD">$ USD</option>
-          </select>
-        </div>
-      </div>
-      <p class="help" id="stkTotal">Total: $120.00 • ≈ ₦92,308</p>
-    </div>
-    <div class="mod-f">
-      <button class="btn tiny btn-ghost" data-close="investModal">Cancel</button>
-      <button class="btn tiny btn-primary" id="stkBuy">Buy Now</button>
-    </div>
-  </div>
-</div>
-
-<!-- Become an Agent (+ camera) -->
-<div class="overlay" id="agentModal">
-  <div class="modal">
-    <div class="mod-h">
-      <strong>Become an Agent</strong>
-      <button class="btn tiny btn-ghost" data-close="agentModal">✕</button>
-    </div>
-    <div class="mod-b">
-      <div>
-        <label>Business Name</label>
-        <input id="agBiz" class="input" placeholder="Your registered business" />
-      </div>
-      <div class="grid-2" style="margin-top:10px">
-        <div>
-          <label>Full Name</label>
-          <input id="agName" class="input" placeholder="Surname Firstname" />
-        </div>
-        <div>
-          <label>NIN (11-digit) • Required</label>
-          <input id="agNin" class="input" maxlength="11" placeholder="00000000000" />
-        </div>
-      </div>
-
-      <div style="margin-top:10px">
-        <label>Capture Photo (front camera if available)</label>
-        <div class="qr" style="gap:10px">
-          <video id="cam" width="260" height="180" autoplay muted playsinline style="border-radius:12px;background:#000"></video>
-          <canvas id="shot" width="260" height="180" style="display:none"></canvas>
-          <div>
-            <button class="btn tiny" id="camStart">Start Camera</button>
-            <button class="btn tiny btn-ghost" id="camSnap">Capture</button>
-          </div>
-        </div>
-      </div>
-      <p class="help">Your selfie is stored in-memory for verification (mock).</p>
-    </div>
-    <div class="mod-f">
-      <button class="btn tiny btn-ghost" data-close="agentModal">Cancel</button>
-      <button class="btn tiny btn-primary" id="agSubmit">Submit Application</button>
-    </div>
-  </div>
-</div>
-
-<!-- ===== Toast anchors ===== -->
-<div id="toast" class="toast"></div>
-<div id="sToast" class="toast-bottom info"></div>
-
-<script>
-/* ===================== UTIL ===================== */
-const fmtNGN = (n)=> new Intl.NumberFormat('en-NG',{style:'currency',currency:'NGN',maximumFractionDigits:2}).format(Number(n||0));
-const fmtUSD = (n)=> new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:2}).format(Number(n||0));
-
-function toast(type,msg){
-  const t=document.getElementById('toast');
-  t.className='toast '+(type==='success'?'success':type==='warn'?'warn':'error');
-  t.textContent=msg; t.classList.add('show');
-  playDing();
-  setTimeout(()=>t.classList.remove('show'),3000);
-}
-function sToast(msg){
-  const t=document.getElementById('sToast');
-  t.textContent=msg; t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),3500);
-}
-
-function playDing(){
-  // tiny click sound via WebAudio
-  try{
-    const ctx=new (window.AudioContext||window.webkitAudioContext)();
-    const o=ctx.createOscillator(); const g=ctx.createGain();
-    o.type='sine'; o.frequency.value=880; g.gain.value=0.04;
-    o.connect(g); g.connect(ctx.destination); o.start();
-    setTimeout(()=>{o.stop();ctx.close();},120);
-  }catch(e){}
-}
-
-function save(k,v){localStorage.setItem(k,JSON.stringify(v))}
-function load(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}}
-
-/* ===================== STATE ===================== */
-let balance = load('dp_balance', 250000);     // ₦
-let transactions = load('dp_tx', [
-  {type:'in', who:'Upwork Ltd', note:'Freelance payment', amt:320000, status:'completed', t:Date.now()-86400000*1},
-  {type:'out', who:'Netflix', note:'Subscription', amt:4500, status:'completed', t:Date.now()-86400000*2},
-  {type:'out', who:'Bolt', note:'Ride', amt:1800, status:'completed', t:Date.now()-86400000*3},
-  {type:'in', who:'Refund', note:'Card reversal', amt:15000, status:'completed', t:Date.now()-86400000*4},
-  {type:'out', who:'John Doe', note:'P2P transfer', amt:15000, status:'completed', t:Date.now()-86400000*5},
-]);
-
-const el = (id)=>document.getElementById(id);
-
-/* ===================== THEME + USER MENU ===================== */
-(function initTheme(){
-  const saved = load('dp_theme','light');
-  if(saved==='dark'){document.body.classList.add('dark'); el('themeBtn').textContent='☀️ Light Mode'}
-  el('themeBtn').onclick = ()=>{
-    document.body.classList.toggle('dark');
-    const dark = document.body.classList.contains('dark');
-    el('themeBtn').textContent = dark?'☀️ Light Mode':'🌙 Dark Mode';
-    save('dp_theme', dark?'dark':'light');
-    toast('success', dark?'Dark mode enabled':'Light mode restored');
-  };
-})();
-
-(function userMenu(){
-  const btn = el('userBtn'), dd=el('userDrop');
-  btn.onclick = ()=> dd.classList.toggle('show');
-  document.addEventListener('click',(e)=>{ if(!btn.contains(e.target) && !dd.contains(e.target)) dd.classList.remove('show'); });
-  el('profileLink').onclick=(e)=>{e.preventDefault(); sToast('Profile screen coming soon');};
-  el('settingsLink').onclick=(e)=>{e.preventDefault(); sToast('Settings opening soon');};
-  el('logoutLink').onclick=(e)=>{e.preventDefault(); sToast('You have been logged out (mock)');};
-})();
-
-/* ===================== BALANCE + SUMMARY ===================== */
-function refreshUI(){
-  el('balanceAmount').textContent = fmtNGN(balance);
-  renderTx();
-  renderSummary();
-}
-function renderSummary(){
-  const inSum = transactions.filter(t=>t.type==='in').reduce((a,b)=>a+b.amt,0);
-  const outSum = transactions.filter(t=>t.type==='out').reduce((a,b)=>a+b.amt,0);
-  el('summaryBar').textContent = `${transactions.length} tx • ${fmtNGN(inSum)} in • ${fmtNGN(outSum)} out`;
-}
-el('refreshBalance').onclick = ()=>{ toast('success','Balance refreshed'); refreshUI(); };
-refreshUI();
-
-/* ===================== TX RENDER ===================== */
-let txPage = 5;
-function renderTx(){
-  const list = el('txList'); list.innerHTML='';
-  const slice = transactions.slice(0,txPage);
-  slice.forEach(tx=>{
-    const row = document.createElement('div'); row.className='tx';
-    const left = document.createElement('div'); left.className='left';
-    left.innerHTML = `<div>${tx.type==='in'?'📥':'💸'}</div>
-      <div><div class="who">${tx.who}</div><div class="note">${tx.note}</div></div>`;
-    const right = document.createElement('div');
-    right.innerHTML = `<div class="amount ${tx.type==='in'?'plus':'minus'}">${tx.type==='in'?'+':''}${fmtNGN(tx.amt)}</div>
-      <div class="status">${tx.status}</div>`;
-    row.appendChild(left); row.appendChild(right); list.appendChild(row);
-  });
-}
-el('loadMore').onclick = ()=>{ txPage = Math.min(transactions.length, txPage+5); renderTx(); };
-
-/* ===================== MODAL HELPERS ===================== */
-function open(id){el(id).classList.add('show');}
-function close(id){el(id).classList.remove('show');}
-document.querySelectorAll('[data-close]').forEach(b=> b.onclick = ()=> close(b.dataset.close) );
-
-/* ===================== MONEY MOVES ===================== */
-// Send
-el('sendBtn').onclick = ()=> open('sendModal');
-el('sendAmt').oninput = ()=>{
-  const amt=Number(el('sendAmt').value||0); const fee = Math.round(amt*0.005);
-  el('sendFee').textContent = `Fee: ${fmtNGN(fee)} • Total: ${fmtNGN(amt+fee)}`;
-};
-el('sendConfirm').onclick = ()=>{
-  const to=el('sendTo').value.trim(), amt=Number(el('sendAmt').value||0);
-  if(!to || amt<=0){ toast('error','Enter recipient and valid amount'); return; }
-  const fee=Math.round(amt*0.005), total=amt+fee;
-  if(total>balance){ toast('error','Insufficient balance'); return; }
-  balance-=total;
-  transactions.unshift({type:'out', who:to, note:el('sendNote').value||'P2P', amt:amt, status:'completed', t:Date.now()});
-  save('dp_balance',balance); save('dp_tx',transactions);
-  refreshUI(); close('sendModal'); toast('success',`Sent ${fmtNGN(amt)} to ${to}`);
-};
-
-// Receive + QR
-el('recvBtn').onclick = ()=>{ open('recvModal'); drawQR(el('recvLink').value); };
-el('copyLink').onclick = async ()=>{
-  try{ await navigator.clipboard.writeText(el('recvLink').value); toast('success','Link copied'); }
-  catch(e){ toast('error','Copy failed'); }
-};
-function drawQR(text){
-  // Simple QR via tiny algorithm – fallback sketch (not a full QR implementation)
-  // For demo fidelity, draw blocks based on hash of text.
-  const c=el('qrCanvas'), ctx=c.getContext('2d'); ctx.clearRect(0,0,c.width,c.height);
-  const size=22, cells=22, pad=10; const cell=(c.width-pad*2)/cells;
-  // background
-  ctx.fillStyle='#fff'; ctx.fillRect(0,0,c.width,c.height);
-  ctx.fillStyle='#0b1220';
-  const h = Array.from(text).reduce((a,ch)=>((a<<5)-a)+ch.charCodeAt(0),0);
-  for(let y=0;y<cells;y++){
-    for(let x=0;x<cells;x++){
-      const v = Math.abs(Math.sin((x+1)*(y+1)*(h%97+1)));
-      if(v>0.62){ ctx.fillRect(pad+x*cell,pad+y*cell,cell-1,cell-1); }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DemiPay v6.0 — Money Moves</title>
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="./src/css/global.css" />
+  <link rel="stylesheet" href="./src/css/dashboard.css" />
+
+  <style>
+    :root {
+      --accent-color: #2dd4bf;
+      --gradient-accent: linear-gradient(90deg, #2dd4bf, #3b82f6);
     }
-  }
-}
 
-// Add / Withdraw
-el('addBtn').onclick = ()=> open('addModal');
-el('addConfirm').onclick = ()=>{
-  const type=el('addType').value, amt=Number(el('addAmt').value||0);
-  if(amt<=0){ toast('error','Enter amount'); return; }
-  if(type==='add'){ balance+=amt; transactions.unshift({type:'in',who:'Top-up',note:'Card/Bank',amt,status:'completed',t:Date.now()}); }
-  else{
-    if(amt>balance){ toast('error','Insufficient balance'); return; }
-    balance-=amt; transactions.unshift({type:'out',who:'Cash Out',note:'Withdraw',amt,status:'completed',t:Date.now()});
-  }
-  save('dp_balance',balance); save('dp_tx',transactions); refreshUI(); close('addModal'); toast('success','Done');
-};
+    /* Sticky navbar */
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: #ffffff;
+      border-bottom: 1px solid #f1f5f9;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+      backdrop-filter: blur(6px);
+      transition: all 0.3s ease-in-out;
+    }
+    body.scrolled .navbar {
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+    }
 
-// Bank Transfer
-el('bankBtn').onclick = ()=> open('bankModal');
-el('bankAmt').oninput = ()=>{
-  const a=Number(el('bankAmt').value||0), f=Math.round(a*0.004);
-  el('bankFee').textContent = `Fee: ${fmtNGN(f)} • Total: ${fmtNGN(a+f)}`;
-};
-el('bankConfirm').onclick = ()=>{
-  const name=el('bankRecName').value.trim(), acc=el('bankAcc').value.trim(), bank=el('bankName').value.trim();
-  const amt=Number(el('bankAmt').value||0);
-  if(!name||!acc||!bank||amt<=0){ toast('error','Fill all fields'); return; }
-  const fee=Math.round(amt*0.004), total=amt+fee;
-  if(total>balance){ toast('error','Insufficient balance'); return; }
-  balance-=total;
-  transactions.unshift({type:'out',who:`${name} • ${bank}`,note:el('bankRef').value||'Bank transfer',amt,status:'completed',t:Date.now()});
-  save('dp_balance',balance); save('dp_tx',transactions); refreshUI(); close('bankModal'); toast('success','Transfer sent');
-};
+    .navbar-container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
 
-/* ===================== SERVICES ===================== */
-// Remittance
-el('svcFx').onclick = ()=> open('fxModal');
-el('fxConfirm').onclick = ()=>{
-  const n=el('fxName').value.trim(), a=Number(el('fxAmt').value||0);
-  if(!n||a<=0){ toast('error','Enter recipient and amount'); return; }
-  const usd = a*0.0013; sToast(`Preview: ${fmtUSD(usd.toFixed(2))} (mock)`);
-  toast('success','Remittance queued (mock)');
-  close('fxModal');
-};
+    .navbar-brand {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 700;
+      font-size: 1.2rem;
+      cursor: pointer;
+    }
+    .logo-icon { font-size: 1.5rem; }
+    .version-badge {
+      font-size: 0.75rem;
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: #e0f2fe;
+      color: #0369a1;
+    }
 
-// Savings (chart + goals)
-let saveState = load('dp_savings',{goals:[], amounts:[]});
-let chart;
-function renderSave(){
-  // badges
-  const host=el('goalBadges'); host.innerHTML='';
-  saveState.goals.forEach((g,i)=>{
-    const pct = Math.min(100, Math.round((saveState.amounts[i]/g.target)*100||0));
-    const cap = document.createElement('div');
-    cap.className='chip'; cap.textContent = `${g.name}: ${fmtNGN(saveState.amounts[i]||0)} / ${fmtNGN(g.target)} • ${pct}%`;
-    host.appendChild(cap);
-  });
-  // chart
-  const data = saveState.goals.map((g,i)=> saveState.amounts[i]||0);
-  const labels = saveState.goals.map(g=> g.name);
-  const ctx = el('saveChart').getContext('2d');
-  chart && chart.destroy();
-  chart = new Chart(ctx,{type:'pie',data:{labels,datasets:[{data}]},options:{plugins:{legend:{position:'bottom'}}}});
-}
-el('svcSave').onclick = ()=>{ open('saveModal'); renderSave(); };
-el('goalCreate').onclick = ()=>{
-  const name=el('goalName').value.trim(); const target=Number(el('goalTarget').value||0); const so=Number(el('goalSO').value||0);
-  if(!name||target<=0){ toast('error','Enter goal name & target'); return; }
-  saveState.goals.push({name,target,so}); saveState.amounts.push(0);
-  save('dp_savings',saveState); renderSave(); toast('success','Goal created');
-};
+    .navbar-menu {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
 
-// Bills
-el('svcBills').onclick = ()=>{ open('billsModal'); drawBillFields(); };
-el('billCat').onchange = drawBillFields;
-function drawBillFields(){
-  const c=el('billCat').value; const host=el('billDyn');
-  const providerField = `<div><label>Provider</label><input id="billProv" class="input" placeholder="${c==='DSTV'?'Multichoice':'Disco / Utility'}" /></div>`;
-  const acctField = `<div><label>Account / Meter Number</label><input id="billAcc" class="input" placeholder="Enter account / meter number" /></div>`;
-  const planField = `<div><label>Plan</label><select id="billPlan" class="input"><option>₦500</option><option>₦1000</option><option>₦5000</option></select></div>`;
-  const recurField = `<div><label>Recurring?</label><select id="billRec" class="input"><option>No</option><option>Weekly</option><option>Monthly</option></select></div>`;
-  const airtimeFields = `
-    <div class="grid-2"><div><label>Airtime Provider</label>
-      <select id="airProv" class="input"><option>MTN</option><option>Glo</option><option>Airtel</option><option>9mobile</option></select></div>
-      <div><label>Phone Number</label><input id="airPhone" class="input" placeholder="080..." /></div></div>
-    <div style="margin-top:10px">${planField}</div>
-    <div style="margin-top:10px">${recurField}</div>`;
-  if(c==='Airtime'){ host.innerHTML = airtimeFields; }
-  else{
-    host.innerHTML = `
-      ${acctField}
-      ${c!=='Water' && c!=='Electricity' ? '' : `<div style="margin-top:10px">${providerField}</div>`}
-      <div style="margin-top:10px">${planField}</div>
-      <div style="margin-top:10px">${recurField}</div>`;
-  }
-}
-el('billsPay').onclick = ()=>{ toast('success','Bill paid (mock)'); close('billsModal'); };
+    .user-menu {
+      position: relative;
+    }
+    .user-menu-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid #e5e7eb;
+      background: #ffffff;
+      cursor: pointer;
+    }
+    .user-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+    .user-menu-dropdown {
+      position: absolute;
+      right: 0;
+      top: 40px;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+      padding: 8px 0;
+      display: none;
+      min-width: 150px;
+    }
+    .user-menu-dropdown.show {
+      display: block;
+      animation: fadeIn 0.2s ease-in-out;
+    }
+    .menu-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      font-size: 0.9rem;
+      color: #111827;
+      text-decoration: none;
+    }
+    .menu-item:hover {
+      background: #f9fafb;
+    }
+    .menu-divider {
+      height: 1px;
+      background: #e5e7eb;
+      margin: 4px 0;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
 
-// Cards
-el('svcCards').onclick = ()=> open('cardsModal');
-el('linkCardBtn').onclick = ()=> sToast('Card link form coming up (mock)');
-el('setDefaultCard').onclick = ()=> sToast('Default card set: DEMIPAY VISA');
+    /* Layout spacing */
+    .main-content {
+      padding: 16px;
+    }
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .welcome-section,
+    .balance-section,
+    .banner,
+    .money-moves,
+    .quick-services,
+    .transactions-section {
+      margin-bottom: 24px;
+    }
 
-// Shop
-el('svcShop').onclick = ()=> open('shopModal');
-el('shopGo').onclick = ()=>{
-  const cat=el('shopCat').value;
-  sToast(`Opening partners in ${cat}… (mock)`);
-  close('shopModal');
-};
+    .banner {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      border-radius: 12px;
+      background: #f9fafb;
+    }
+    .banner-security { border-left: 4px solid #22c55e; }
+    .banner-finance { border-left: 4px solid #3b82f6; }
 
-// Invest
-el('svcInvest').onclick = ()=> open('investModal');
-function updateStkTotal(){
-  const qty=Number(el('stkQty').value||0), p=Number(el('stkPrice').value||0), pay=el('payIn').value;
-  const totalUSD = qty*p; const rate = 760; // mock conversion
-  el('stkTotal').textContent = `Total: ${fmtUSD(totalUSD)} • ≈ ${fmtNGN(Math.round(totalUSD*rate))}`;
-}
-['stkQty','stkPrice','payIn'].forEach(id=> el(id).oninput = updateStkTotal); updateStkTotal();
-el('stkBuy').onclick = ()=>{
-  const qty=Number(el('stkQty').value||0), p=Number(el('stkPrice').value||0), pay=el('payIn').value;
-  if(qty<=0||p<=0){ toast('error','Enter valid quantity/price'); return; }
-  const totalUSD = qty*p; const rate=760; const cost = pay==='USD' ? totalUSD : totalUSD*rate;
-  const okInNaira = (pay==='NGN');
-  if(okInNaira && cost>balance){ toast('error','Insufficient ₦ balance'); return; }
-  if(okInNaira){ balance-=cost; save('dp_balance',balance); }
-  transactions.unshift({type:'out',who:'Stocks',note:`${el('stk').value} x${qty} (${pay})`,amt: okInNaira?cost:Math.round(totalUSD*rate), status:'completed', t:Date.now()});
-  save('dp_tx',transactions); refreshUI(); close('investModal'); toast('success','Order placed');
-};
+    /* Scroll to top */
+    #scrollTopBtn {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      border: none;
+      background: var(--gradient-accent);
+      color: white;
+      font-size: 20px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      z-index: 999;
+    }
+    #scrollTopBtn.show { display: flex; }
+    #scrollTopBtn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+    }
 
-/* ===================== AGENT (camera) ===================== */
-let stream=null, snapshot=null;
-el('camStart').onclick = async ()=>{
-  try{
-    stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'}});
-    el('cam').srcObject = stream; toast('success','Camera on');
-  }catch(e){ toast('error','Camera unavailable'); }
-};
-el('camSnap').onclick = ()=>{
-  const v=el('cam'), c=el('shot'), ctx=c.getContext('2d');
-  if(!v.srcObject){ toast('error','Start camera first'); return; }
-  ctx.drawImage(v,0,0,c.width,c.height); snapshot = c.toDataURL('image/png');
-  c.style.display='block'; toast('success','Captured');
-};
-el('agSubmit').onclick = ()=>{
-  const biz=el('agBiz').value.trim(), name=el('agName').value.trim(), nin=el('agNin').value.trim();
-  if(!biz||!name||nin.length!==11){ toast('error','Fill business, name & valid NIN'); return; }
-  if(!snapshot){ sToast('Note: photo not captured'); }
-  close('agentModal'); toast('success','Agent application submitted');
-  if(stream){ stream.getTracks().forEach(t=>t.stop()); }
-};
+    /* Welcome toast */
+    #welcomeToast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--gradient-accent);
+      color: #fff;
+      padding: 12px 22px;
+      border-radius: 30px;
+      font-size: 14px;
+      font-weight: 500;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      opacity: 0;
+      z-index: 9999;
+      display: none;
+      align-items: center;
+      gap: 8px;
+    }
 
-/* ===================== MONEY MOVES OPENERS ===================== */
-el('sendBtn').addEventListener('click',()=> sToast('P2P transfer ready'));
-el('recvBtn').addEventListener('click',()=> sToast('Scan or share your link'));
-el('addBtn').addEventListener('click',()=> sToast('Top up or withdraw'));
-el('bankBtn').addEventListener('click',()=> sToast('Local/Regional transfer'));
+    /* Top-right toast */
+    .toast {
+      animation: fadeInToast 0.3s ease, fadeOutToast 0.3s ease 2.7s forwards;
+    }
+    @keyframes fadeInToast {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeOutToast {
+      from { opacity: 1; transform: translateY(0); }
+      to { opacity: 0; transform: translateY(-10px); }
+    }
 
-/* ===================== EXTRA: Keyboard shortcuts ===================== */
-document.addEventListener('keydown', (e)=>{
-  if(e.key==='Escape') document.querySelectorAll('.overlay.show').forEach(m=>m.classList.remove('show'));
-});
+    /* Bottom-left toast */
+    .toast-bottom {
+      animation: fadeInUp 0.3s ease, fadeOutDown 0.3s ease 3.7s forwards;
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeOutDown {
+      from { opacity: 1; transform: translateY(0); }
+      to { opacity: 0; transform: translateY(20px); }
+    }
 
-/* ===================== QUICK ENTRY: open agent from Services ===================== */
-document.addEventListener('click',(e)=>{
-  // allow clicking a text "Become an Agent" not present now, but hook for future CTAs
-  if(e.target.matches('[data-open-agent]')) open('agentModal');
-});
+    /* Bottom sheet (for most actions) */
+    .bottom-sheet-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15,23,42,0.45);
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      z-index: 9998;
+    }
+    .bottom-sheet-overlay.show {
+      display: flex;
+    }
+    .bottom-sheet {
+      width: 100%;
+      max-width: 500px;
+      max-height: 80vh;
+      background: #ffffff;
+      border-top-left-radius: 18px;
+      border-top-right-radius: 18px;
+      padding: 14px 18px 18px;
+      box-shadow: 0 -8px 24px rgba(15,23,42,0.25);
+      overflow-y: auto;
+      animation: slideUp 0.25s ease-out;
+    }
+    @keyframes slideUp {
+      from { transform: translateY(40px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .bottom-sheet-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .bottom-sheet-title {
+      font-size: 1rem;
+      font-weight: 600;
+    }
+    .bottom-sheet-close {
+      border: none;
+      background: transparent;
+      font-size: 20px;
+      cursor: pointer;
+    }
+    .bottom-sheet-body {
+      font-size: 0.9rem;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
 
-// Ready
-sToast('Welcome back, Demi — your wallet is synced.');
-</script>
+    .form-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .form-row label {
+      font-size: 0.8rem;
+      color: #6b7280;
+    }
+    .form-row input,
+    .form-row select,
+    .form-row textarea {
+      border-radius: 8px;
+      border: 1px solid #e5e7eb;
+      padding: 8px 10px;
+      font-size: 0.9rem;
+    }
+
+    .sheet-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+      justify-content: flex-end;
+    }
+
+    /* Simple card styles */
+    .small-card-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 6px;
+    }
+    .small-card {
+      border-radius: 10px;
+      border: 1px solid #e5e7eb;
+      padding: 8px 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+    }
+    .badge {
+      display: inline-flex;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      background: #eff6ff;
+      color: #1d4ed8;
+    }
+    .badge-default {
+      background: #dcfce7;
+      color: #15803d;
+    }
+
+    .card-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .card-visual {
+      border-radius: 16px;
+      padding: 12px 14px;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      position: relative;
+      overflow: hidden;
+    }
+    .card-visual.virtual {
+      background: radial-gradient(circle at top left, #0ea5e9, #1d4ed8);
+    }
+    .card-visual.linked-1 {
+      background: radial-gradient(circle at top left, #15803d, #16a34a);
+    }
+    .card-visual.linked-2 {
+      background: radial-gradient(circle at top left, #7c2d12, #ea580c);
+    }
+    .card-visual.linked-3 {
+      background: radial-gradient(circle at top left, #4b5563, #020617);
+    }
+    .contactless {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      font-size: 18px;
+      opacity: 0.9;
+    }
+
+    /* Recent transactions */
+    .transactions-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .transaction-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid #e5e7eb;
+      font-size: 0.85rem;
+    }
+    .tx-main {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .tx-meta {
+      font-size: 0.75rem;
+      color: #6b7280;
+    }
+    .tx-amount {
+      font-weight: 600;
+      text-align: right;
+    }
+    .tx-amount.negative { color: #dc2626; }
+    .tx-amount.positive { color: #16a34a; }
+
+    /* Agent modal (center) */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15,23,42,0.45);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+    .modal-overlay.show {
+      display: flex;
+    }
+    .modal {
+      width: 100%;
+      max-width: 420px;
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 16px 18px 18px;
+      box-shadow: 0 12px 32px rgba(15,23,42,0.35);
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .modal-header h3 {
+      font-size: 1rem;
+      margin: 0;
+    }
+    .close-btn {
+      border: none;
+      background: transparent;
+      font-size: 20px;
+      cursor: pointer;
+    }
+    .modal-body {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      font-size: 0.9rem;
+    }
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    /* Buttons */
+    .btn {
+      border-radius: 999px;
+      padding: 8px 14px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.85rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-primary {
+      background: var(--gradient-accent);
+      color: #fff;
+    }
+    .btn-secondary {
+      background: #f3f4f6;
+      color: #111827;
+    }
+    .btn-sm {
+      padding: 6px 10px;
+      font-size: 0.8rem;
+    }
+
+    /* Money moves & services grid (rely on your dashboard.css too) */
+    .action-grid,
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 10px;
+    }
+    .action-card,
+    .service-card {
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
+      padding: 10px 12px;
+      background: #ffffff;
+      text-align: left;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+      font-size: 0.85rem;
+    }
+    .action-card:hover,
+    .service-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(15,23,42,0.08);
+      border-color: #bfdbfe;
+    }
+    .action-icon {
+      font-size: 1.3rem;
+      margin-bottom: 4px;
+    }
+    .action-title {
+      font-weight: 600;
+      display: block;
+    }
+    .action-desc {
+      font-size: 0.78rem;
+      color: #6b7280;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="navbar-container">
+      <div class="navbar-brand" onclick="window.location.href='index.html'">
+        <span class="logo-icon">🚀</span>
+        <span class="logo-text">DemiPay</span>
+        <span class="version-badge">v6.0 • ₦</span>
+      </div>
+
+      <div class="navbar-menu">
+        <button class="btn btn-secondary btn-sm" id="themeToggle">
+          <span id="themeIcon">🌙</span>
+          <span id="themeText">Dark Mode</span>
+        </button>
+
+        <div class="user-menu">
+          <button class="user-menu-btn" id="userMenuBtn">
+            <img id="userAvatar" src="./src/assets/user.png" alt="User" class="user-avatar" />
+            <span id="userName">Demi</span>
+            <span>▼</span>
+          </button>
+          <div class="user-menu-dropdown" id="userMenuDropdown">
+            <a href="#" class="menu-item" id="profileBtn"><span>👤</span><span>Profile</span></a>
+            <a href="#" class="menu-item" id="settingsBtn"><span>⚙️</span><span>Settings</span></a>
+            <div class="menu-divider"></div>
+            <a href="#" class="menu-item" id="logoutBtn"><span>🚪</span><span>Logout</span></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="container">
+      <!-- Welcome -->
+      <section class="welcome-section">
+        <h1>Welcome back, <span id="welcomeName">Demi</span> 👋</h1>
+        <p>Here's what's happening with your wallet today.</p>
+      </section>
+
+      <!-- Wallet Balance -->
+      <section class="balance-section">
+        <div class="balance-card">
+          <div class="balance-header">
+            <div>
+              <p class="balance-label">Total Balance</p>
+              <h2 class="balance-amount" id="balanceAmount">₦0.00</h2>
+              <p class="wallet-address" id="walletAddress">Wallet: DP-WALLET-0000</p>
+              <p class="wallet-meta">
+                Account No: <strong id="accountNumber">DP-1029345678</strong><br />
+                KYC Level: <span class="kyc-level">Tier 2 (Verified)</span>
+              </p>
+            </div>
+            <button class="btn btn-primary" id="refreshBalanceBtn">
+              <span>🔄</span><span>Refresh</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Security Banner -->
+      <section class="banner banner-security">
+        <span class="banner-emoji">🔒</span>
+        <div class="banner-text">
+          <h4>Security</h4>
+          <p>Your wallet is protected with encryption and OTP verification.</p>
+        </div>
+      </section>
+
+      <!-- Finance Banner -->
+      <section class="banner banner-finance">
+        <span class="banner-emoji">💹</span>
+        <div class="banner-text">
+          <h4>Finance Updates</h4>
+          <p>FX Update: ₦1 ≈ $0.0013 • Earn +5% APY bonus this week!</p>
+        </div>
+      </section>
+
+      <!-- Money Moves -->
+      <section class="money-moves">
+        <h3>Money Moves</h3>
+        <div class="action-grid">
+          <button class="action-card" id="sendMoneyBtn">
+            <span class="action-icon">💸</span>
+            <span class="action-title">Send Money</span>
+            <span class="action-desc">Instant P2P transfer</span>
+          </button>
+          <button class="action-card" id="receiveMoneyBtn">
+            <span class="action-icon">📥</span>
+            <span class="action-title">Receive Money</span>
+            <span class="action-desc">QR & account share</span>
+          </button>
+          <button class="action-card" id="addMoneyBtn">
+            <span class="action-icon">➕</span>
+            <span class="action-title">Add / Withdraw</span>
+            <span class="action-desc">Card or bank (mock)</span>
+          </button>
+          <button class="action-card" id="bankTransferBtn">
+            <span class="action-icon">🏦</span>
+            <span class="action-title">Bank Transfer</span>
+            <span class="action-desc">Multi-region banks</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Services -->
+      <section class="quick-services">
+        <h3>Services</h3>
+        <div class="services-grid">
+          <div class="service-card" data-service="fx">
+            🌍
+            <h4>Cross-Border Remittance</h4>
+            <p>Preview FX & send abroad</p>
+          </div>
+          <div class="service-card" data-service="savings">
+            💰
+            <h4>Savings</h4>
+            <p>Create • Add • Withdraw • SO</p>
+          </div>
+          <div class="service-card" data-service="bills">
+            💡
+            <h4>Pay Bills & Top-Up</h4>
+            <p>Water • Power • DSTV • Airtime</p>
+          </div>
+          <div class="service-card" data-service="cards">
+            💳
+            <h4>Virtual & Linked Cards</h4>
+            <p>Add • Link • Set Default</p>
+          </div>
+          <div class="service-card" data-service="payonline">
+            🛒
+            <h4>Pay Online</h4>
+            <p>Checkout simulation</p>
+          </div>
+          <div class="service-card" data-service="shop">
+            🏬
+            <h4>Shop on the Fly</h4>
+            <p>Rides • Food • Shopping • Fun</p>
+          </div>
+          <div class="service-card" data-service="invest">
+            📈
+            <h4>Investments & Stocks</h4>
+            <p>Mock buy/sell & portfolio</p>
+          </div>
+          <div class="service-card" data-service="agent">
+            🧍‍♂️
+            <h4>Become an Agent</h4>
+            <p>Business • NIN • Photo</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Recent Transactions -->
+      <section class="transactions-section">
+        <div class="section-header" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <h3>Recent Transactions</h3>
+          <button class="btn btn-secondary btn-sm" id="viewAllBtn">View All</button>
+        </div>
+        <div id="transactionsList" class="transactions-list">
+          <!-- Filled by JS -->
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Scroll to Top -->
+  <button id="scrollTopBtn" title="Back to Top">⬆️</button>
+
+  <!-- Bottom Sheet (shared for most flows) -->
+  <div id="bottomSheetOverlay" class="bottom-sheet-overlay">
+    <div class="bottom-sheet">
+      <div class="bottom-sheet-header">
+        <div class="bottom-sheet-title" id="bottomSheetTitle">Title</div>
+        <button class="bottom-sheet-close" id="bottomSheetClose">✕</button>
+      </div>
+      <div class="bottom-sheet-body" id="bottomSheetBody">
+        <!-- Dynamic content -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Become an Agent Modal (center) -->
+  <div id="agentModalOverlay" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Become an Agent</h3>
+        <button class="close-btn" id="closeAgentModal">✕</button>
+      </div>
+      <div class="modal-body">
+        <form id="agentForm">
+          <div class="form-row">
+            <label for="businessName">Business Name</label>
+            <input type="text" id="businessName" placeholder="DemiPay Micro Services" required />
+          </div>
+          <div class="form-row">
+            <label for="agentFullName">Full Name</label>
+            <input type="text" id="agentFullName" placeholder="John Doe" required />
+          </div>
+          <div class="form-row">
+            <label for="agentNIN">NIN (11 digits)</label>
+            <input type="text" id="agentNIN" placeholder="Enter 11-digit NIN" maxlength="11" required />
+          </div>
+          <div class="form-row">
+            <label for="agentPhoto">Capture/Upload Photo ID</label>
+            <input type="file" id="agentPhoto" accept="image/*" capture="user" required />
+          </div>
+        </form>
+        <small style="font-size:0.75rem;color:#6b7280;">
+          📸 For security, DemiPay will use this photo to verify it's really you.
+        </small>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="cancelAgentBtn">Cancel</button>
+        <button class="btn btn-primary" id="submitAgentBtn">Submit Application</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toasts -->
+  <div id="welcomeToast"></div>
+  <div id="globalToast" style="display:none;"></div>
+  <div id="systemToast" style="display:none;"></div>
+
+  <!-- Dashboard Logic -->
+  <script src="./src/js/dashboard.js"></script>
 </body>
 </html>
