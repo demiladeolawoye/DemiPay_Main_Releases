@@ -1,450 +1,118 @@
 /**
- * DemiPay v5.5 Dashboard JavaScript
- * Handles all dashboard functionality
+ * PAY54 v6.1 Hybrid Dashboard
+ * Simple front-end only implementation
+ * - Naira-first UI (₦)
+ * - USD for investments display
+ * - All main buttons wired with mock logic
  */
 
-// Global state
-let currentUser = null;
-let currentBalance = 0;
-let transactions = [];
+console.log("🚀 PAY54 v6.1 dashboard.js loaded");
 
-// Initialize dashboard
-document.addEventListener('DOMContentLoaded', async () => {
-    console.log('🚀 DemiPay v5.5 Dashboard Loading...');
-    
-    try {
-        // Initialize Mock API
-        await mockAPI.init();
-        
-        // Check authentication
-        if (!mockAPI.isAuthenticated()) {
-            window.location.href = 'src/pages/login.html';
-            return;
-            // ===============================
-// MOCK TRANSACTIONS + LOAD MORE
-// ===============================
-const mockTxContainer = document.getElementById('transactionsList');
-let mockData = [
-  { type: "Sent", name: "John Doe", desc: "P2P Transfer", amount: -150.00, status: "completed" },
-  { type: "Received", name: "Jane Smith", desc: "Refund", amount: 320.00, status: "completed" },
-  { type: "Sent", name: "Netflix", desc: "Monthly Subscription", amount: -45.99, status: "pending" },
-  { type: "Received", name: "Upwork Ltd", desc: "Freelance Payment", amount: 500.00, status: "completed" },
-  { type: "Sent", name: "Bolt", desc: "Ride Payment", amount: -17.80, status: "completed" }
+// ------------------------------
+// BASIC MOCK STATE
+// ------------------------------
+const mockUser = {
+  id: "user_001",
+  fullName: "Demi Olawoye",
+  avatar: "./src/assets/user.png",
+};
+
+let nairaBalance = 250000; // ₦
+let transactions = [
+  {
+    id: 1,
+    type: "debit",
+    title: "Sent to John Doe",
+    desc: "P2P Transfer",
+    amount: -15000,
+    status: "Completed",
+    time: "Today • 10:32",
+  },
+  {
+    id: 2,
+    type: "credit",
+    title: "Received from Upwork Ltd",
+    desc: "Freelance payment",
+    amount: 82000,
+    status: "Completed",
+    time: "Yesterday • 18:20",
+  },
+  {
+    id: 3,
+    type: "debit",
+    title: "Netflix Subscription",
+    desc: "Entertainment",
+    amount: -4500,
+    status: "Completed",
+    time: "Mon • 07:02",
+  },
+  {
+    id: 4,
+    type: "debit",
+    title: "Bolt Ride",
+    desc: "Transport",
+    amount: -2300,
+    status: "Completed",
+    time: "Sun • 21:15",
+  },
+  {
+    id: 5,
+    type: "credit",
+    title: "Salary",
+    desc: "Monthly inflow",
+    amount: 200000,
+    status: "Completed",
+    time: "Fri • 09:00",
+  },
 ];
 
-// Render mock transactions
-function renderMockTransactions() {
-  mockTxContainer.innerHTML = mockData.map(tx => `
-    <div class="transaction-item ${tx.amount < 0 ? 'debit' : 'credit'}">
-      <div class="tx-info">
-        <strong>${tx.type} ${tx.name}</strong>
-        <p>${tx.desc}</p>
-      </div>
-      <div class="tx-amount">
-        <span>${tx.amount < 0 ? '-' : '+'}$${Math.abs(tx.amount).toFixed(2)}</span>
-        <small class="${tx.status}">${tx.status}</small>
-      </div>
-    </div>
-  `).join("");
-}
+// Simple card list
+let linkedCards = [
+  {
+    id: "v1",
+    type: "virtual",
+    label: "PAY54 Virtual Visa",
+    masked: "**** **** **** 1454",
+    brand: "visa",
+    isDefault: true,
+  },
+  {
+    id: "c1",
+    type: "linked",
+    label: "GTBank • Main",
+    masked: "**** **** **** 9821",
+    brand: "gtb",
+    isDefault: false,
+  },
+  {
+    id: "c2",
+    type: "linked",
+    label: "Access Bank • Bills",
+    masked: "**** **** **** 4410",
+    brand: "access",
+    isDefault: false,
+  },
+];
 
-// Load More button
-const loadMoreBtn = document.createElement("button");
-loadMoreBtn.textContent = "Load More Transactions";
-loadMoreBtn.className = "btn btn-secondary btn-sm";
-loadMoreBtn.style.marginTop = "10px";
-loadMoreBtn.addEventListener("click", () => {
-  const newTx = [
-    { type: "Received", name: "Stripe Payout", desc: "Business income", amount: 1200.00, status: "completed" },
-    { type: "Sent", name: "Spotify", desc: "Music subscription", amount: -9.99, status: "completed" }
-  ];
-  mockData = [...mockData, ...newTx];
-  renderMockTransactions();
-});
-
-mockTxContainer.after(loadMoreBtn);
-renderMockTransactions();
-
-        }
-        
-        // Get current user
-        currentUser = mockAPI.getCurrentUser();
-        
-        // Initialize dashboard
-        await initializeDashboard();
-        
-        // Hide loading overlay
-        document.getElementById('loadingOverlay').style.display = 'none';
-        
-        console.log('✅ Dashboard initialized successfully');
-        
-    } catch (error) {
-        console.error('❌ Dashboard initialization failed:', error);
-        showToast('error', 'Failed to load dashboard');
-    }
-});
-
-// Initialize dashboard components
-async function initializeDashboard() {
-    // Load user data
-    await loadUserData();
-    
-    // Load balance
-    await loadBalance();
-    
-    // Load transactions
-    await loadTransactions();
-    
-    // Setup event listeners
-    setupEventListeners();
-    
-    // Apply saved theme
-    applySavedTheme();
-}
-
-// Load user data
-async function loadUserData() {
-    document.getElementById('userName').textContent = currentUser.full_name;
-    document.getElementById('welcomeName').textContent = currentUser.full_name.split(' ')[0];
-    document.getElementById('userAvatar').src = currentUser.profile_picture;
-}
-
-// Load balance
-async function loadBalance() {
-    try {
-        const result = await mockAPI.getBalance();
-        currentBalance = result.balance;
-        
-        document.getElementById('balanceAmount').textContent = formatCurrency(result.balance);
-        document.getElementById('walletAddress').textContent = `Wallet: ${result.wallet_address}`;
-        
-    } catch (error) {
-        console.error('Failed to load balance:', error);
-        showToast('error', 'Failed to load balance');
-    }
-}
-
-// Load transactions
-async function loadTransactions() {
-    try {
-        const result = await mockAPI.getTransactionHistory(5);
-        transactions = result.transactions;
-        
-        renderTransactions(transactions);
-        
-    } catch (error) {
-        console.error('Failed to load transactions:', error);
-        showToast('error', 'Failed to load transactions');
-    }
-}
-
-// Render transactions
-function renderTransactions(txns) {
-    const container = document.getElementById('transactionsList');
-    
-    if (txns.length === 0) {
-        container.innerHTML = `
-            <div class="empty-state">
-                <span class="empty-icon">📭</span>
-                <p>No transactions yet</p>
-                <p class="text-sm">Start by sending or receiving money</p>
-            </div>
-        `;
-        return;
-    }
-    
-    container.innerHTML = txns.map(txn => {
-        const isSent = txn.sender_id === currentUser.id;
-        const isReceived = txn.recipient_id === currentUser.id;
-        const amount = isSent ? -txn.amount : txn.amount;
-        const otherParty = isSent ? txn.recipient_name : txn.sender_name;
-        
-        return `
-            <div class="transaction-item">
-                <div class="transaction-info">
-                    <div class="transaction-icon ${isSent ? 'send' : 'receive'}">
-                        ${isSent ? '💸' : '📥'}
-                    </div>
-                    <div class="transaction-details">
-                        <h4>${isSent ? 'Sent to' : 'Received from'} ${otherParty}</h4>
-                        <p>${txn.note || 'No description'}</p>
-                        <p class="text-sm">${formatDate(txn.created_at)}</p>
-                    </div>
-                </div>
-                <div class="transaction-amount">
-                    <div class="amount ${amount > 0 ? 'positive' : 'negative'}">
-                        ${amount > 0 ? '+' : ''}${formatCurrency(Math.abs(amount))}
-                    </div>
-                    <span class="status ${txn.status}">${txn.status}</span>
-                </div>
-            </div>
-        `;
-    }).join('');
-}
-
-// Setup event listeners
-function setupEventListeners() {
-    // Theme toggle
-    document.getElementById('themeToggle').addEventListener('click', toggleTheme);
-    
-    // User menu
-    document.getElementById('userMenuBtn').addEventListener('click', toggleUserMenu);
-    
-    // Logout
-    document.getElementById('logoutBtn').addEventListener('click', handleLogout);
-    
-    // Refresh balance
-    document.getElementById('refreshBalanceBtn').addEventListener('click', loadBalance);
-    
-    // Quick actions
-    document.getElementById('sendMoneyBtn').addEventListener('click', () => openModal('sendMoneyModal'));
-    document.getElementById('receiveMoneyBtn').addEventListener('click', () => openModal('receiveMoneyModal'));
-    document.getElementById('viewHistoryBtn').addEventListener('click', () => alert('Transaction history page coming soon!'));
-    document.getElementById('addContactBtn').addEventListener('click', () => alert('Contacts page coming soon!'));
-    
-    // Send money modal
-    document.getElementById('closeSendModal').addEventListener('click', () => closeModal('sendMoneyModal'));
-    document.getElementById('cancelSendBtn').addEventListener('click', () => closeModal('sendMoneyModal'));
-    document.getElementById('confirmSendBtn').addEventListener('click', handleSendMoney);
-    document.getElementById('sendAmount').addEventListener('input', updateSendSummary);
-    
-    // Receive money modal
-    document.getElementById('closeReceiveModal').addEventListener('click', () => closeModal('receiveMoneyModal'));
-    document.getElementById('cancelReceiveBtn').addEventListener('click', () => closeModal('receiveMoneyModal'));
-    document.getElementById('confirmReceiveBtn').addEventListener('click', handleReceiveMoney);
-    
-    // Close modals on overlay click
-    document.querySelectorAll('.modal-overlay').forEach(overlay => {
-        overlay.addEventListener('click', (e) => {
-            if (e.target === overlay) {
-                closeModal(overlay.id);
-            }
-        });
-    });
-}
-
-// Theme toggle
-function toggleTheme() {
-    document.body.classList.toggle('dark-mode');
-    const isDark = document.body.classList.contains('dark-mode');
-    
-    document.getElementById('themeIcon').textContent = isDark ? '☀️' : '🌙';
-    document.getElementById('themeText').textContent = isDark ? 'Light Mode' : 'Dark Mode';
-    
-    // Save preference
-    localStorage.setItem('demipay_theme', isDark ? 'dark' : 'light');
-    
-  showToast("success", isDark ? "🌙 Dark Mode Enabled" : "☀️ Light Mode Restored");
-
-}
-
-// Apply saved theme
-function applySavedTheme() {
-    const savedTheme = localStorage.getItem('demipay_theme') || currentUser.preferences.theme;
-    if (savedTheme === 'dark') {
-        document.body.classList.add('dark-mode');
-        document.getElementById('themeIcon').textContent = '☀️';
-        document.getElementById('themeText').textContent = 'Light Mode';
-    }
-}
-
-// Toggle user menu
-function toggleUserMenu() {
-    const dropdown = document.getElementById('userMenuDropdown');
-    dropdown.classList.toggle('show');
-}
-
-// Close user menu when clicking outside
-document.addEventListener('click', (e) => {
-    const userMenu = document.querySelector('.user-menu');
-    const dropdown = document.getElementById('userMenuDropdown');
-    
-    if (!userMenu.contains(e.target)) {
-        dropdown.classList.remove('show');
-    }
-});
-
-// Handle logout
-async function handleLogout(e) {
-    e.preventDefault();
-    
-    try {
-        await mockAPI.logout();
-        window.location.href = 'src/pages/login.html';
-    } catch (error) {
-        console.error('Logout failed:', error);
-        showToast('error', 'Logout failed');
-    }
-}
-
-// Open modal
-function openModal(modalId) {
-    document.getElementById(modalId).classList.remove('d-none');
-    document.body.style.overflow = 'hidden';
-}
-
-// Close modal
-function closeModal(modalId) {
-    document.getElementById(modalId).classList.add('d-none');
-    document.body.style.overflow = 'auto';
-    
-    // Reset forms
-    if (modalId === 'sendMoneyModal') {
-        document.getElementById('sendMoneyForm').reset();
-        updateSendSummary();
-        document.getElementById('sendAlertContainer').innerHTML = '';
-    } else if (modalId === 'receiveMoneyModal') {
-        document.getElementById('receiveMoneyForm').reset();
-        document.getElementById('receiveAlertContainer').innerHTML = '';
-    }
-}
-
-// Update send summary
-function updateSendSummary() {
-    const amount = parseFloat(document.getElementById('sendAmount').value) || 0;
-    const fee = amount * 0.005;
-    const total = amount + fee;
-    
-    document.getElementById('summaryAmount').textContent = formatCurrency(amount);
-    document.getElementById('summaryFee').textContent = formatCurrency(fee);
-    document.getElementById('summaryTotal').textContent = formatCurrency(total);
-}
-
-// Handle send money
-async function handleSendMoney() {
-    const recipientEmail = document.getElementById('recipientEmail').value;
-    const amount = parseFloat(document.getElementById('sendAmount').value);
-    const note = document.getElementById('sendNote').value;
-    
-    const btn = document.getElementById('confirmSendBtn');
-    const btnText = document.getElementById('sendBtnText');
-    const btnSpinner = document.getElementById('sendBtnSpinner');
-    const alertContainer = document.getElementById('sendAlertContainer');
-    
-    // Validate
-    if (!recipientEmail || !amount || amount <= 0) {
-        showModalAlert('sendAlertContainer', 'error', 'Please fill in all required fields');
-        return;
-    }
-    
-    // Check balance
-    const fee = amount * 0.005;
-    const total = amount + fee;
-    if (total > currentBalance) {
-        showModalAlert('sendAlertContainer', 'error', 'Insufficient balance');
-        return;
-    }
-    
-    // Show loading
-    btn.disabled = true;
-    btnText.classList.add('d-none');
-    btnSpinner.classList.remove('d-none');
-    
-    try {
-        const result = await mockAPI.sendPayment(recipientEmail, amount, note);
-        
-        // Update balance
-        currentBalance = result.new_balance;
-        document.getElementById('balanceAmount').textContent = formatCurrency(currentBalance);
-        
-        // Reload transactions
-        await loadTransactions();
-        
-        // Show success
-        showToast('success', `Successfully sent ${formatCurrency(amount)} to ${recipientEmail}`);
-        
-        // Close modal
-        closeModal('sendMoneyModal');
-        
-        console.log('✅ Payment sent:', result.transaction.transaction_hash);
-        
-    } catch (error) {
-        showModalAlert('sendAlertContainer', 'error', error.message);
-        console.error('❌ Send payment failed:', error);
-    } finally {
-        btn.disabled = false;
-        btnText.classList.remove('d-none');
-        btnSpinner.classList.add('d-none');
-    }
-}
-
-// Handle receive money
-async function handleReceiveMoney() {
-    const amount = parseFloat(document.getElementById('receiveAmount').value);
-    const senderName = document.getElementById('senderName').value || 'External sender';
-    const note = document.getElementById('receiveNote').value;
-    
-    const btn = document.getElementById('confirmReceiveBtn');
-    const btnText = document.getElementById('receiveBtnText');
-    const btnSpinner = document.getElementById('receiveBtnSpinner');
-    
-    // Validate
-    if (!amount || amount <= 0) {
-        showModalAlert('receiveAlertContainer', 'error', 'Please enter a valid amount');
-        return;
-    }
-    
-    // Show loading
-    btn.disabled = true;
-    btnText.classList.add('d-none');
-    btnSpinner.classList.remove('d-none');
-    
-    try {
-        const result = await mockAPI.receivePayment(amount, senderName, note);
-        
-        // Update balance
-        currentBalance = result.new_balance;
-        document.getElementById('balanceAmount').textContent = formatCurrency(currentBalance);
-        
-        // Reload transactions
-        await loadTransactions();
-        
-        // Show success
-        showToast('success', `Successfully received ${formatCurrency(amount)}`);
-        
-        // Close modal
-        closeModal('receiveMoneyModal');
-        
-        console.log('✅ Payment received:', result.transaction.transaction_hash);
-        
-    } catch (error) {
-        showModalAlert('receiveAlertContainer', 'error', error.message);
-        console.error('❌ Receive payment failed:', error);
-    } finally {
-        btn.disabled = false;
-        btnText.classList.remove('d-none');
-        btnSpinner.classList.add('d-none');
-    }
-}
-
-// Show modal alert
-function showModalAlert(containerId, type, message) {
-    const container = document.getElementById(containerId);
-    const alertClass = type === 'success' ? 'alert-success' : 'alert-error';
-    
-    container.innerHTML = `
-        <div class="alert ${alertClass}">
-            <span>${type === 'success' ? '✅' : '❌'}</span>
-            <span>${message}</span>
-        </div>
-    `;
-    
-    setTimeout(() => {
-        container.innerHTML = '';
-    }, 5000);
-}
-
-
-
-// Format currency
-function formatCurrency(amount) {
-    return new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'USD'
-    }).format(amount);
-}
 // ------------------------------
-// GLOBAL TOAST NOTIFICATION SYSTEM (Enhanced)
+// HELPERS
+// ------------------------------
+function formatNaira(amount) {
+  return new Intl.NumberFormat("en-NG", {
+    style: "currency",
+    currency: "NGN",
+  }).format(amount);
+}
+
+function formatUSD(amount) {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+  }).format(amount);
+}
+
+// ------------------------------
+// TOASTS
 // ------------------------------
 function showToast(type, message) {
   let toast = document.getElementById("globalToast");
@@ -454,7 +122,6 @@ function showToast(type, message) {
     document.body.appendChild(toast);
   }
 
-  // Set message & style
   toast.innerHTML = message;
   toast.className = `toast toast-${type}`;
   toast.style.cssText = `
@@ -480,24 +147,19 @@ function showToast(type, message) {
     transition: all 0.4s ease;
   `;
 
-  // Animate in
   toast.style.display = "block";
   setTimeout(() => {
     toast.style.opacity = "1";
     toast.style.transform = "translateY(0)";
   }, 50);
 
-  // Animate out after 3 seconds
   setTimeout(() => {
     toast.style.opacity = "0";
     toast.style.transform = "translateY(-20px)";
     setTimeout(() => (toast.style.display = "none"), 500);
   }, 3000);
-} // ✅ ← this closing bracket was missing
+}
 
-// ------------------------------
-// SYSTEM TOAST (Bottom-Left Notifications)
-// ------------------------------
 function showSystemToast(type, message) {
   let toast = document.getElementById("systemToast");
   if (!toast) {
@@ -534,14 +196,12 @@ function showSystemToast(type, message) {
     gap: 8px;
   `;
 
-  // Animate in
   toast.style.display = "flex";
   setTimeout(() => {
     toast.style.opacity = "1";
     toast.style.transform = "translateY(0)";
   }, 50);
 
-  // Auto-hide after 3.5 seconds
   setTimeout(() => {
     toast.style.opacity = "0";
     toast.style.transform = "translateY(30px)";
@@ -549,861 +209,467 @@ function showSystemToast(type, message) {
   }, 3500);
 }
 
-  
-/**
- * DemiPay v5.5 Dashboard JavaScript
- * Handles all dashboard functionality
- */
-
-// Global state
-let currentUser = null;
-let currentBalance = 0;
-let transactions = [];
-
-// Initialize dashboard
-document.addEventListener('DOMContentLoaded', async () => {
-    console.log('🚀 DemiPay v5.5 Dashboard Loading...');
-    
-    try {
-        // Initialize Mock API
-        await mockAPI.init();
-        
-        // Check authentication
-        if (!mockAPI.isAuthenticated()) {
-            window.location.href = 'src/pages/login.html';
-            return;
-            // ===============================
-// MOCK TRANSACTIONS + LOAD MORE
-// ===============================
-const mockTxContainer = document.getElementById('transactionsList');
-let mockData = [
-  { type: "Sent", name: "John Doe", desc: "P2P Transfer", amount: -150.00, status: "completed" },
-  { type: "Received", name: "Jane Smith", desc: "Refund", amount: 320.00, status: "completed" },
-  { type: "Sent", name: "Netflix", desc: "Monthly Subscription", amount: -45.99, status: "pending" },
-  { type: "Received", name: "Upwork Ltd", desc: "Freelance Payment", amount: 500.00, status: "completed" },
-  { type: "Sent", name: "Bolt", desc: "Ride Payment", amount: -17.80, status: "completed" }
-];
-
-// Render mock transactions
-function renderMockTransactions() {
-  mockTxContainer.innerHTML = mockData.map(tx => `
-    <div class="transaction-item ${tx.amount < 0 ? 'debit' : 'credit'}">
-      <div class="tx-info">
-        <strong>${tx.type} ${tx.name}</strong>
-        <p>${tx.desc}</p>
-      </div>
-      <div class="tx-amount">
-        <span>${tx.amount < 0 ? '-' : '+'}$${Math.abs(tx.amount).toFixed(2)}</span>
-        <small class="${tx.status}">${tx.status}</small>
-      </div>
-    </div>
-  `).join("");
+// ------------------------------
+// RENDER FUNCTIONS
+// ------------------------------
+function renderUser() {
+  const nameEl = document.getElementById("userName");
+  const avatarEl = document.getElementById("userAvatar");
+  if (nameEl) nameEl.textContent = mockUser.fullName.split(" ")[0] || "User";
+  if (avatarEl) avatarEl.src = mockUser.avatar;
 }
 
-// Load More button
-const loadMoreBtn = document.createElement("button");
-loadMoreBtn.textContent = "Load More Transactions";
-loadMoreBtn.className = "btn btn-secondary btn-sm";
-loadMoreBtn.style.marginTop = "10px";
-loadMoreBtn.addEventListener("click", () => {
-  const newTx = [
-    { type: "Received", name: "Stripe Payout", desc: "Business income", amount: 1200.00, status: "completed" },
-    { type: "Sent", name: "Spotify", desc: "Music subscription", amount: -9.99, status: "completed" }
-  ];
-  mockData = [...mockData, ...newTx];
-  renderMockTransactions();
-});
-
-mockTxContainer.after(loadMoreBtn);
-renderMockTransactions();
-
-        }
-        
-        // Get current user
-        currentUser = mockAPI.getCurrentUser();
-        
-        // Initialize dashboard
-        await initializeDashboard();
-        
-        // Hide loading overlay
-        document.getElementById('loadingOverlay').style.display = 'none';
-        
-        console.log('✅ Dashboard initialized successfully');
-        
-    } catch (error) {
-        console.error('❌ Dashboard initialization failed:', error);
-        showToast('error', 'Failed to load dashboard');
-    }
-});
-
-// Initialize dashboard components
-async function initializeDashboard() {
-    // Load user data
-    await loadUserData();
-    
-    // Load balance
-    await loadBalance();
-    
-    // Load transactions
-    await loadTransactions();
-    
-    // Setup event listeners
-    setupEventListeners();
-    
-    // Apply saved theme
-    applySavedTheme();
+function renderBalance() {
+  const balanceEl = document.getElementById("balanceAmount");
+  const walletEl = document.getElementById("walletAddress");
+  if (balanceEl) balanceEl.textContent = formatNaira(nairaBalance);
+  if (walletEl)
+    walletEl.textContent = "Wallet: P54-1029-3456-78"; // mock wallet
 }
 
-// Load user data
-async function loadUserData() {
-    document.getElementById('userName').textContent = currentUser.full_name;
-    document.getElementById('welcomeName').textContent = currentUser.full_name.split(' ')[0];
-    document.getElementById('userAvatar').src = currentUser.profile_picture;
-}
+function renderTransactions() {
+  const container = document.getElementById("transactionsList");
+  if (!container) return;
 
-// Load balance
-async function loadBalance() {
-    try {
-        const result = await mockAPI.getBalance();
-        currentBalance = result.balance;
-        
-        document.getElementById('balanceAmount').textContent = formatCurrency(result.balance);
-        document.getElementById('walletAddress').textContent = `Wallet: ${result.wallet_address}`;
-        
-    } catch (error) {
-        console.error('Failed to load balance:', error);
-        showToast('error', 'Failed to load balance');
-    }
-}
-
-// Load transactions
-async function loadTransactions() {
-    try {
-        const result = await mockAPI.getTransactionHistory(5);
-        transactions = result.transactions;
-        
-        renderTransactions(transactions);
-        
-    } catch (error) {
-        console.error('Failed to load transactions:', error);
-        showToast('error', 'Failed to load transactions');
-    }
-}
-
-// Render transactions
-function renderTransactions(txns) {
-    const container = document.getElementById('transactionsList');
-    
-    if (txns.length === 0) {
-        container.innerHTML = `
-            <div class="empty-state">
-                <span class="empty-icon">📭</span>
-                <p>No transactions yet</p>
-                <p class="text-sm">Start by sending or receiving money</p>
-            </div>
-        `;
-        return;
-    }
-    
-    container.innerHTML = txns.map(txn => {
-        const isSent = txn.sender_id === currentUser.id;
-        const isReceived = txn.recipient_id === currentUser.id;
-        const amount = isSent ? -txn.amount : txn.amount;
-        const otherParty = isSent ? txn.recipient_name : txn.sender_name;
-        
-        return `
-            <div class="transaction-item">
-                <div class="transaction-info">
-                    <div class="transaction-icon ${isSent ? 'send' : 'receive'}">
-                        ${isSent ? '💸' : '📥'}
-                    </div>
-                    <div class="transaction-details">
-                        <h4>${isSent ? 'Sent to' : 'Received from'} ${otherParty}</h4>
-                        <p>${txn.note || 'No description'}</p>
-                        <p class="text-sm">${formatDate(txn.created_at)}</p>
-                    </div>
-                </div>
-                <div class="transaction-amount">
-                    <div class="amount ${amount > 0 ? 'positive' : 'negative'}">
-                        ${amount > 0 ? '+' : ''}${formatCurrency(Math.abs(amount))}
-                    </div>
-                    <span class="status ${txn.status}">${txn.status}</span>
-                </div>
-            </div>
-        `;
-    }).join('');
-}
-
-// Setup event listeners
-function setupEventListeners() {
-    // Theme toggle
-    document.getElementById('themeToggle').addEventListener('click', toggleTheme);
-    
-    // User menu
-    document.getElementById('userMenuBtn').addEventListener('click', toggleUserMenu);
-    
-    // Logout
-    document.getElementById('logoutBtn').addEventListener('click', handleLogout);
-    
-    // Refresh balance
-    document.getElementById('refreshBalanceBtn').addEventListener('click', loadBalance);
-    
-    // Quick actions
-    document.getElementById('sendMoneyBtn').addEventListener('click', () => openModal('sendMoneyModal'));
-    document.getElementById('receiveMoneyBtn').addEventListener('click', () => openModal('receiveMoneyModal'));
-    document.getElementById('viewHistoryBtn').addEventListener('click', () => alert('Transaction history page coming soon!'));
-    document.getElementById('addContactBtn').addEventListener('click', () => alert('Contacts page coming soon!'));
-    
-    // Send money modal
-    document.getElementById('closeSendModal').addEventListener('click', () => closeModal('sendMoneyModal'));
-    document.getElementById('cancelSendBtn').addEventListener('click', () => closeModal('sendMoneyModal'));
-    document.getElementById('confirmSendBtn').addEventListener('click', handleSendMoney);
-    document.getElementById('sendAmount').addEventListener('input', updateSendSummary);
-    
-    // Receive money modal
-    document.getElementById('closeReceiveModal').addEventListener('click', () => closeModal('receiveMoneyModal'));
-    document.getElementById('cancelReceiveBtn').addEventListener('click', () => closeModal('receiveMoneyModal'));
-    document.getElementById('confirmReceiveBtn').addEventListener('click', handleReceiveMoney);
-    
-    // Close modals on overlay click
-    document.querySelectorAll('.modal-overlay').forEach(overlay => {
-        overlay.addEventListener('click', (e) => {
-            if (e.target === overlay) {
-                closeModal(overlay.id);
-            }
-        });
-    });
-}
-
-// Theme toggle
-function toggleTheme() {
-    document.body.classList.toggle('dark-mode');
-    const isDark = document.body.classList.contains('dark-mode');
-    
-    document.getElementById('themeIcon').textContent = isDark ? '☀️' : '🌙';
-    document.getElementById('themeText').textContent = isDark ? 'Light Mode' : 'Dark Mode';
-    
-    // Save preference
-    localStorage.setItem('demipay_theme', isDark ? 'dark' : 'light');
-    
-  showToast("success", isDark ? "🌙 Dark Mode Enabled" : "☀️ Light Mode Restored");
-
-}
-
-// Apply saved theme
-function applySavedTheme() {
-    const savedTheme = localStorage.getItem('demipay_theme') || currentUser.preferences.theme;
-    if (savedTheme === 'dark') {
-        document.body.classList.add('dark-mode');
-        document.getElementById('themeIcon').textContent = '☀️';
-        document.getElementById('themeText').textContent = 'Light Mode';
-    }
-}
-
-// Toggle user menu
-function toggleUserMenu() {
-    const dropdown = document.getElementById('userMenuDropdown');
-    dropdown.classList.toggle('show');
-}
-
-// Close user menu when clicking outside
-document.addEventListener('click', (e) => {
-    const userMenu = document.querySelector('.user-menu');
-    const dropdown = document.getElementById('userMenuDropdown');
-    
-    if (!userMenu.contains(e.target)) {
-        dropdown.classList.remove('show');
-    }
-});
-
-// Handle logout
-async function handleLogout(e) {
-    e.preventDefault();
-    
-    try {
-        await mockAPI.logout();
-        window.location.href = 'src/pages/login.html';
-    } catch (error) {
-        console.error('Logout failed:', error);
-        showToast('error', 'Logout failed');
-    }
-}
-
-// Open modal
-function openModal(modalId) {
-    document.getElementById(modalId).classList.remove('d-none');
-    document.body.style.overflow = 'hidden';
-}
-
-// Close modal
-function closeModal(modalId) {
-    document.getElementById(modalId).classList.add('d-none');
-    document.body.style.overflow = 'auto';
-    
-    // Reset forms
-    if (modalId === 'sendMoneyModal') {
-        document.getElementById('sendMoneyForm').reset();
-        updateSendSummary();
-        document.getElementById('sendAlertContainer').innerHTML = '';
-    } else if (modalId === 'receiveMoneyModal') {
-        document.getElementById('receiveMoneyForm').reset();
-        document.getElementById('receiveAlertContainer').innerHTML = '';
-    }
-}
-
-// Update send summary
-function updateSendSummary() {
-    const amount = parseFloat(document.getElementById('sendAmount').value) || 0;
-    const fee = amount * 0.005;
-    const total = amount + fee;
-    
-    document.getElementById('summaryAmount').textContent = formatCurrency(amount);
-    document.getElementById('summaryFee').textContent = formatCurrency(fee);
-    document.getElementById('summaryTotal').textContent = formatCurrency(total);
-}
-
-// Handle send money
-async function handleSendMoney() {
-    const recipientEmail = document.getElementById('recipientEmail').value;
-    const amount = parseFloat(document.getElementById('sendAmount').value);
-    const note = document.getElementById('sendNote').value;
-    
-    const btn = document.getElementById('confirmSendBtn');
-    const btnText = document.getElementById('sendBtnText');
-    const btnSpinner = document.getElementById('sendBtnSpinner');
-    const alertContainer = document.getElementById('sendAlertContainer');
-    
-    // Validate
-    if (!recipientEmail || !amount || amount <= 0) {
-        showModalAlert('sendAlertContainer', 'error', 'Please fill in all required fields');
-        return;
-    }
-    
-    // Check balance
-    const fee = amount * 0.005;
-    const total = amount + fee;
-    if (total > currentBalance) {
-        showModalAlert('sendAlertContainer', 'error', 'Insufficient balance');
-        return;
-    }
-    
-    // Show loading
-    btn.disabled = true;
-    btnText.classList.add('d-none');
-    btnSpinner.classList.remove('d-none');
-    
-    try {
-        const result = await mockAPI.sendPayment(recipientEmail, amount, note);
-        
-        // Update balance
-        currentBalance = result.new_balance;
-        document.getElementById('balanceAmount').textContent = formatCurrency(currentBalance);
-        
-        // Reload transactions
-        await loadTransactions();
-        
-        // Show success
-        showToast('success', `Successfully sent ${formatCurrency(amount)} to ${recipientEmail}`);
-        
-        // Close modal
-        closeModal('sendMoneyModal');
-        
-        console.log('✅ Payment sent:', result.transaction.transaction_hash);
-        
-    } catch (error) {
-        showModalAlert('sendAlertContainer', 'error', error.message);
-        console.error('❌ Send payment failed:', error);
-    } finally {
-        btn.disabled = false;
-        btnText.classList.remove('d-none');
-        btnSpinner.classList.add('d-none');
-    }
-}
-
-// Handle receive money
-async function handleReceiveMoney() {
-    const amount = parseFloat(document.getElementById('receiveAmount').value);
-    const senderName = document.getElementById('senderName').value || 'External sender';
-    const note = document.getElementById('receiveNote').value;
-    
-    const btn = document.getElementById('confirmReceiveBtn');
-    const btnText = document.getElementById('receiveBtnText');
-    const btnSpinner = document.getElementById('receiveBtnSpinner');
-    
-    // Validate
-    if (!amount || amount <= 0) {
-        showModalAlert('receiveAlertContainer', 'error', 'Please enter a valid amount');
-        return;
-    }
-    
-    // Show loading
-    btn.disabled = true;
-    btnText.classList.add('d-none');
-    btnSpinner.classList.remove('d-none');
-    
-    try {
-        const result = await mockAPI.receivePayment(amount, senderName, note);
-        
-        // Update balance
-        currentBalance = result.new_balance;
-        document.getElementById('balanceAmount').textContent = formatCurrency(currentBalance);
-        
-        // Reload transactions
-        await loadTransactions();
-        
-        // Show success
-        showToast('success', `Successfully received ${formatCurrency(amount)}`);
-        
-        // Close modal
-        closeModal('receiveMoneyModal');
-        
-        console.log('✅ Payment received:', result.transaction.transaction_hash);
-        
-    } catch (error) {
-        showModalAlert('receiveAlertContainer', 'error', error.message);
-        console.error('❌ Receive payment failed:', error);
-    } finally {
-        btn.disabled = false;
-        btnText.classList.remove('d-none');
-        btnSpinner.classList.add('d-none');
-    }
-}
-
-// Show modal alert
-function showModalAlert(containerId, type, message) {
-    const container = document.getElementById(containerId);
-    const alertClass = type === 'success' ? 'alert-success' : 'alert-error';
-    
+  if (!transactions.length) {
     container.innerHTML = `
-        <div class="alert ${alertClass}">
-            <span>${type === 'success' ? '✅' : '❌'}</span>
-            <span>${message}</span>
-        </div>
+      <div class="empty-state">
+        <span class="empty-icon">📭</span>
+        <p>No transactions yet</p>
+        <p class="text-sm">Start by sending or receiving money</p>
+      </div>
     `;
-    
-    setTimeout(() => {
-        container.innerHTML = '';
-    }, 5000);
+    return;
+  }
+
+  container.innerHTML = transactions
+    .slice(0, 6)
+    .map((tx) => {
+      const sign = tx.amount > 0 ? "+" : "";
+      const amountClass = tx.amount > 0 ? "positive" : "negative";
+      return `
+        <div class="transaction-item">
+          <div class="transaction-info">
+            <div class="transaction-icon ${
+              tx.amount > 0 ? "receive" : "send"
+            }">
+              ${tx.amount > 0 ? "📥" : "💸"}
+            </div>
+            <div class="transaction-details">
+              <h4>${tx.title}</h4>
+              <p>${tx.desc}</p>
+              <p class="text-sm">${tx.time}</p>
+            </div>
+          </div>
+          <div class="transaction-amount">
+            <div class="amount ${amountClass}">
+              ${sign}${formatNaira(Math.abs(tx.amount))}
+            </div>
+            <span class="status">${tx.status}</span>
+          </div>
+        </div>
+      `;
+    })
+    .join("");
 }
 
+// Simple render for cards (if you have a cards section later)
+function renderCards() {
+  const section = document.querySelector(".cards-list");
+  if (!section) return;
 
+  section.innerHTML = linkedCards
+    .map((c) => {
+      return `
+        <div class="card-item ${c.isDefault ? "card-default" : ""}" data-card-id="${c.id}">
+          <div class="card-row">
+            <span class="card-label">${c.label}</span>
+            <span class="card-brand">${c.brand.toUpperCase()}</span>
+          </div>
+          <div class="card-row">
+            <span class="card-masked">${c.masked}</span>
+            ${
+              c.isDefault
+                ? '<span class="card-badge">Default</span>'
+                : '<button class="btn btn-ghost btn-xs set-default-btn">Set default</button>'
+            }
+          </div>
+        </div>
+      `;
+    })
+    .join("");
 
-// Format currency
-function formatCurrency(amount) {
-    return new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'USD'
-    }).format(amount);
+  section.querySelectorAll(".set-default-btn").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      const cardItem = e.target.closest(".card-item");
+      if (!cardItem) return;
+      const id = cardItem.getAttribute("data-card-id");
+      linkedCards = linkedCards.map((c) => ({
+        ...c,
+        isDefault: c.id === id,
+      }));
+      renderCards();
+      showToast("success", "✅ Default card updated.");
+    });
+  });
 }
 
-// Format date
-function formatDate(dateString) {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diff = now - date;
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    
-    if (days === 0) {
-        return 'Today at ' + date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-    } else if (days === 1) {
-        return 'Yesterday at ' + date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-    } else if (days < 7) {
-        return days + ' days ago';
-    } else {
-        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-    }
-}
-
-// Add CSS animations
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes slideIn {
-        from {
-            opacity: 0;
-            transform: translateX(100px);
-        }
-        to {
-            opacity: 1;
-            transform: translateX(0);
-        }
-    }
-    
-    @keyframes slideOut {
-        from {
-            opacity: 1;
-            transform: translateX(0);
-        }
-        to {
-            opacity: 0;
-            transform: translateX(100px);
-        }
-    }
-`;
-document.head.appendChild(style);
 // ------------------------------
-// WELCOME TOAST ON LOGIN OR RESTORED SESSION
+// MONEY MOVES LOGIC
+// ------------------------------
+function handleSendMoney() {
+  showSystemToast(
+    "success",
+    "💸 Send Money flow (mock) — in full app this opens the send sheet with recipient, amount & note."
+  );
+}
+
+function handleReceiveMoney() {
+  showSystemToast(
+    "success",
+    "📥 Receive Money — in full app this would show a QR code & shareable PAY54 tag."
+  );
+}
+
+function handleAddMoney() {
+  showSystemToast(
+    "success",
+    "➕ Add / Withdraw — mock: choose source (bank / card / agent) and confirm."
+  );
+}
+
+function handleBankTransfer() {
+  showSystemToast(
+    "success",
+    "🏦 Bank Transfer — mock: enter recipient name, bank, account & note."
+  );
+}
+
+// ------------------------------
+// SERVICES LOGIC
+// ------------------------------
+function handleCrossBorder() {
+  showSystemToast(
+    "success",
+    "🌍 Cross-Border Remittance — mock: SEND ₦ with live FX preview & reason for payment."
+  );
+}
+
+function handleSavings() {
+  showSystemToast(
+    "success",
+    "💰 Savings — mock: create a goal, set standing order & view pie chart of goals."
+  );
+}
+
+function handleBills() {
+  showSystemToast(
+    "success",
+    "💡 Bills & Top-Up — mock: choose service (Electricity, Water, Airtime, DSTV), provider & recurring options."
+  );
+}
+
+function handleCardsService() {
+  showSystemToast(
+    "success",
+    "💳 Virtual & Linked Cards — mock: link new card or switch default payment card."
+  );
+}
+
+function handlePayOnline() {
+  showSystemToast(
+    "success",
+    "🛒 Pay Online — mock checkout for merchants using PAY54 wallet / cards."
+  );
+}
+
+function handleShopOnTheFly() {
+  showSystemToast(
+    "success",
+    "🏬 Shop on the Fly — mock: category-based affiliate shopping (rides, food, tickets, e-commerce)."
+  );
+}
+
+function handleInvestments() {
+  showSystemToast(
+    "success",
+    "📈 Investments & Stocks — mock: browse USD stocks/funds, pay in ₦ or $ from PAY54."
+  );
+}
+
+// Become an Agent
+function openAgentModal() {
+  const modal = document.getElementById("agentModal");
+  if (!modal) return;
+  modal.classList.remove("d-none");
+  document.body.style.overflow = "hidden";
+}
+
+function closeAgentModal() {
+  const modal = document.getElementById("agentModal");
+  if (!modal) return;
+  modal.classList.add("d-none");
+  document.body.style.overflow = "auto";
+}
+
+function initAgentForm() {
+  const submitBtn = document.getElementById("submitAgentBtn");
+  const cancelBtn = document.getElementById("cancelAgentBtn");
+  const closeBtn = document.getElementById("closeAgentModal");
+  const form = document.getElementById("agentForm");
+
+  if (cancelBtn) cancelBtn.addEventListener("click", closeAgentModal);
+  if (closeBtn) closeBtn.addEventListener("click", closeAgentModal);
+
+  if (!submitBtn || !form) return;
+
+  submitBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    const fullName = document
+      .getElementById("agentFullName")
+      .value.trim();
+    const nin = document.getElementById("agentNIN").value.trim();
+    const photo = document.getElementById("agentPhoto").files[0];
+
+    if (!fullName || !nin || nin.length !== 11 || !photo) {
+      showToast(
+        "error",
+        "⚠️ Full Name, valid 11-digit NIN & Photo are required."
+      );
+      return;
+    }
+
+    showSystemToast(
+      "success",
+      "✅ Agent application submitted (mock). PAY54 team will review."
+    );
+    form.reset();
+    closeAgentModal();
+  });
+}
+
+// ------------------------------
+// THEME TOGGLE
+// ------------------------------
+function initTheme() {
+  const btn = document.getElementById("themeToggle");
+  const icon = document.getElementById("themeIcon");
+  const text = document.getElementById("themeText");
+
+  const saved = localStorage.getItem("pay54_theme");
+  if (saved === "dark") {
+    document.body.classList.add("dark-mode");
+    if (icon) icon.textContent = "☀️";
+    if (text) text.textContent = "Light Mode";
+  }
+
+  if (!btn) return;
+
+  btn.addEventListener("click", () => {
+    document.body.classList.toggle("dark-mode");
+    const isDark = document.body.classList.contains("dark-mode");
+    localStorage.setItem("pay54_theme", isDark ? "dark" : "light");
+    if (icon) icon.textContent = isDark ? "☀️" : "🌙";
+    if (text) text.textContent = isDark ? "Light Mode" : "Dark Mode";
+
+    showToast(
+      "success",
+      isDark ? "🌙 Dark Mode Enabled" : "☀️ Light Mode Restored"
+    );
+  });
+}
+
+// ------------------------------
+// NAV USER MENU (PROFILE / SETTINGS / LOGOUT)
+// ------------------------------
+function initUserMenu() {
+  const userMenuBtn = document.getElementById("userMenuBtn");
+  const dropdown = document.getElementById("userMenuDropdown");
+  const logoutBtn = document.getElementById("logoutBtn");
+
+  if (userMenuBtn && dropdown) {
+    userMenuBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      dropdown.classList.toggle("show");
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!dropdown.contains(e.target) && e.target !== userMenuBtn) {
+        dropdown.classList.remove("show");
+      }
+    });
+  }
+
+  // Profile / Settings click handlers (just mock toasts for now)
+  const profileLink = dropdown?.querySelector(".menu-item:nth-child(1)");
+  const settingsLink = dropdown?.querySelector(".menu-item:nth-child(2)");
+
+  if (profileLink) {
+    profileLink.addEventListener("click", (e) => {
+      e.preventDefault();
+      showSystemToast(
+        "success",
+        "👤 Profile — in full app this opens your PAY54 profile & KYC details."
+      );
+    });
+  }
+
+  if (settingsLink) {
+    settingsLink.addEventListener("click", (e) => {
+      e.preventDefault();
+      showSystemToast(
+        "success",
+        "⚙️ Settings — in full app this manages security, devices & notifications."
+      );
+    });
+  }
+
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      showToast("success", "🚪 Logged out (mock).");
+      setTimeout(() => {
+        window.location.href = "src/pages/login.html";
+      }, 800);
+    });
+  }
+}
+
+// ------------------------------
+// FLOATING FAB (P54 BUTTON)
+// ------------------------------
+function initFab() {
+  const fab = document.getElementById("pay54Fab");
+  if (!fab) return;
+
+  fab.addEventListener("click", () => {
+    showSystemToast(
+      "success",
+      "💜 PAY54 Quick Action — choose Send, Pay Bills or Scan to Pay in the full app."
+    );
+  });
+}
+
+// ------------------------------
+// MONEY MOVES + SERVICES BINDINGS
+// ------------------------------
+function initButtons() {
+  // Money Moves
+  document
+    .getElementById("sendMoneyBtn")
+    ?.addEventListener("click", handleSendMoney);
+  document
+    .getElementById("receiveMoneyBtn")
+    ?.addEventListener("click", handleReceiveMoney);
+  document
+    .getElementById("addMoneyBtn")
+    ?.addEventListener("click", handleAddMoney);
+  document
+    .getElementById("bankTransferBtn")
+    ?.addEventListener("click", handleBankTransfer);
+
+  // Services grid
+  document
+    .querySelector('[data-service="fx"]')
+    ?.addEventListener("click", handleCrossBorder);
+  document
+    .querySelector('[data-service="savings"]')
+    ?.addEventListener("click", handleSavings);
+  document
+    .querySelector('[data-service="bills"]')
+    ?.addEventListener("click", handleBills);
+  document
+    .querySelector('[data-service="cards"]')
+    ?.addEventListener("click", handleCardsService);
+  document
+    .querySelector('[data-service="payonline"]')
+    ?.addEventListener("click", handlePayOnline);
+  document
+    .querySelector('[data-service="shop"]')
+    ?.addEventListener("click", handleShopOnTheFly);
+  document
+    .querySelector('[data-service="invest"]')
+    ?.addEventListener("click", handleInvestments);
+  document
+    .querySelector('[data-service="agent"]')
+    ?.addEventListener("click", openAgentModal);
+
+  // View all transactions (mock)
+  document.getElementById("viewAllBtn")?.addEventListener("click", () => {
+    showSystemToast(
+      "success",
+      "📊 In full app this opens complete transaction history with filters & export."
+    );
+  });
+}
+
+// ------------------------------
+// WELCOME TOAST
 // ------------------------------
 function showWelcomeToast() {
   const toast = document.getElementById("welcomeToast");
   if (!toast) return;
 
-  const firstName = currentUser?.full_name?.split(" ")[0] || "User";
-  toast.innerHTML = `👋 Welcome back, <strong>${firstName}</strong> — your wallet is secure and synced.`;
+  const firstName = mockUser.fullName.split(" ")[0] || "User";
+  toast.innerHTML = `👋 Welcome back, <strong>${firstName}</strong> — your PAY54 wallet is synced.`;
   toast.style.display = "flex";
   toast.style.opacity = "1";
 
-  // Auto-hide after 4 seconds
   setTimeout(() => {
     toast.style.transition = "opacity 0.6s ease";
     toast.style.opacity = "0";
     setTimeout(() => (toast.style.display = "none"), 600);
-  }, 4000);
+  }, 3500);
 }
 
-// Trigger after successful dashboard load
+// ------------------------------
+// INIT
+// ------------------------------
 document.addEventListener("DOMContentLoaded", () => {
-  // Wait a bit to ensure user/session loaded
-  setTimeout(() => {
-    if (mockAPI.isAuthenticated()) {
-  const name = currentUser?.full_name?.split(" ")[0] || "User";
-  showToast("success", `👋 Welcome back, ${name} — your wallet is synced and ready.`);
-}
-
-  }, 800);
-});
-
-console.log('💡 Dashboard script loaded');
-// ------------------------------
-// QUICK ACTIONS BUTTON LOGIC
-// ------------------------------
-
-document.addEventListener("DOMContentLoaded", () => {
-  const sendBtn = document.getElementById("sendMoneyBtn");
-  const receiveBtn = document.getElementById("receiveMoneyBtn");
-  const historyBtn = document.getElementById("viewHistoryBtn");
-  const contactBtn = document.getElementById("addContactBtn");
-
-  if (sendBtn) {
-    sendBtn.addEventListener("click", () => {
-      alert("💸 Send Money feature coming soon! (mock screen)");
+  // Spacing correction between sections (in case CSS missed it)
+  document
+    .querySelectorAll(
+      ".welcome-section, .balance-section, .banner, .money-moves, .quick-services, .transactions-section"
+    )
+    .forEach((sec) => {
+      sec.style.marginBottom = "20px";
     });
-  }
 
-  if (receiveBtn) {
-    receiveBtn.addEventListener("click", () => {
-      alert("📥 Receive Money (QR + Account Share) demo launching soon!");
-    });
-  }
+  renderUser();
+  renderBalance();
+  renderTransactions();
+  renderCards();
 
-  if (historyBtn) {
-    historyBtn.addEventListener("click", () => {
-      alert("📊 Transaction History (mock API data)");
-    });
-  }
+  initTheme();
+  initUserMenu();
+  initButtons();
+  initFab();
+  initAgentForm();
 
-  if (contactBtn) {
-    contactBtn.addEventListener("click", () => {
-      alert("👥 Manage Contacts — feature under testing");
-    });
-  }
-});
-// ------------------------------
-// QUICK SERVICES MODAL LOGIC
-// ------------------------------
-
-document.addEventListener("DOMContentLoaded", () => {
-  const modal = document.getElementById("serviceModal");
-  const closeBtn = modal.querySelector(".close");
-  const modalTitle = document.getElementById("modalTitle");
-  const modalBody = document.getElementById("modalBody");
-
-  const services = document.querySelectorAll(".service-card");
-
-  const serviceData = {
-    send: { title: "Send P2P", body: "Enter recipient, amount, and note. Demo transfer simulated ⚙️" },
-    receive: { title: "Receive Money", body: "Display QR or share account link. Demo receive active ✅" },
-    fx: { title: "Cross-Border Remittance", body: "Preview FX rate ₦1 = $0.0012 USD (Mock)" },
-    agent: { title: "Become an Agent", body: "Upload ID + photo (mock validation passed ✅)" },
-    bills: { title: "Pay Bills & Top-Up", body: "Select plan ₦500 – ₦5 000. Demo payment complete 💡" },
-    cards: { title: "Virtual & Linked Cards", body: "Linked Visa **** 4452 (Active Card)" },
-    addmoney: { title: "Add Money", body: "Funding wallet via card... Mock success ₦10 000 added ✅" },
-    savings: { title: "Savings", body: "Demo savings created @ 10% APY (Standing Order set)" },
-    invest: { title: "Investments & Stocks", body: "Purchased 2 shares of DemiTech PLC ($120 mock update)" },
-  };
-
-  services.forEach(card => {
-    card.addEventListener("click", () => {
-      const key = card.dataset.service;
-      modalTitle.textContent = serviceData[key].title;
-      modalBody.textContent = serviceData[key].body;
-      modal.style.display = "block";
-    });
-  });
-
-  closeBtn.addEventListener("click", () => (modal.style.display = "none"));
-  window.addEventListener("click", e => {
-    if (e.target === modal) modal.style.display = "none";
-  });
-});
-}); // ← end of your QUICK SERVICES MODAL LOGIC
-
-// ------------------------------
-// AGENT MODAL LOGIC (FULL FORM)
-// ------------------------------
-const agentCard = document.querySelector('[data-service="agent"]');
-if (agentCard) {
-  agentCard.addEventListener("click", () => {
-    document.getElementById("agentModal").classList.remove("d-none");
-    document.body.style.overflow = "hidden";
-  });
-}
-
-document.getElementById("closeAgentModal").addEventListener("click", () => {
-  document.getElementById("agentModal").classList.add("d-none");
-  document.body.style.overflow = "auto";
-});
-
-document.getElementById("cancelAgentBtn").addEventListener("click", () => {
-  document.getElementById("agentModal").classList.add("d-none");
-  document.body.style.overflow = "auto";
-});
-
-// ✅ AGENT FORM SUBMISSION (with smooth success popup)
-document.getElementById("submitAgentBtn").addEventListener("click", (e) => {
-  e.preventDefault();
-  const fullName = document.getElementById("agentFullName").value.trim();
-  const nin = document.getElementById("agentNIN").value.trim();
-  const photo = document.getElementById("agentPhoto").files[0];
-  
-  if (!fullName || !nin || !photo) {
-    alert("⚠️ All fields are required before submission.");
-    return;
-  }
-
-  // ✅ SUCCESS POPUP REPLACES ALERT
-  const successPopup = document.createElement("div");
-  successPopup.className = "success-popup";
-  successPopup.innerHTML = `
-    <div class="success-icon">✅</div>
-    <div class="success-text">Agent Application Submitted Successfully</div>
-  `;
-  document.body.appendChild(successPopup);
-
-  // Animate fade in/out
-  setTimeout(() => successPopup.classList.add("show"), 100);
-  setTimeout(() => successPopup.classList.remove("show"), 2500);
-  setTimeout(() => successPopup.remove(), 3000);
-
-  // ✅ Close modal and reset form
-  document.getElementById("agentModal").classList.add("d-none");
-  document.getElementById("agentForm").reset();
-  document.body.style.overflow = "auto";
-});
-
-    
-}
-
-
-// Format date
-function formatDate(dateString) {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diff = now - date;
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    
-    if (days === 0) {
-        return 'Today at ' + date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-    } else if (days === 1) {
-        return 'Yesterday at ' + date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-    } else if (days < 7) {
-        return days + ' days ago';
+  // Scroll shadow on navbar (sticky)
+  window.addEventListener("scroll", () => {
+    if (window.scrollY > 10) {
+      document.body.classList.add("scrolled");
     } else {
-        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      document.body.classList.remove("scrolled");
     }
-}
-
-// Add CSS animations
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes slideIn {
-        from {
-            opacity: 0;
-            transform: translateX(100px);
-        }
-        to {
-            opacity: 1;
-            transform: translateX(0);
-        }
-    }
-    
-    @keyframes slideOut {
-        from {
-            opacity: 1;
-            transform: translateX(0);
-        }
-        to {
-            opacity: 0;
-            transform: translateX(100px);
-        }
-    }
-`;
-document.head.appendChild(style);
-// ------------------------------
-// WELCOME TOAST ON LOGIN OR RESTORED SESSION
-// ------------------------------
-function showWelcomeToast() {
-  const toast = document.getElementById("welcomeToast");
-  if (!toast) return;
-
-  const firstName = currentUser?.full_name?.split(" ")[0] || "User";
-  toast.innerHTML = `👋 Welcome back, <strong>${firstName}</strong> — your wallet is secure and synced.`;
-  toast.style.display = "flex";
-  toast.style.opacity = "1";
-
-  // Auto-hide after 4 seconds
-  setTimeout(() => {
-    toast.style.transition = "opacity 0.6s ease";
-    toast.style.opacity = "0";
-    setTimeout(() => (toast.style.display = "none"), 600);
-  }, 4000);
-}
-
-// Trigger after successful dashboard load
-document.addEventListener("DOMContentLoaded", () => {
-  // Wait a bit to ensure user/session loaded
-  setTimeout(() => {
-    if (mockAPI.isAuthenticated()) {
-  const name = currentUser?.full_name?.split(" ")[0] || "User";
-  showToast("success", `👋 Welcome back, ${name} — your wallet is synced and ready.`);
-}
-
-  }, 800);
-});
-
-console.log('💡 Dashboard script loaded');
-// ------------------------------
-// QUICK ACTIONS BUTTON LOGIC
-// ------------------------------
-
-document.addEventListener("DOMContentLoaded", () => {
-  const sendBtn = document.getElementById("sendMoneyBtn");
-  const receiveBtn = document.getElementById("receiveMoneyBtn");
-  const historyBtn = document.getElementById("viewHistoryBtn");
-  const contactBtn = document.getElementById("addContactBtn");
-
-  if (sendBtn) {
-    sendBtn.addEventListener("click", () => {
-      alert("💸 Send Money feature coming soon! (mock screen)");
-    });
-  }
-
-  if (receiveBtn) {
-    receiveBtn.addEventListener("click", () => {
-      alert("📥 Receive Money (QR + Account Share) demo launching soon!");
-    });
-  }
-
-  if (historyBtn) {
-    historyBtn.addEventListener("click", () => {
-      alert("📊 Transaction History (mock API data)");
-    });
-  }
-
-  if (contactBtn) {
-    contactBtn.addEventListener("click", () => {
-      alert("👥 Manage Contacts — feature under testing");
-    });
-  }
-});
-// ------------------------------
-// QUICK SERVICES MODAL LOGIC
-// ------------------------------
-
-document.addEventListener("DOMContentLoaded", () => {
-  const modal = document.getElementById("serviceModal");
-  const closeBtn = modal.querySelector(".close");
-  const modalTitle = document.getElementById("modalTitle");
-  const modalBody = document.getElementById("modalBody");
-
-  const services = document.querySelectorAll(".service-card");
-
-  const serviceData = {
-    send: { title: "Send P2P", body: "Enter recipient, amount, and note. Demo transfer simulated ⚙️" },
-    receive: { title: "Receive Money", body: "Display QR or share account link. Demo receive active ✅" },
-    fx: { title: "Cross-Border Remittance", body: "Preview FX rate ₦1 = $0.0012 USD (Mock)" },
-    agent: { title: "Become an Agent", body: "Upload ID + photo (mock validation passed ✅)" },
-    bills: { title: "Pay Bills & Top-Up", body: "Select plan ₦500 – ₦5 000. Demo payment complete 💡" },
-    cards: { title: "Virtual & Linked Cards", body: "Linked Visa **** 4452 (Active Card)" },
-    addmoney: { title: "Add Money", body: "Funding wallet via card... Mock success ₦10 000 added ✅" },
-    savings: { title: "Savings", body: "Demo savings created @ 10% APY (Standing Order set)" },
-    invest: { title: "Investments & Stocks", body: "Purchased 2 shares of DemiTech PLC ($120 mock update)" },
-  };
-
-  services.forEach(card => {
-    card.addEventListener("click", () => {
-      const key = card.dataset.service;
-      modalTitle.textContent = serviceData[key].title;
-      modalBody.textContent = serviceData[key].body;
-      modal.style.display = "block";
-    });
   });
 
-  closeBtn.addEventListener("click", () => (modal.style.display = "none"));
-  window.addEventListener("click", e => {
-    if (e.target === modal) modal.style.display = "none";
-  });
-});
-}); // ← end of your QUICK SERVICES MODAL LOGIC
+  // Scroll-to-top button (if present)
+  const scrollBtn = document.getElementById("scrollTopBtn");
+  if (scrollBtn) {
+    window.addEventListener("scroll", () => {
+      if (window.scrollY > 200) {
+        scrollBtn.classList.add("show");
+      } else {
+        scrollBtn.classList.remove("show");
+      }
+    });
 
-// ------------------------------
-// AGENT MODAL LOGIC (FULL FORM)
-// ------------------------------
-const agentCard = document.querySelector('[data-service="agent"]');
-if (agentCard) {
-  agentCard.addEventListener("click", () => {
-    document.getElementById("agentModal").classList.remove("d-none");
-    document.body.style.overflow = "hidden";
-  });
-}
-
-document.getElementById("closeAgentModal").addEventListener("click", () => {
-  document.getElementById("agentModal").classList.add("d-none");
-  document.body.style.overflow = "auto";
-});
-
-document.getElementById("cancelAgentBtn").addEventListener("click", () => {
-  document.getElementById("agentModal").classList.add("d-none");
-  document.body.style.overflow = "auto";
-});
-
-// ✅ AGENT FORM SUBMISSION (with smooth success popup)
-document.getElementById("submitAgentBtn").addEventListener("click", (e) => {
-  e.preventDefault();
-  const fullName = document.getElementById("agentFullName").value.trim();
-  const nin = document.getElementById("agentNIN").value.trim();
-  const photo = document.getElementById("agentPhoto").files[0];
-  
-  if (!fullName || !nin || !photo) {
-    alert("⚠️ All fields are required before submission.");
-    return;
+    scrollBtn.addEventListener("click", () => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
   }
 
-  // ✅ SUCCESS POPUP REPLACES ALERT
-  const successPopup = document.createElement("div");
-  successPopup.className = "success-popup";
-  successPopup.innerHTML = `
-    <div class="success-icon">✅</div>
-    <div class="success-text">Agent Application Submitted Successfully</div>
-  `;
-  document.body.appendChild(successPopup);
-
-  // Animate fade in/out
-  setTimeout(() => successPopup.classList.add("show"), 100);
-  setTimeout(() => successPopup.classList.remove("show"), 2500);
-  setTimeout(() => successPopup.remove(), 3000);
-
-  // ✅ Close modal and reset form
-  document.getElementById("agentModal").classList.add("d-none");
-  document.getElementById("agentForm").reset();
-  document.body.style.overflow = "auto";
+  setTimeout(showWelcomeToast, 800);
 });
