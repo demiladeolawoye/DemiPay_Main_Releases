@@ -1,349 +1,929 @@
-/**
- * PAY54 v6.1 Hybrid Dashboard
- * Standalone, no backend – perfect for GitHub Pages demo
- * CTO-ready ✅
- */
+// PAY54 v6.1 Hybrid Dashboard
+// CTO edition – mock, interactive, click-ready
 
-/* ======================
-   GLOBAL STATE (MOCK DATA)
-   ====================== */
-
-const pay54User = {
+// --- GLOBAL STATE ---
+let currentUser = {
   id: "user-001",
-  fullName: "Demilade Olawoye",
-  firstName: "Demi",
-  avatar: "./src/assets/user.png", // you can replace later
+  full_name: "Demi Olawoye",
+  email: "demo@pay54.app",
+  wallet_address: "P54-8892-4410-1123",
+  account_number: "8892441011",
+  kyc_level: "Tier 2 (Verified)",
+  avatar: "./src/assets/user.png",
+  preferences: {
+    theme: "light",
+  },
 };
 
-let pay54State = {
-  balanceNaira: 152340.75,
-  savingsTotal: 45000,
-  investmentsUsd: 1250.5,
-  cards: [
+let currentBalance = 250000; // ₦
+let transactions = [];
+let cards = [];
+let holdings = {
+  stocks: [],
+  investments: [],
+};
+
+// --- DOM READY ---
+document.addEventListener("DOMContentLoaded", () => {
+  smartLoader();
+  applyThemeFromStorage();
+  initUserUI();
+  initBalanceAndTx();
+  wireNavbar();
+  wireMoneyMoves();
+  wireServices();
+  wireBillsFormLogic();
+});
+
+// =============== SMART LOADER ===============
+function smartLoader() {
+  const splash = document.getElementById("splashOverlay");
+  if (!splash) return;
+
+  // Simulate brief load then reveal dashboard
+  setTimeout(() => {
+    splash.classList.add("hidden");
+    setTimeout(() => {
+      splash.style.display = "none";
+      showWelcomeToast();
+    }, 520);
+  }, 1200);
+}
+
+// =============== THEME ===============
+function applyThemeFromStorage() {
+  const saved = localStorage.getItem("pay54_theme");
+  if (saved === "dark") {
+    document.body.classList.add("dark-mode");
+  }
+  updateThemeUI();
+}
+
+function toggleTheme() {
+  document.body.classList.toggle("dark-mode");
+  const isDark = document.body.classList.contains("dark-mode");
+  localStorage.setItem("pay54_theme", isDark ? "dark" : "light");
+  updateThemeUI();
+  showToast(
+    "success",
+    isDark ? "🌙 Dark mode locked in." : "☀️ Light mode restored."
+  );
+}
+
+function updateThemeUI() {
+  const isDark = document.body.classList.contains("dark-mode");
+  const icon = document.getElementById("themeIcon");
+  const text = document.getElementById("themeText");
+  if (!icon || !text) return;
+  icon.textContent = isDark ? "☀️" : "🌙";
+  text.textContent = isDark ? "Light Mode" : "Dark Mode";
+}
+
+// =============== USER + BALANCE + TX ===============
+function initUserUI() {
+  const userName = document.getElementById("userName");
+  const welcomeName = document.getElementById("welcomeName");
+  const avatar = document.getElementById("userAvatar");
+
+  if (userName) userName.textContent = currentUser.full_name.split(" ")[0];
+  if (welcomeName) welcomeName.textContent = currentUser.full_name.split(" ")[0];
+  if (avatar) avatar.src = currentUser.avatar;
+}
+
+function initBalanceAndTx() {
+  // Mock starting balance
+  updateBalanceDisplay();
+
+  // Mock transactions
+  transactions = [
     {
-      id: "virtual-p54",
+      id: "tx1",
+      type: "debit",
+      title: "Sent to John Doe",
+      desc: "P2P Transfer",
+      amount: -15000,
+      tag: "P2P",
+      date: "Today • 09:20",
+    },
+    {
+      id: "tx2",
+      type: "credit",
+      title: "From Upwork Ltd",
+      desc: "Freelance payment",
+      amount: 85000,
+      tag: "Income",
+      date: "Yesterday • 18:04",
+    },
+    {
+      id: "tx3",
+      type: "debit",
+      title: "IKEJA Electric",
+      desc: "Electricity bill (recurring)",
+      amount: -22000,
+      tag: "Bills",
+      date: "2 days ago",
+    },
+    {
+      id: "tx4",
+      type: "debit",
+      title: "Spotify NG",
+      desc: "Card charge",
+      amount: -1900,
+      tag: "Cards",
+      date: "3 days ago",
+    },
+  ];
+
+  renderTransactions();
+
+  // Mock cards
+  cards = [
+    {
+      id: "virtual",
+      label: "PAY54 Virtual VISA",
       type: "virtual",
-      brand: "PAY54 VISA",
-      last4: "4454",
+      masked: "**** **** **** 4452",
+      brand: "VISA",
+      bank: "PAY54",
       default: true,
     },
     {
-      id: "gtb-001",
+      id: "gtb",
+      label: "GTBank Naira Debit",
       type: "linked",
-      brand: "GTBank",
-      last4: "8821",
+      masked: "**** **** **** 1203",
+      brand: "VISA",
+      bank: "GTBank",
       default: false,
     },
     {
-      id: "zenith-001",
+      id: "zenith",
+      label: "Zenith MasterCard",
       type: "linked",
-      brand: "Zenith Bank",
-      last4: "1034",
+      masked: "**** **** **** 7788",
+      brand: "Mastercard",
+      bank: "Zenith",
       default: false,
     },
-  ],
-  transactions: [
     {
-      id: 1,
-      type: "debit",
-      title: "Transfer to John Doe",
-      subtitle: "P2P – Food contribution",
-      amountNaira: -15000,
-      time: "Today • 09:24",
+      id: "access",
+      label: "Access Contactless",
+      type: "linked",
+      masked: "**** **** **** 3399",
+      brand: "VISA",
+      bank: "Access",
+      default: false,
     },
-    {
-      id: 2,
-      type: "credit",
-      title: "Salary – PAY54 Ltd",
-      subtitle: "Monthly salary",
-      amountNaira: 220000,
-      time: "Yesterday • 18:03",
-    },
-    {
-      id: 3,
-      type: "debit",
-      title: "Electricity – Ikeja Electric",
-      subtitle: "Prepaid token",
-      amountNaira: -18500,
-      time: "2 days ago",
-    },
-    {
-      id: 4,
-      type: "debit",
-      title: "Netflix Subscription",
-      subtitle: "Entertainment",
-      amountNaira: -5500,
-      time: "3 days ago",
-    },
-    {
-      id: 5,
-      type: "credit",
-      title: "P2P from Mary",
-      subtitle: "Refund for fuel",
-      amountNaira: 12000,
-      time: "Last week",
-    },
-  ],
-};
-
-/* ======================
-   HELPERS
-   ====================== */
-
-// Format Naira nicely
-function formatNaira(amount) {
-  const sign = amount < 0 ? "-" : "";
-  const abs = Math.abs(amount);
-  return `${sign}₦${abs.toLocaleString("en-NG", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })}`;
+  ];
 }
 
-// Format USD for investments
-function formatUsd(amount) {
-  return `$${amount.toLocaleString("en-US", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })}`;
+// helper
+function updateBalanceDisplay() {
+  const el = document.getElementById("balanceAmount");
+  const walletEl = document.getElementById("walletAddress");
+  const acctEl = document.getElementById("walletAccount");
+  const kycEl = document.getElementById("kycLevel");
+
+  if (el) el.textContent = formatNaira(currentBalance);
+  if (walletEl)
+    walletEl.textContent = `Wallet: ${currentUser.wallet_address}`;
+  if (acctEl) acctEl.textContent = currentUser.account_number;
+  if (kycEl) kycEl.textContent = currentUser.kyc_level;
 }
 
-// Top-right toast
-function showToast(type, message) {
-  let toast = document.getElementById("globalToast");
-  if (!toast) {
-    toast = document.createElement("div");
-    toast.id = "globalToast";
-    document.body.appendChild(toast);
-  }
-
-  toast.innerHTML = message;
-  toast.className = `toast toast-${type}`;
-  toast.style.cssText = `
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    padding: 12px 20px;
-    background: ${
-      type === "success"
-        ? "linear-gradient(90deg, #22c55e, #16a34a)"
-        : type === "warning"
-        ? "linear-gradient(90deg, #facc15, #f59e0b)"
-        : "linear-gradient(90deg, #ef4444, #dc2626)"
-    };
-    color: #fff;
-    border-radius: 10px;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-    font-weight: 500;
-    font-size: 15px;
-    z-index: 9999;
-    opacity: 0;
-    transform: translateY(-20px);
-    transition: all 0.4s ease;
-  `;
-
-  toast.style.display = "block";
-  setTimeout(() => {
-    toast.style.opacity = "1";
-    toast.style.transform = "translateY(0)";
-  }, 30);
-
-  setTimeout(() => {
-    toast.style.opacity = "0";
-    toast.style.transform = "translateY(-20px)";
-    setTimeout(() => (toast.style.display = "none"), 400);
-  }, 3000);
-}
-
-// Bottom-left system toast (for background events)
-function showSystemToast(type, message) {
-  let toast = document.getElementById("systemToast");
-  if (!toast) {
-    toast = document.createElement("div");
-    toast.id = "systemToast";
-    document.body.appendChild(toast);
-  }
-
-  toast.innerHTML = message;
-  toast.className = `toast-bottom toast-${type}`;
-  toast.style.cssText = `
-    position: fixed;
-    bottom: 20px;
-    left: 20px;
-    padding: 12px 18px;
-    border-radius: 10px;
-    color: #fff;
-    font-size: 15px;
-    font-weight: 500;
-    z-index: 9999;
-    opacity: 0;
-    transform: translateY(30px);
-    transition: all 0.3s ease;
-    background: ${
-      type === "success"
-        ? "linear-gradient(90deg, #16a34a, #22c55e)"
-        : type === "warning"
-        ? "linear-gradient(90deg, #facc15, #f59e0b)"
-        : "linear-gradient(90deg, #dc2626, #ef4444)"
-    };
-    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  `;
-
-  toast.style.display = "flex";
-  setTimeout(() => {
-    toast.style.opacity = "1";
-    toast.style.transform = "translateY(0)";
-  }, 30);
-
-  setTimeout(() => {
-    toast.style.opacity = "0";
-    toast.style.transform = "translateY(30px)";
-    setTimeout(() => (toast.style.display = "none"), 400);
-  }, 3500);
-}
-
-/* ======================
-   THEME + NAVBAR
-   ====================== */
-
-function initTheme() {
+// =============== NAVBAR EVENTS ===============
+function wireNavbar() {
   const themeToggle = document.getElementById("themeToggle");
-  const themeIcon = document.getElementById("themeIcon");
-  const themeText = document.getElementById("themeText");
-
-  const saved = localStorage.getItem("pay54_theme") || "light";
-  if (saved === "dark") {
-    document.body.classList.add("dark-mode");
-    themeIcon.textContent = "☀️";
-    themeText.textContent = "Light Mode";
-  } else {
-    document.body.classList.remove("dark-mode");
-    themeIcon.textContent = "🌙";
-    themeText.textContent = "Dark Mode";
-  }
-
-  themeToggle?.addEventListener("click", () => {
-    document.body.classList.toggle("dark-mode");
-    const isDark = document.body.classList.contains("dark-mode");
-    localStorage.setItem("pay54_theme", isDark ? "dark" : "light");
-
-    themeIcon.textContent = isDark ? "☀️" : "🌙";
-    themeText.textContent = isDark ? "Light Mode" : "Dark Mode";
-
-    showToast(
-      "success",
-      isDark ? "🌙 Dark Mode enabled for Pay54" : "☀️ Light Mode restored"
-    );
-  });
-
-  // sticky navbar effect
-  window.addEventListener("scroll", () => {
-    if (window.scrollY > 10) {
-      document.body.classList.add("scrolled");
-    } else {
-      document.body.classList.remove("scrolled");
-    }
-  });
-}
-
-function initUserMenu() {
-  const userName = document.getElementById("userName");
-  const avatar = document.getElementById("userAvatar");
-  const welcomeHeading = document.querySelector(".welcome-section h1");
   const userMenuBtn = document.getElementById("userMenuBtn");
-  const userMenuDropdown = document.getElementById("userMenuDropdown");
+  const dropdown = document.getElementById("userMenuDropdown");
+  const profileBtn = document.getElementById("profileBtn");
+  const settingsBtn = document.getElementById("settingsBtn");
   const logoutBtn = document.getElementById("logoutBtn");
 
-  if (userName) userName.textContent = pay54User.firstName;
-  if (avatar) avatar.src = pay54User.avatar;
+  if (themeToggle) themeToggle.addEventListener("click", toggleTheme);
 
-  if (welcomeHeading) {
-    welcomeHeading.innerHTML = `Hi ${pay54User.firstName}, good to see you 👋`;
+  if (userMenuBtn && dropdown) {
+    userMenuBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      dropdown.classList.toggle("show");
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!dropdown.contains(e.target) && e.target !== userMenuBtn) {
+        dropdown.classList.remove("show");
+      }
+    });
   }
 
-  userMenuBtn?.addEventListener("click", (e) => {
-    e.stopPropagation();
-    userMenuDropdown?.classList.toggle("show");
+  if (profileBtn) {
+    profileBtn.addEventListener("click", () => {
+      showSystemToast(
+        "info",
+        "👤 Profile: In MVP, this will show personal info, limits & KYC documents."
+      );
+    });
+  }
+  if (settingsBtn) {
+    settingsBtn.addEventListener("click", () => {
+      showSystemToast(
+        "info",
+        "⚙️ Settings: In production this controls PIN, devices, alerts & security."
+      );
+    });
+  }
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", () => {
+      // For now, just simulate logout; in real build, redirect to /login.html
+      showToast("success", "🚪 You’ve been safely logged out (demo).");
+      setTimeout(() => {
+        // window.location.href = "src/pages/login.html";
+      }, 800);
+    });
+  }
+}
+
+// =============== MONEY MOVES ===============
+function wireMoneyMoves() {
+  const sendBtn = document.getElementById("sendMoneyBtn");
+  const receiveBtn = document.getElementById("receiveMoneyBtn");
+  const addBtn = document.getElementById("addMoneyBtn");
+  const bankBtn = document.getElementById("bankTransferBtn");
+  const refreshBtn = document.getElementById("refreshBalanceBtn");
+  const viewAllBtn = document.getElementById("viewAllBtn");
+
+  if (sendBtn)
+    sendBtn.addEventListener("click", () => openModal("sendMoneyModal"));
+  if (receiveBtn)
+    receiveBtn.addEventListener("click", () =>
+      openModal("receiveMoneyModal")
+    );
+  if (addBtn)
+    addBtn.addEventListener("click", () => {
+      showSystemToast(
+        "info",
+        "➕ In production this will let you add money from cards, bank and agents."
+      );
+    });
+  if (bankBtn)
+    bankBtn.addEventListener("click", () => openModal("bankTransferModal"));
+  if (refreshBtn)
+    refreshBtn.addEventListener("click", () => {
+      showSystemToast("success", "🔄 Balance refreshed (mock).");
+      updateBalanceDisplay();
+    });
+  if (viewAllBtn)
+    viewAllBtn.addEventListener("click", () =>
+      showSystemToast(
+        "info",
+        "📊 Full statement view will live here in the production build."
+      )
+    );
+
+  // Confirm buttons
+  const confirmSendBtn = document.getElementById("confirmSendBtn");
+  const confirmReceiveBtn = document.getElementById("confirmReceiveBtn");
+  const confirmBankBtn = document.getElementById("confirmBankTransferBtn");
+
+  if (confirmSendBtn)
+    confirmSendBtn.addEventListener("click", handleSendMoney);
+  if (confirmReceiveBtn)
+    confirmReceiveBtn.addEventListener("click", handleReceiveMoney);
+  if (confirmBankBtn)
+    confirmBankBtn.addEventListener("click", handleBankTransfer);
+
+  // live fee preview for send
+  const sendAmount = document.getElementById("sendAmount");
+  if (sendAmount) sendAmount.addEventListener("input", updateSendSummary);
+}
+
+function handleSendMoney() {
+  const recipient = document.getElementById("sendRecipient").value.trim();
+  const amountRaw = parseFloat(
+    document.getElementById("sendAmount").value || "0"
+  );
+  const note = document.getElementById("sendNote").value.trim();
+  const alertBox = document.getElementById("sendAlert");
+
+  if (!recipient || !amountRaw || amountRaw <= 0) {
+    if (alertBox)
+      alertBox.textContent = "Recipient and a valid amount are required.";
+    return;
+  }
+
+  const fee = amountRaw * 0.005;
+  const total = amountRaw + fee;
+
+  if (total > currentBalance) {
+    if (alertBox)
+      alertBox.textContent =
+        "Insufficient balance for this transfer including fees.";
+    return;
+  }
+
+  currentBalance -= total;
+  updateBalanceDisplay();
+
+  transactions.unshift({
+    id: "tx-" + Date.now(),
+    type: "debit",
+    title: `Sent to ${recipient}`,
+    desc: note || "PAY54 P2P transfer",
+    amount: -amountRaw,
+    tag: "P2P",
+    date: "Just now",
+  });
+  renderTransactions();
+
+  if (alertBox) alertBox.textContent = "";
+  closeModal("sendMoneyModal");
+  showToast(
+    "success",
+    `💸 Sent ${formatNaira(amountRaw)} to ${recipient} (₦${fee.toFixed(
+      2
+    )} fee)`
+  );
+
+  // reset fields
+  document.getElementById("sendRecipient").value = "";
+  document.getElementById("sendAmount").value = "";
+  document.getElementById("sendNote").value = "";
+  updateSendSummary();
+}
+
+function updateSendSummary() {
+  const amountRaw = parseFloat(
+    document.getElementById("sendAmount")?.value || "0"
+  );
+  const summary = document.getElementById("sendSummary");
+  if (!summary) return;
+
+  if (!amountRaw || amountRaw <= 0) {
+    summary.textContent = "Enter an amount to see fee (0.5%) and total.";
+    return;
+  }
+
+  const fee = amountRaw * 0.005;
+  const total = amountRaw + fee;
+  summary.textContent = `Fee: ${formatNaira(
+    fee
+  )} • Total: ${formatNaira(total)} • Wallet after: ${formatNaira(
+    currentBalance - total
+  )}`;
+}
+
+function handleReceiveMoney() {
+  const from = document.getElementById("receiveFrom").value.trim();
+  const amountRaw = parseFloat(
+    document.getElementById("receiveAmount").value || "0"
+  );
+  const note = document.getElementById("receiveNote").value.trim();
+  const alertBox = document.getElementById("receiveAlert");
+
+  if (!amountRaw || amountRaw <= 0) {
+    if (alertBox)
+      alertBox.textContent = "Please enter a valid amount to mark received.";
+    return;
+  }
+
+  currentBalance += amountRaw;
+  updateBalanceDisplay();
+
+  transactions.unshift({
+    id: "tx-" + Date.now(),
+    type: "credit",
+    title: `From ${from || "External sender"}`,
+    desc: note || "PAY54 received",
+    amount: amountRaw,
+    tag: "Incoming",
+    date: "Just now",
+  });
+  renderTransactions();
+
+  if (alertBox) alertBox.textContent = "";
+  closeModal("receiveMoneyModal");
+  showToast(
+    "success",
+    `📥 Received ${formatNaira(amountRaw)} from ${from || "External sender"}`
+  );
+
+  document.getElementById("receiveFrom").value = "";
+  document.getElementById("receiveAmount").value = "";
+  document.getElementById("receiveNote").value = "";
+}
+
+function handleBankTransfer() {
+  const name = document.getElementById("bankRecipientName").value.trim();
+  const bank = document.getElementById("bankName").value.trim();
+  const acct = document.getElementById("bankAccountNumber").value.trim();
+  const amountRaw = parseFloat(
+    document.getElementById("bankAmount").value || "0"
+  );
+  const ref = document
+    .getElementById("bankReference")
+    .value.trim()
+    .slice(0, 60);
+  const alertBox = document.getElementById("bankAlert");
+
+  if (!name || !bank || !acct || acct.length < 10 || !amountRaw || amountRaw <= 0) {
+    if (alertBox)
+      alertBox.textContent =
+        "Please fill in recipient, bank, valid account (10 digits) and amount.";
+    return;
+  }
+
+  if (amountRaw > currentBalance) {
+    if (alertBox)
+      alertBox.textContent = "Insufficient wallet balance for this transfer.";
+    return;
+  }
+
+  currentBalance -= amountRaw;
+  updateBalanceDisplay();
+
+  transactions.unshift({
+    id: "tx-" + Date.now(),
+    type: "debit",
+    title: `${bank} • ${name}`,
+    desc: ref || "Bank transfer",
+    amount: -amountRaw,
+    tag: "Bank",
+    date: "Just now",
+  });
+  renderTransactions();
+
+  if (alertBox) alertBox.textContent = "";
+  closeModal("bankTransferModal");
+  showToast(
+    "success",
+    `🏦 Bank transfer of ${formatNaira(
+      amountRaw
+    )} to ${name} (${bank}) queued (mock).`
+  );
+
+  document.getElementById("bankRecipientName").value = "";
+  document.getElementById("bankName").value = "";
+  document.getElementById("bankAccountNumber").value = "";
+  document.getElementById("bankAmount").value = "";
+  document.getElementById("bankReference").value = "";
+}
+
+// =============== SERVICES ===============
+function wireServices() {
+  const cardsMap = {
+    fx: () => handleFXModal(),
+    savings: () => handleSavingsModal(),
+    bills: () => openModal("billsModal"),
+    cards: () => handleCardsModal(),
+    shop: () => handleShopClick(),
+    invest: () => handleInvestModal(),
+    agent: () => openModal("agentModal"),
+    aiwatch: () =>
+      showSystemToast(
+        "info",
+        "🤖 AI Risk Watch: In production this surfaces suspicious patterns and locks risky flows."
+      ),
+  };
+
+  document.querySelectorAll(".service-card").forEach((card) => {
+    const key = card.dataset.service;
+    card.addEventListener("click", () => {
+      const fn = cardsMap[key];
+      if (fn) fn();
+    });
   });
 
-  document.addEventListener("click", (e) => {
-    if (!userMenuDropdown) return;
-    if (!userMenuDropdown.contains(e.target) && e.target !== userMenuBtn) {
-      userMenuDropdown.classList.remove("show");
+  // Agent submit
+  const submitAgentBtn = document.getElementById("submitAgentBtn");
+  if (submitAgentBtn)
+    submitAgentBtn.addEventListener("click", () => {
+      const biz = document.getElementById("agentBusiness").value.trim();
+      const name = document.getElementById("agentFullName").value.trim();
+      const nin = document.getElementById("agentNIN").value.trim();
+      const photo = document.getElementById("agentPhoto").files[0];
+      const alertBox = document.getElementById("agentAlert");
+
+      if (!biz || !name || nin.length !== 11 || !photo) {
+        if (alertBox)
+          alertBox.textContent =
+            "Business name, full name, valid 11-digit NIN and photo are required.";
+        return;
+      }
+
+      if (alertBox) alertBox.textContent = "";
+      closeModal("agentModal");
+      showToast(
+        "success",
+        "🧍‍♂️ Agent application submitted (mock). Compliance review in 24–48h."
+      );
+
+      document.getElementById("agentBusiness").value = "";
+      document.getElementById("agentFullName").value = "";
+      document.getElementById("agentNIN").value = "";
+      document.getElementById("agentPhoto").value = "";
+    });
+}
+
+// FX modal – uses sendMoneyModal UI for now with explanation toast
+function handleFXModal() {
+  showSystemToast(
+    "info",
+    "🌍 FX remittance: In live build this screens recipient, applies FX, and routes via licensed partners."
+  );
+}
+
+// Savings – for now, just show toast
+function handleSavingsModal() {
+  showSystemToast(
+    "info",
+    "💰 Savings & goals: In live PAY54 this will create pots, standing orders and pie-chart breakdown."
+  );
+}
+
+// Shop – demo categories
+function handleShopClick() {
+  showSystemToast(
+    "info",
+    "🏬 Shop on the Fly: Live version deep-links into Taxi, Food, Tickets & Shops with affiliate rails."
+  );
+}
+
+// Cards modal
+function handleCardsModal() {
+  const body = document.getElementById("cardsModalBody");
+  if (!body) return;
+
+  body.innerHTML = `
+    <div style="font-size:12px;color:#64748b;margin-bottom:6px;">
+      Select a default card for online & recurring payments. Virtual PAY54 VISA stays in-app only.
+    </div>
+    <div style="display:grid;grid-template-columns:1fr;gap:8px;">
+      ${cards
+        .map(
+          (card) => `
+        <div class="card-tile" data-card-id="${card.id}" 
+          style="
+            border-radius:14px;
+            padding:10px 12px;
+            background:${
+              card.type === "virtual" ? "#0f172a" : "#020617"
+            };
+            color:#e5e7eb;
+            position:relative;
+            cursor:pointer;
+            box-shadow:0 14px 30px rgba(15,23,42,0.45);
+            border:${card.default ? "1px solid #22c55e" : "1px solid #1f2937"};
+          ">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+            <div style="font-size:11px;letter-spacing:0.14em;text-transform:uppercase;opacity:0.9;">
+              ${card.type === "virtual" ? "PAY54 VIRTUAL" : "Linked card"}
+            </div>
+            <div style="font-size:10px;opacity:0.75;">
+              ${card.brand} • ${card.bank}
+            </div>
+          </div>
+          <div style="font-size:14px;font-weight:600;margin-bottom:2px;">
+            ${card.label}
+          </div>
+          <div style="font-size:13px;letter-spacing:0.16em;margin-bottom:6px;">
+            ${card.masked}
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;">
+            <span>${
+              card.default ? "✅ Default for online" : "Set as default"
+            }</span>
+            <span style="font-size:15px;">📶</span>
+          </div>
+        </div>
+      `
+        )
+        .join("")}
+    </div>
+  `;
+
+  // Click handlers to set default
+  body.querySelectorAll(".card-tile").forEach((tile) => {
+    tile.addEventListener("click", () => {
+      const id = tile.dataset.cardId;
+      cards = cards.map((c) => ({ ...c, default: c.id === id }));
+      handleCardsModal();
+      showToast(
+        "success",
+        `💳 ${cards.find((c) => c.id === id)?.label} set as default.`
+      );
+    });
+  });
+
+  // Add card button
+  const addCardBtn = document.getElementById("addCardBtn");
+  if (addCardBtn) {
+    addCardBtn.onclick = () => {
+      const alias = prompt("Bank / card label (eg. UBA Naira Debit):");
+      if (!alias) return;
+      const last4 = prompt("Last 4 digits (for display only):") || "0000";
+      const id = "card-" + Date.now();
+      cards.push({
+        id,
+        label: alias,
+        type: "linked",
+        masked: "**** **** **** " + last4,
+        brand: "VISA",
+        bank: alias.split(" ")[0] || "Bank",
+        default: false,
+      });
+      handleCardsModal();
+      showSystemToast("success", "New linked card added (demo only).");
+    };
+  }
+
+  openModal("cardsModal");
+}
+
+// Investments modal
+function handleInvestModal() {
+  const body = document.getElementById("investModalBody");
+  if (!body) return;
+
+  const sampleStocks = [
+    { symbol: "AAPL", name: "Apple Inc.", price: 190.23 },
+    { symbol: "MSFT", name: "Microsoft", price: 420.11 },
+  ];
+  const sampleInvests = [
+    { id: "farm1", name: "AgriYield Farm Basket", apy: 12 },
+    { id: "usdt1", name: "USDT Stable Pool", apy: 6 },
+  ];
+
+  body.innerHTML = `
+    <div style="font-size:12px;color:#64748b;margin-bottom:8px;">
+      Prices & yields in <strong>USD</strong>. At checkout, PAY54 lets users pay in <strong>₦ or $</strong> based on FX rails.
+    </div>
+    <div style="display:flex;gap:6px;margin-bottom:10px;">
+      <button id="tabStocks" class="btn-secondary" style="flex:1;">Stocks</button>
+      <button id="tabInvest" class="btn-secondary" style="flex:1;">Investments</button>
+    </div>
+    <div id="investTabContent"></div>
+    <div style="margin-top:10px;">
+      <div style="font-size:12px;font-weight:600;margin-bottom:4px;">My Holdings (mock)</div>
+      <div id="myHoldings" style="font-size:12px;color:#6b7280;">
+        No assets yet – buy any stock or investment above to see holdings here.
+      </div>
+    </div>
+  `;
+
+  function renderHoldings() {
+    const el = document.getElementById("myHoldings");
+    if (!el) return;
+    if (!holdings.stocks.length && !holdings.investments.length) {
+      el.textContent =
+        "No assets yet – buy any stock or investment above to see holdings here.";
+      return;
     }
-  });
+    const stocksText = holdings.stocks
+      .map((s) => `${s.symbol} (${s.units}u)`)
+      .join(", ");
+    const invText = holdings.investments
+      .map((i) => `${i.name} (${i.units}u)`)
+      .join(", ");
+    el.textContent = [
+      stocksText && `Stocks: ${stocksText}`,
+      invText && `Investments: ${invText}`,
+    ]
+      .filter(Boolean)
+      .join(" • ");
+  }
 
-  // Profile (mock)
-  const profileItem = document.querySelector(".menu-item.profile-link");
-  profileItem?.addEventListener("click", (e) => {
-    e.preventDefault();
-    showToast("info", "Profile center is coming soon in v6.2");
-  });
+  function renderStocksTab() {
+    const tab = document.getElementById("investTabContent");
+    if (!tab) return;
+    tab.innerHTML = sampleStocks
+      .map(
+        (s) => `
+      <div style="
+        padding:8px 10px;
+        border-radius:12px;
+        border:1px solid #e5e7eb;
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        margin-bottom:6px;
+        background:white;
+      ">
+        <div>
+          <div style="font-size:13px;font-weight:600;">${s.symbol} • ${
+          s.name
+        }</div>
+          <div style="font-size:12px;color:#64748b;">Price: $${s.price.toFixed(
+            2
+          )}</div>
+        </div>
+        <button class="btn-primary buy-stock-btn" data-symbol="${
+          s.symbol
+        }" style="padding:5px 10px;font-size:12px;">
+          Buy now
+        </button>
+      </div>
+    `
+      )
+      .join("");
 
-  // Settings (mock)
-  const settingsItem = document.querySelector(".menu-item.settings-link");
-  settingsItem?.addEventListener("click", (e) => {
-    e.preventDefault();
-    showToast("info", "Settings screen is coming soon in v6.2");
-  });
+    tab.querySelectorAll(".buy-stock-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const symbol = btn.dataset.symbol;
+        const asset = sampleStocks.find((s) => s.symbol === symbol);
+        if (!asset) return;
+        const units = 1;
+        holdings.stocks.push({ symbol, units });
+        showToast(
+          "success",
+          `📈 Bought ${units} unit of ${symbol} at $${asset.price.toFixed(
+            2
+          )} (mock).`
+        );
+        renderHoldings();
+      });
+    });
+  }
 
-  // Logout (mock)
-  logoutBtn?.addEventListener("click", (e) => {
-    e.preventDefault();
-    showSystemToast("success", "You have logged out (demo only, no real session).");
-  });
+  function renderInvestTab() {
+    const tab = document.getElementById("investTabContent");
+    if (!tab) return;
+    tab.innerHTML = sampleInvests
+      .map(
+        (i) => `
+      <div style="
+        padding:8px 10px;
+        border-radius:12px;
+        border:1px solid #e5e7eb;
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        margin-bottom:6px;
+        background:white;
+      ">
+        <div>
+          <div style="font-size:13px;font-weight:600;">${i.name}</div>
+          <div style="font-size:12px;color:#16a34a;">APY: ${i.apy}%</div>
+        </div>
+        <button class="btn-primary buy-invest-btn" data-id="${
+          i.id
+        }" style="padding:5px 10px;font-size:12px;">
+          Invest
+        </button>
+      </div>
+    `
+      )
+      .join("");
+
+    tab.querySelectorAll(".buy-invest-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const id = btn.dataset.id;
+        const asset = sampleInvests.find((i) => i.id === id);
+        if (!asset) return;
+        holdings.investments.push({ id, name: asset.name, units: 1 });
+        showToast(
+          "success",
+          `💼 Joined ${asset.name} at ${asset.apy}% APY (mock).`
+        );
+        renderHoldings();
+      });
+    });
+  }
+
+  const tabStocks = document.getElementById("tabStocks");
+  const tabInvest = document.getElementById("tabInvest");
+  if (tabStocks && tabInvest) {
+    tabStocks.addEventListener("click", () => {
+      renderStocksTab();
+    });
+    tabInvest.addEventListener("click", () => {
+      renderInvestTab();
+    });
+  }
+
+  renderStocksTab();
+  renderHoldings();
+  openModal("investModal");
 }
 
-/* ======================
-   BALANCE + TRANSACTIONS
-   ====================== */
+// Bills dynamic fields
+function wireBillsFormLogic() {
+  const billType = document.getElementById("billType");
+  if (!billType) return;
 
-function renderBalances() {
-  const balanceEl = document.getElementById("balanceAmount");
-  const walletAddressEl = document.getElementById("walletAddress");
+  billType.addEventListener("change", () => {
+    const val = billType.value;
+    const sharedAccount = document.querySelector(".shared-account");
+    const sharedProvider = document.querySelector(".shared-provider");
+    const airtimeOnly = document.querySelectorAll(".airtime-only");
 
-  if (balanceEl) balanceEl.textContent = formatNaira(pay54State.balanceNaira);
-  if (walletAddressEl)
-    walletAddressEl.textContent = "Wallet: P54-1029-3456-78";
+    const showShared = val === "water" || val === "electricity" || val === "tv";
+    const showProvider = val === "water" || val === "electricity";
+    const showAirtime = val === "airtime";
 
-  // If you later add savings/investment widgets, hook here
+    toggleField(sharedAccount, showShared);
+    toggleField(sharedProvider, showProvider);
+    airtimeOnly.forEach((el) => toggleField(el, showAirtime));
+  });
+
+  const confirmBillsBtn = document.getElementById("confirmBillsBtn");
+  if (confirmBillsBtn)
+    confirmBillsBtn.addEventListener("click", () => {
+      const type = billType.value;
+      const amountRaw = parseFloat(
+        document.getElementById("billAmount").value || "0"
+      );
+      const recurring = document.getElementById("billRecurring").value;
+      const alertBox = document.getElementById("billsAlert");
+
+      if (!type || !amountRaw || amountRaw <= 0) {
+        if (alertBox)
+          alertBox.textContent = "Please choose a bill type and valid amount.";
+        return;
+      }
+
+      if (amountRaw > currentBalance) {
+        if (alertBox)
+          alertBox.textContent = "Insufficient balance to pay this bill.";
+        return;
+      }
+
+      currentBalance -= amountRaw;
+      updateBalanceDisplay();
+
+      transactions.unshift({
+        id: "tx-" + Date.now(),
+        type: "debit",
+        title:
+          type === "airtime"
+            ? "Airtime purchase"
+            : type === "water"
+            ? "Water bill"
+            : type === "electricity"
+            ? "Electricity bill"
+            : "TV subscription",
+        desc:
+          recurring === "none"
+            ? "One-off bill payment"
+            : `Recurring ${recurring} payment`,
+        amount: -amountRaw,
+        tag: "Bills",
+        date: "Just now",
+      });
+      renderTransactions();
+
+      if (alertBox) alertBox.textContent = "";
+      closeModal("billsModal");
+      showToast(
+        "success",
+        `💡 Bill of ${formatNaira(
+          amountRaw
+        )} paid${recurring !== "none" ? " (recurring set)" : ""}.`
+      );
+
+      document.getElementById("billAmount").value = "";
+      document.getElementById("billAccountNumber").value = "";
+      document.getElementById("billProvider").value = "";
+      document.getElementById("airtimePhone").value = "";
+      document.getElementById("airtimeNetwork").value = "";
+      billType.value = "";
+    });
 }
 
+function toggleField(el, show) {
+  if (!el) return;
+  if (show) el.classList.remove("d-none");
+  else el.classList.add("d-none");
+}
+
+// =============== TRANSACTIONS RENDER ===============
 function renderTransactions() {
   const container = document.getElementById("transactionsList");
   if (!container) return;
 
-  if (!pay54State.transactions.length) {
+  if (!transactions.length) {
     container.innerHTML = `
-      <div class="empty-state">
-        <span class="empty-icon">📭</span>
-        <p>No transactions yet</p>
-        <p class="text-sm">Start by sending or receiving money</p>
+      <div style="padding:12px;text-align:center;font-size:12px;color:#6b7280;">
+        📭 No transactions yet. Start by sending, receiving or paying a bill.
       </div>
     `;
     return;
   }
 
-  container.innerHTML = pay54State.transactions
+  container.innerHTML = transactions
     .map((tx) => {
-      const signClass = tx.amountNaira >= 0 ? "positive" : "negative";
-      const signSymbol = tx.amountNaira >= 0 ? "+" : "";
+      const signClass = tx.amount >= 0 ? "positive" : "negative";
+      const icon = tx.amount >= 0 ? "📥" : "💸";
       return `
       <div class="transaction-item">
-        <div class="transaction-main">
-          <div class="transaction-title-row">
-            <span class="tx-title">${tx.title}</span>
-            <span class="tx-amount ${signClass}">
-              ${signSymbol}${formatNaira(tx.amountNaira)}
-            </span>
+        <div class="tx-main">
+          <div class="tx-icon">${icon}</div>
+          <div class="tx-text">
+            <h4>${tx.title}</h4>
+            <p>${tx.desc}</p>
           </div>
-          <div class="transaction-meta-row">
-            <span class="tx-subtitle">${tx.subtitle}</span>
-            <span class="tx-time">${tx.time}</span>
-          </div>
+        </div>
+        <div class="tx-amount">
+          <div class="value ${signClass}">${formatNaira(tx.amount)}</div>
+          <div class="meta">${tx.tag} • ${tx.date}</div>
         </div>
       </div>
     `;
@@ -351,892 +931,125 @@ function renderTransactions() {
     .join("");
 }
 
-/* ======================
-   MODAL UTILITIES
-   ====================== */
-
-function openModal(modalId) {
-  const overlay = document.getElementById(modalId);
-  if (!overlay) return;
-  overlay.classList.remove("d-none");
+// =============== MODAL HELPERS ===============
+function openModal(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.add("show");
   document.body.style.overflow = "hidden";
+
+  // attach close buttons generically
+  el.querySelectorAll("[data-close]").forEach((btn) => {
+    btn.onclick = () => closeModal(id);
+  });
 }
 
-function closeModal(modalId) {
-  const overlay = document.getElementById(modalId);
-  if (!overlay) return;
-  overlay.classList.add("d-none");
-  document.body.style.overflow = "auto";
+function closeModal(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.remove("show");
+  document.body.style.overflow = "";
 }
 
-/* Generic feature modal (for simple demo content) */
-
-function bindGenericFeatureModal() {
-  const modal = document.getElementById("featureModal");
-  if (!modal) return;
-
-  const titleEl = document.getElementById("featureModalTitle");
-  const bodyEl = document.getElementById("featureModalBody");
-  const footerEl = document.getElementById("featureModalFooter");
-  const closeBtn = document.getElementById("featureModalClose");
-
-  function showFeature(title, bodyHtml, footerHtml = "") {
-    titleEl.innerHTML = title;
-    bodyEl.innerHTML = bodyHtml;
-    footerEl.innerHTML = footerHtml;
-    modal.classList.remove("d-none");
-    document.body.style.overflow = "hidden";
+// =============== TOASTS ===============
+function showToast(type, message) {
+  let toast = document.getElementById("globalToast");
+  if (!toast) {
+    toast = document.createElement("div");
+    toast.id = "globalToast";
+    document.body.appendChild(toast);
   }
+  toast.textContent = message;
+  toast.style.display = "block";
+  toast.style.position = "fixed";
+  toast.style.top = "18px";
+  toast.style.right = "18px";
+  toast.style.padding = "10px 14px";
+  toast.style.borderRadius = "12px";
+  toast.style.fontSize = "13px";
+  toast.style.fontWeight = "500";
+  toast.style.color = "#ffffff";
+  toast.style.boxShadow = "0 12px 30px rgba(15,23,42,0.35)";
+  toast.style.zIndex = "9999";
 
-  closeBtn?.addEventListener("click", () => {
-    modal.classList.add("d-none");
-    document.body.style.overflow = "auto";
-  });
+  const bg =
+    type === "success"
+      ? "linear-gradient(135deg,#16a34a,#22c55e)"
+      : type === "error"
+      ? "linear-gradient(135deg,#ef4444,#dc2626)"
+      : "linear-gradient(135deg,#0ea5e9,#2563eb)";
+  toast.style.background = bg;
 
-  modal.addEventListener("click", (e) => {
-    if (e.target === modal) {
-      modal.classList.add("d-none");
-      document.body.style.overflow = "auto";
-    }
-  });
-
-  // Expose globally for other handlers
-  window.showFeatureModal = showFeature;
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(() => {
+    toast.style.display = "none";
+  }, 3000);
 }
 
-/* ======================
-   MONEY MOVES (TOP ROW)
-   ====================== */
-
-function initMoneyMoves() {
-  const sendBtn = document.getElementById("sendMoneyBtn");
-  const receiveBtn = document.getElementById("receiveMoneyBtn");
-  const addMoneyBtn = document.getElementById("addMoneyBtn");
-  const bankTransferBtn = document.getElementById("bankTransferBtn");
-
-  // SEND MONEY
-  sendBtn?.addEventListener("click", () => {
-    window.showFeatureModal(
-      "Send Money (P2P)",
-      `
-      <form id="sendMoneyForm" class="modal-form">
-        <label>Recipient Email / Phone</label>
-        <input type="text" id="sendRecipient" placeholder="e.g. john@example.com" />
-
-        <label>Amount (₦)</label>
-        <input type="number" id="sendAmount" placeholder="e.g. 5000" />
-
-        <label>Note / Description</label>
-        <textarea id="sendNote" placeholder="What is this for?"></textarea>
-      </form>
-    `,
-      `
-      <button class="btn btn-secondary" id="cancelSendBtn">Cancel</button>
-      <button class="btn btn-primary" id="confirmSendBtn">Send</button>
-    `
-    );
-
-    const cancelBtn = document.getElementById("cancelSendBtn");
-    const confirmBtn = document.getElementById("confirmSendBtn");
-
-    cancelBtn?.addEventListener("click", () =>
-      document.getElementById("featureModal").classList.add("d-none")
-    );
-
-    confirmBtn?.addEventListener("click", () => {
-      const recipient = document.getElementById("sendRecipient").value.trim();
-      const amount = parseFloat(document.getElementById("sendAmount").value);
-      const note = document.getElementById("sendNote").value.trim();
-
-      if (!recipient || !amount || amount <= 0) {
-        showToast("error", "Please enter a valid recipient and amount.");
-        return;
-      }
-
-      pay54State.balanceNaira -= amount;
-      pay54State.transactions.unshift({
-        id: Date.now(),
-        type: "debit",
-        title: `Transfer to ${recipient}`,
-        subtitle: note || "P2P Transfer",
-        amountNaira: -amount,
-        time: "Just now",
-      });
-
-      renderBalances();
-      renderTransactions();
-
-      document.getElementById("featureModal").classList.add("d-none");
-      document.body.style.overflow = "auto";
-      showToast("success", `Sent ${formatNaira(amount)} to ${recipient} (demo).`);
-    });
-  });
-
-  // RECEIVE MONEY (QR + Copy)
-  receiveBtn?.addEventListener("click", () => {
-    const accountNumber = "1029 3456 7821";
-    const qrPlaceholder =
-      "https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=PAY54-" +
-      encodeURIComponent(accountNumber);
-
-    window.showFeatureModal(
-      "Receive Money",
-      `
-      <div class="receive-section">
-        <p>Show this QR code or share your PAY54 account.</p>
-        <div class="qr-box">
-          <img src="${qrPlaceholder}" alt="PAY54 QR" />
-        </div>
-        <div class="receive-details">
-          <p><strong>Account Name:</strong> ${pay54User.fullName}</p>
-          <p><strong>Account Number:</strong> ${accountNumber}</p>
-          <p><strong>Bank:</strong> PAY54 MicroWallet</p>
-        </div>
-      </div>
-    `,
-      `
-      <button class="btn btn-secondary" id="closeReceiveBtn">Close</button>
-      <button class="btn btn-primary" id="copyAccountBtn">Copy Account</button>
-    `
-    );
-
-    document
-      .getElementById("closeReceiveBtn")
-      ?.addEventListener("click", () => {
-        document.getElementById("featureModal").classList.add("d-none");
-        document.body.style.overflow = "auto";
-      });
-
-    document.getElementById("copyAccountBtn")?.addEventListener("click", () => {
-      navigator.clipboard
-        .writeText(`${accountNumber} - ${pay54User.fullName}`)
-        .then(() => {
-          showToast("success", "Account details copied 📋");
-        })
-        .catch(() => {
-          showToast("warning", "Unable to copy on this device.");
-        });
-    });
-  });
-
-  // ADD / WITHDRAW
-  addMoneyBtn?.addEventListener("click", () => {
-    window.showFeatureModal(
-      "Add / Withdraw Funds",
-      `
-      <form id="addMoneyForm" class="modal-form">
-        <label>Action</label>
-        <select id="addAction">
-          <option value="add">Add Money</option>
-          <option value="withdraw">Withdraw Money</option>
-        </select>
-
-        <label>Funding Source</label>
-        <select id="addSource">
-          <option value="card">Linked Card</option>
-          <option value="bank">Bank Account</option>
-          <option value="agent">Pay54 Agent</option>
-        </select>
-
-        <label>Amount (₦)</label>
-        <input type="number" id="addAmount" placeholder="e.g. 10000" />
-      </form>
-    `,
-      `
-      <button class="btn btn-secondary" id="cancelAddBtn">Cancel</button>
-      <button class="btn btn-primary" id="confirmAddBtn">Confirm</button>
-    `
-    );
-
-    document.getElementById("cancelAddBtn")?.addEventListener("click", () => {
-      document.getElementById("featureModal").classList.add("d-none");
-      document.body.style.overflow = "auto";
-    });
-
-    document.getElementById("confirmAddBtn")?.addEventListener("click", () => {
-      const action = document.getElementById("addAction").value;
-      const amount = parseFloat(document.getElementById("addAmount").value);
-
-      if (!amount || amount <= 0) {
-        showToast("error", "Enter a valid amount.");
-        return;
-      }
-
-      if (action === "add") {
-        pay54State.balanceNaira += amount;
-        pay54State.transactions.unshift({
-          id: Date.now(),
-          type: "credit",
-          title: "Wallet Funding",
-          subtitle: "Card / Bank (mock)",
-          amountNaira: amount,
-          time: "Just now",
-        });
-        showToast("success", `Wallet funded with ${formatNaira(amount)} (demo).`);
-      } else {
-        pay54State.balanceNaira -= amount;
-        pay54State.transactions.unshift({
-          id: Date.now(),
-          type: "debit",
-          title: "Withdrawal",
-          subtitle: "To bank (mock)",
-          amountNaira: -amount,
-          time: "Just now",
-        });
-        showToast("success", `Withdrew ${formatNaira(amount)} (demo).`);
-      }
-
-      renderBalances();
-      renderTransactions();
-      document.getElementById("featureModal").classList.add("d-none");
-      document.body.style.overflow = "auto";
-    });
-  });
-
-  // BANK TRANSFER
-  bankTransferBtn?.addEventListener("click", () => {
-    window.showFeatureModal(
-      "Bank Transfer",
-      `
-      <form id="bankTransferForm" class="modal-form">
-        <label>Recipient Name</label>
-        <input type="text" id="bankRecipient" placeholder="e.g. John Doe" />
-
-        <label>Bank Name</label>
-        <input type="text" id="bankName" placeholder="e.g. Access Bank" />
-
-        <label>Account Number</label>
-        <input type="text" id="bankAccount" placeholder="10-digit account number" maxlength="10" />
-
-        <label>Amount (₦)</label>
-        <input type="number" id="bankAmount" placeholder="e.g. 25000" />
-
-        <label>Note / Reference</label>
-        <input type="text" id="bankNote" placeholder="Optional reference" />
-      </form>
-    `,
-      `
-      <button class="btn btn-secondary" id="cancelBankBtn">Cancel</button>
-      <button class="btn btn-primary" id="confirmBankBtn">Send</button>
-    `
-    );
-
-    document.getElementById("cancelBankBtn")?.addEventListener("click", () => {
-      document.getElementById("featureModal").classList.add("d-none");
-      document.body.style.overflow = "auto";
-    });
-
-    document.getElementById("confirmBankBtn")?.addEventListener("click", () => {
-      const name = document.getElementById("bankRecipient").value.trim();
-      const bank = document.getElementById("bankName").value.trim();
-      const acc = document.getElementById("bankAccount").value.trim();
-      const amount = parseFloat(document.getElementById("bankAmount").value);
-      const note = document.getElementById("bankNote").value.trim();
-
-      if (!name || !bank || acc.length < 8 || !amount || amount <= 0) {
-        showToast("error", "Please fill in all required fields correctly.");
-        return;
-      }
-
-      pay54State.balanceNaira -= amount;
-      pay54State.transactions.unshift({
-        id: Date.now(),
-        type: "debit",
-        title: `Bank Transfer to ${name}`,
-        subtitle: `${bank} • ${note || "Instant transfer"}`,
-        amountNaira: -amount,
-        time: "Just now",
-      });
-
-      renderBalances();
-      renderTransactions();
-      document.getElementById("featureModal").classList.add("d-none");
-      document.body.style.overflow = "auto";
-      showToast(
-        "success",
-        `Sent ${formatNaira(amount)} to ${name} at ${bank} (demo).`
-      );
-    });
-  });
-}
-
-/* ======================
-   SERVICES GRID
-   ====================== */
-
-function initServices() {
-  const serviceCards = document.querySelectorAll(".service-card");
-  if (!serviceCards.length) return;
-
-  serviceCards.forEach((card) => {
-    const key = card.dataset.service;
-    card.addEventListener("click", () => handleServiceClick(key));
-  });
-
-  // 🧍 Become an Agent (separate dedicated modal)
-  initAgentModal();
-}
-
-function handleServiceClick(serviceKey) {
-  switch (serviceKey) {
-    case "fx":
-      handleCrossBorderRemittance();
-      break;
-    case "savings":
-      handleSavings();
-      break;
-    case "bills":
-      handleBills();
-      break;
-    case "cards":
-      handleCards();
-      break;
-    case "payonline":
-      handlePayOnline();
-      break;
-    case "shop":
-      handleShopOnTheFly();
-      break;
-    case "invest":
-      handleInvestments();
-      break;
-    case "agent":
-      openModal("agentModal");
-      break;
-    default:
-      showToast("warning", "This feature is still in the lab 👨‍💻");
+function showSystemToast(type, message) {
+  let toast = document.getElementById("systemToast");
+  if (!toast) {
+    toast = document.createElement("div");
+    toast.id = "systemToast";
+    document.body.appendChild(toast);
   }
-}
-
-/* ---- Individual Service Handlers ---- */
-
-function handleCrossBorderRemittance() {
-  window.showFeatureModal(
-    "Cross-Border Remittance",
-    `
-    <form id="fxForm" class="modal-form">
-      <label>Recipient Name</label>
-      <input type="text" id="fxRecipient" placeholder="e.g. Jane Doe" />
-
-      <label>Recipient Account Number / Wallet ID</label>
-      <input type="text" id="fxAccount" placeholder="Account / Mobile Money ID" />
-
-      <label>Reason for Sending</label>
-      <input type="text" id="fxReason" placeholder="e.g. Family Support" />
-
-      <label>Amount to Send (₦)</label>
-      <input type="number" id="fxAmount" placeholder="e.g. 50000" />
-
-      <label>Notes (optional)</label>
-      <textarea id="fxNotes" placeholder="Add more details if needed"></textarea>
-
-      <div class="fx-rate-box">
-        <p><strong>Live FX (demo):</strong> 1 USD ≈ ₦1,500</p>
-        <p>Est. USD received: <span id="fxUsdEstimate">$0.00</span></p>
-      </div>
-    </form>
-  `,
-    `
-    <button class="btn btn-secondary" id="cancelFxBtn">Cancel</button>
-    <button class="btn btn-primary" id="confirmFxBtn">Send</button>
-  `
-  );
-
-  const amountInput = document.getElementById("fxAmount");
-  const usdEstimate = document.getElementById("fxUsdEstimate");
-
-  amountInput?.addEventListener("input", () => {
-    const amount = parseFloat(amountInput.value) || 0;
-    const usd = amount / 1500;
-    usdEstimate.textContent = formatUsd(usd);
-  });
-
-  document.getElementById("cancelFxBtn")?.addEventListener("click", () => {
-    document.getElementById("featureModal").classList.add("d-none");
-    document.body.style.overflow = "auto";
-  });
-
-  document.getElementById("confirmFxBtn")?.addEventListener("click", () => {
-    const recipient = document.getElementById("fxRecipient").value.trim();
-    const acc = document.getElementById("fxAccount").value.trim();
-    const amount = parseFloat(document.getElementById("fxAmount").value);
-
-    if (!recipient || !acc || !amount || amount <= 0) {
-      showToast("error", "Please fill in all required fields correctly.");
-      return;
-    }
-
-    pay54State.balanceNaira -= amount;
-    pay54State.transactions.unshift({
-      id: Date.now(),
-      type: "debit",
-      title: `FX to ${recipient}`,
-      subtitle: `Cross-border remittance • ${acc}`,
-      amountNaira: -amount,
-      time: "Just now",
-    });
-
-    renderBalances();
-    renderTransactions();
-    document.getElementById("featureModal").classList.add("d-none");
-    document.body.style.overflow = "auto";
-    showToast(
-      "success",
-      `Cross-border transfer of ${formatNaira(amount)} created (demo).`
-    );
-  });
-}
-
-function handleSavings() {
-  window.showFeatureModal(
-    "Savings & Goals",
-    `
-    <div class="savings-summary">
-      <p><strong>Total Savings (demo):</strong> ${formatNaira(
-        pay54State.savingsTotal
-      )}</p>
-      <div class="savings-pie-hint">
-        💡 In a real app, this section shows pie charts and progress bars for each goal.
-      </div>
-    </div>
-
-    <form id="savingsForm" class="modal-form">
-      <label>Goal Name</label>
-      <input type="text" id="savingsGoal" placeholder="e.g. Rent, New Phone" />
-
-      <label>Monthly Standing Order (₦)</label>
-      <input type="number" id="savingsAmount" placeholder="e.g. 20000" />
-
-      <label>Standing Order Date</label>
-      <input type="number" id="savingsDay" min="1" max="28" placeholder="e.g. 25" />
-    </form>
-
-    <div class="savings-note">
-      Standing orders (auto-savings) will debit your linked card or wallet every month on the selected day (demo logic only here).
-    </div>
-  `,
-    `
-    <button class="btn btn-secondary" id="cancelSavingsBtn">Close</button>
-    <button class="btn btn-primary" id="saveSavingsBtn">Create Goal</button>
-  `
-  );
-
-  document
-    .getElementById("cancelSavingsBtn")
-    ?.addEventListener("click", () => {
-      document.getElementById("featureModal").classList.add("d-none");
-      document.body.style.overflow = "auto";
-    });
-
-  document.getElementById("saveSavingsBtn")?.addEventListener("click", () => {
-    const goal = document.getElementById("savingsGoal").value.trim();
-    const amount = parseFloat(document.getElementById("savingsAmount").value);
-    const day = parseInt(document.getElementById("savingsDay").value, 10);
-
-    if (!goal || !amount || amount <= 0 || !day || day < 1 || day > 28) {
-      showToast("error", "Please fill in goal, amount and valid day (1–28).");
-      return;
-    }
-
-    pay54State.savingsTotal += amount;
-    renderBalances();
-
-    showToast(
-      "success",
-      `Savings goal "${goal}" with ₦${amount.toLocaleString()} standing order created (demo).`
-    );
-
-    document.getElementById("featureModal").classList.add("d-none");
-    document.body.style.overflow = "auto";
-  });
-}
-
-function handleBills() {
-  window.showFeatureModal(
-    "Pay Bills & Top-Up",
-    `
-    <form id="billsForm" class="modal-form">
-      <label>Bill Type</label>
-      <select id="billType">
-        <option value="electricity">Electricity</option>
-        <option value="water">Water</option>
-        <option value="dstv">DSTV / Cable TV</option>
-        <option value="airtime">Airtime</option>
-        <option value="data">Data Bundle</option>
-      </select>
-
-      <div id="billsDynamicFields"></div>
-
-      <label>Plan / Amount</label>
-      <select id="billPlan">
-        <option value="500">₦500</option>
-        <option value="2000">₦2,000</option>
-        <option value="5000">₦5,000</option>
-        <option value="10000">₦10,000</option>
-      </select>
-
-      <label>Make this recurring?</label>
-      <select id="billRecurring">
-        <option value="no">No</option>
-        <option value="monthly">Monthly</option>
-        <option value="weekly">Weekly</option>
-      </select>
-    </form>
-
-    <div class="bills-note">
-      For recurring bills, PAY54 can auto-debit your wallet or default card on schedule (demo only here).
-    </div>
-  `,
-    `
-    <button class="btn btn-secondary" id="cancelBillsBtn">Cancel</button>
-    <button class="btn btn-primary" id="confirmBillsBtn">Pay Now</button>
-  `
-  );
-
-  const typeSelect = document.getElementById("billType");
-  const dynamicFields = document.getElementById("billsDynamicFields");
-
-  function renderBillFields(type) {
-    if (!dynamicFields) return;
-
-    if (type === "electricity" || type === "water" || type === "dstv") {
-      dynamicFields.innerHTML = `
-        <label>Account / Meter Number</label>
-        <input type="text" id="billAccount" placeholder="e.g. 1234567890" />
-
-        <label>Provider</label>
-        <select id="billProvider">
-          <option value="ikeja">Ikeja Electric</option>
-          <option value="eko">Eko Electric</option>
-          <option value="lagoswater">Lagos Water</option>
-          <option value="dstv">DSTV</option>
-          <option value="gotv">GOtv</option>
-        </select>
-      `;
-    } else if (type === "airtime" || type === "data") {
-      dynamicFields.innerHTML = `
-        <label>Mobile Network</label>
-        <select id="billNetwork">
-          <option value="mtn">MTN</option>
-          <option value="airtel">Airtel</option>
-          <option value="glo">Glo</option>
-          <option value="9mobile">9mobile</option>
-        </select>
-
-        <label>Phone Number</label>
-        <input type="tel" id="billPhone" placeholder="e.g. 0803..." />
-      `;
-    }
-  }
-
-  renderBillFields(typeSelect.value);
-
-  typeSelect?.addEventListener("change", () =>
-    renderBillFields(typeSelect.value)
-  );
-
-  document
-    .getElementById("cancelBillsBtn")
-    ?.addEventListener("click", () => {
-      document.getElementById("featureModal").classList.add("d-none");
-      document.body.style.overflow = "auto";
-    });
-
-  document.getElementById("confirmBillsBtn")?.addEventListener("click", () => {
-    const type = typeSelect.value;
-    const plan = parseFloat(document.getElementById("billPlan").value);
-    const recurring = document.getElementById("billRecurring").value;
-
-    if (!plan || plan <= 0) {
-      showToast("error", "Select a valid plan/amount.");
-      return;
-    }
-
-    pay54State.balanceNaira -= plan;
-    pay54State.transactions.unshift({
-      id: Date.now(),
-      type: "debit",
-      title: `Bill Payment – ${type.toUpperCase()}`,
-      subtitle:
-        recurring === "no"
-          ? "One-time payment"
-          : `Recurring: ${recurring.toUpperCase()}`,
-      amountNaira: -plan,
-      time: "Just now",
-    });
-
-    renderBalances();
-    renderTransactions();
-    showToast("success", `Bill of ${formatNaira(plan)} paid (demo).`);
-    document.getElementById("featureModal").classList.add("d-none");
-    document.body.style.overflow = "auto";
-  });
-}
-
-function handleCards() {
-  const cardsHtml = pay54State.cards
-    .map(
-      (card) => `
-    <div class="card-item ${card.default ? "card-default" : ""}">
-      <div class="card-row">
-        <span class="card-brand">${card.brand}</span>
-        <span class="card-type">${card.type === "virtual" ? "Virtual" : "Linked"}</span>
-      </div>
-      <div class="card-row">
-        <span class="card-number">•••• ${card.last4}</span>
-        ${
-          card.default
-            ? '<span class="card-badge">Default</span>'
-            : '<button class="set-default-btn" data-cardid="' +
-              card.id +
-              '">Set Default</button>'
-        }
-      </div>
-    </div>
-  `
-    )
-    .join("");
-
-  window.showFeatureModal(
-    "Virtual & Linked Cards",
-    `
-    <div class="cards-container">
-      ${cardsHtml || "<p>No cards yet (demo).</p>"}
-    </div>
-
-    <div class="add-card-hint">
-      Add or link cards to control which one is used at checkout (demo only).
-    </div>
-  `,
-    `
-    <button class="btn btn-secondary" id="closeCardsBtn">Close</button>
-    <button class="btn btn-primary" id="addCardBtn">Add / Link Card</button>
-  `
-  );
-
-  document.getElementById("closeCardsBtn")?.addEventListener("click", () => {
-    document.getElementById("featureModal").classList.add("d-none");
-    document.body.style.overflow = "auto";
-  });
-
-  document.getElementById("addCardBtn")?.addEventListener("click", () => {
-    showToast("info", "Card linking flow will be fully implemented in v6.2.");
-  });
-
-  document.querySelectorAll(".set-default-btn").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const id = btn.dataset.cardid;
-      pay54State.cards.forEach((c) => (c.default = c.id === id));
-      handleCards();
-      showToast("success", "Default card updated (demo).");
-    });
-  });
-}
-
-function handlePayOnline() {
-  window.showFeatureModal(
-    "Pay Online",
-    `
-    <p>This simulates a Pay54 Checkout screen.</p>
-    <ul class="bullet-list">
-      <li>Customer picks virtual or linked card</li>
-      <li>Chooses to pay in ₦ or USD (for FX merchants)</li>
-      <li>Strong customer authentication & risk checks (AI Risk Watch)</li>
-    </ul>
-  `,
-    `
-    <button class="btn btn-secondary" id="closePayOnlineBtn">Close</button>
-  `
-  );
-
-  document
-    .getElementById("closePayOnlineBtn")
-    ?.addEventListener("click", () => {
-      document.getElementById("featureModal").classList.add("d-none");
-      document.body.style.overflow = "auto";
-    });
-}
-
-function handleShopOnTheFly() {
-  window.showFeatureModal(
-    "Shop on the Fly",
-    `
-    <p>Affiliate marketplace categories (demo):</p>
-    <ul class="bullet-list">
-      <li><strong>Taxi & Ride:</strong> Uber, Bolt, local partners</li>
-      <li><strong>Entertainment:</strong> Cinema, concerts, events</li>
-      <li><strong>Shopping:</strong> Jiji, AliExpress, Temu, ASOS</li>
-      <li><strong>Food:</strong> Domino's, KFC, local restaurants</li>
-    </ul>
-    <p>Each purchase gives Pay54 a small commission (ROI engine).</p>
-  `,
-    `
-    <button class="btn btn-secondary" id="closeShopBtn">Close</button>
-  `
-  );
-
-  document.getElementById("closeShopBtn")?.addEventListener("click", () => {
-    document.getElementById("featureModal").classList.add("d-none");
-    document.body.style.overflow = "auto";
-  });
-}
-
-function handleInvestments() {
-  window.showFeatureModal(
-    "Investments & Stocks",
-    `
-    <div class="invest-toggle">
-      <button class="btn btn-primary btn-sm" disabled>Stocks (USD)</button>
-      <button class="btn btn-secondary btn-sm" disabled>Local Investments</button>
-    </div>
-
-    <div class="invest-summary">
-      <p><strong>Portfolio (demo):</strong> ${formatUsd(
-        pay54State.investmentsUsd
-      )}</p>
-      <p><small>At checkout, user can pay in <strong>USD</strong> or auto-convert from <strong>₦</strong>.</small></p>
-    </div>
-
-    <div class="invest-list">
-      <div class="invest-item">
-        <div>
-          <strong>P54 TECH FUND</strong>
-          <p>AI & fintech innovation basket</p>
-        </div>
-        <div class="invest-cta">
-          <span>${formatUsd(120)}</span>
-          <button class="btn btn-primary btn-xs" disabled>Buy (demo)</button>
-        </div>
-      </div>
-      <div class="invest-item">
-        <div>
-          <strong>US BLUE-CHIP ETF</strong>
-          <p>Top US companies tracker</p>
-        </div>
-        <div class="invest-cta">
-          <span>${formatUsd(85)}</span>
-          <button class="btn btn-primary btn-xs" disabled>Buy (demo)</button>
-        </div>
-      </div>
-    </div>
-  `,
-    `
-    <button class="btn btn-secondary" id="closeInvestBtn">Close</button>
-  `
-  );
-
-  document
-    .getElementById("closeInvestBtn")
-    ?.addEventListener("click", () => {
-      document.getElementById("featureModal").classList.add("d-none");
-      document.body.style.overflow = "auto";
-    });
-}
-
-/* ======================
-   BECOME AN AGENT MODAL
-   ====================== */
-
-function initAgentModal() {
-  const agentModal = document.getElementById("agentModal");
-  if (!agentModal) return;
-
-  const closeBtn = document.getElementById("closeAgentModal");
-  const cancelBtn = document.getElementById("cancelAgentBtn");
-  const submitBtn = document.getElementById("submitAgentBtn");
-  const form = document.getElementById("agentForm");
-
-  function closeAgent() {
-    agentModal.classList.add("d-none");
-    document.body.style.overflow = "auto";
-    form?.reset();
-  }
-
-  closeBtn?.addEventListener("click", closeAgent);
-  cancelBtn?.addEventListener("click", closeAgent);
-
-  submitBtn?.addEventListener("click", (e) => {
-    e.preventDefault();
-    const fullName = document.getElementById("agentFullName").value.trim();
-    const businessName = document.getElementById("agentBusinessName")
-      ? document.getElementById("agentBusinessName").value.trim()
-      : "";
-    const nin = document.getElementById("agentNIN").value.trim();
-    const photo = document.getElementById("agentPhoto").files[0];
-
-    if (!fullName || !nin || !photo) {
-      showToast("error", "Full name, NIN and photo are required.");
-      return;
-    }
-
-    // Simple success popup
-    const successPopup = document.createElement("div");
-    successPopup.className = "success-popup";
-    successPopup.innerHTML = `
-      <div class="success-icon">✅</div>
-      <div class="success-text">Agent application submitted (demo).</div>
-    `;
-    document.body.appendChild(successPopup);
-
-    setTimeout(() => successPopup.classList.add("show"), 50);
-    setTimeout(() => successPopup.classList.remove("show"), 2500);
-    setTimeout(() => successPopup.remove(), 3100);
-
-    closeAgent();
-  });
-}
-
-/* ======================
-   WELCOME TOAST + SCROLL TOP
-   ====================== */
-
-function initWelcomeToast() {
-  const toast = document.getElementById("welcomeToast");
-  if (!toast) return;
-
-  toast.innerHTML = `👋 Welcome back, <strong>${pay54User.firstName}</strong> — your Pay54 wallet is live (demo).`;
+  toast.textContent = message;
   toast.style.display = "flex";
-  toast.style.opacity = "1";
+  toast.style.position = "fixed";
+  toast.style.bottom = "18px";
+  toast.style.left = "18px";
+  toast.style.padding = "10px 14px";
+  toast.style.borderRadius = "12px";
+  toast.style.fontSize = "12px";
+  toast.style.fontWeight = "500";
+  toast.style.color = "#ffffff";
+  toast.style.boxShadow = "0 12px 30px rgba(15,23,42,0.35)";
+  toast.style.zIndex = "9999";
+  toast.style.maxWidth = "280px";
 
-  setTimeout(() => {
-    toast.style.transition = "opacity 0.6s ease";
-    toast.style.opacity = "0";
-    setTimeout(() => (toast.style.display = "none"), 600);
+  const bg =
+    type === "success"
+      ? "linear-gradient(135deg,#15803d,#22c55e)"
+      : type === "error"
+      ? "linear-gradient(135deg,#b91c1c,#ef4444)"
+      : "linear-gradient(135deg,#4b5563,#0f172a)";
+  toast.style.background = bg;
+
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(() => {
+    toast.style.display = "none";
   }, 3500);
 }
 
-function initScrollTopButton() {
-  const scrollBtn = document.getElementById("scrollTopBtn");
-  if (!scrollBtn) return;
+function showWelcomeToast() {
+  const toast = document.getElementById("welcomeToast");
+  if (!toast) return;
+  const first = currentUser.full_name.split(" ")[0] || "User";
+  toast.innerHTML = `👋 Welcome back, <strong>${first}</strong> — PAY54 hybrid rails are synced.`;
+  toast.style.display = "flex";
+  toast.style.position = "fixed";
+  toast.style.bottom = "70px";
+  toast.style.left = "50%";
+  toast.style.transform = "translateX(-50%)";
+  toast.style.padding = "9px 16px";
+  toast.style.borderRadius = "999px";
+  toast.style.fontSize = "12px";
+  toast.style.color = "#ffffff";
+  toast.style.background = "linear-gradient(135deg,#2563eb,#22c55e)";
+  toast.style.boxShadow = "0 14px 35px rgba(15,23,42,0.45)";
+  toast.style.zIndex = "9999";
 
-  window.addEventListener("scroll", () => {
-    if (window.scrollY > 200) {
-      scrollBtn.classList.add("show");
-    } else {
-      scrollBtn.classList.remove("show");
-    }
-  });
-
-  scrollBtn.addEventListener("click", () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  });
+  setTimeout(() => {
+    toast.style.display = "none";
+  }, 3500);
 }
 
-/* ======================
-   INIT
-   ====================== */
-
-document.addEventListener("DOMContentLoaded", () => {
-  initTheme();
-  initUserMenu();
-  bindGenericFeatureModal();
-  renderBalances();
-  renderTransactions();
-  initMoneyMoves();
-  initServices();
-  initAgentModal();
-  initWelcomeToast();
-  initScrollTopButton();
-
-  console.log("✅ PAY54 v6.1 dashboard initialised (standalone).");
-});
+// =============== UTILITIES ===============
+function formatNaira(amount) {
+  const val = Number(amount) || 0;
+  const prefix = val < 0 ? "-₦" : "₦";
+  return prefix + Math.abs(val).toLocaleString("en-NG", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+}
