@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DemiPay v6.0 — Money Moves</title>
+  <title>PAY54 v6.1 Hybrid — Money in Motion</title>
 
   <!-- Styles -->
   <link rel="stylesheet" href="./src/css/global.css" />
@@ -11,56 +11,204 @@
 
   <style>
     :root {
-      --accent-color: #2dd4bf;
-      --gradient-accent: linear-gradient(90deg, #2dd4bf, #3b82f6);
+      --accent: #2563eb;
+      --accent-soft: rgba(37, 99, 235, 0.12);
+      --accent-gradient: linear-gradient(135deg, #2563eb, #22c55e);
+      --danger: #ef4444;
+      --bg-soft: #f8fafc;
+      --card-radius: 18px;
     }
 
-    /* Sticky navbar */
+    body {
+      background: #f3f4f6;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+    }
+
+    /* Smart Loader Overlay */
+    #splashOverlay {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at top, #0f172a, #020617);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #e5e7eb;
+      z-index: 9999;
+      transition: opacity 0.5s ease, visibility 0.5s ease;
+    }
+    #splashOverlay.hidden {
+      opacity: 0;
+      visibility: hidden;
+    }
+    .splash-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .splash-badge {
+      padding: 3px 10px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #a5b4fc;
+    }
+    .splash-orbit {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      border: 2px solid rgba(96, 165, 250, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      box-shadow: 0 0 35px rgba(59, 130, 246, 0.4);
+    }
+    .splash-orbit::after {
+      content: "";
+      position: absolute;
+      width: 88px;
+      height: 88px;
+      border-radius: 50%;
+      border: 1px dashed rgba(96, 165, 250, 0.2);
+      animation: orbitSpin 6s linear infinite;
+    }
+    .splash-orbit span {
+      font-weight: 800;
+      font-size: 20px;
+      color: #e5e7eb;
+    }
+    .splash-title {
+      font-size: 26px;
+      font-weight: 700;
+      color: #e5e7eb;
+    }
+    .splash-sub {
+      font-size: 13px;
+      color: #9ca3af;
+      margin-bottom: 18px;
+      text-align: center;
+    }
+    .splash-bar {
+      width: 180px;
+      height: 4px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      overflow: hidden;
+      border: 1px solid rgba(30, 64, 175, 0.6);
+    }
+    .splash-bar-inner {
+      width: 40%;
+      height: 100%;
+      background: var(--accent-gradient);
+      border-radius: 999px;
+      animation: loaderSlide 1.4s ease-in-out infinite;
+    }
+    .splash-caption {
+      margin-top: 10px;
+      font-size: 11px;
+      color: #9ca3af;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .splash-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #22c55e;
+      box-shadow: 0 0 12px rgba(34, 197, 94, 0.7);
+    }
+
+    @keyframes loaderSlide {
+      0% { transform: translateX(-60%); }
+      50% { transform: translateX(20%); }
+      100% { transform: translateX(120%); }
+    }
+    @keyframes orbitSpin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Navbar */
     .navbar {
       position: sticky;
       top: 0;
       z-index: 1000;
-      background: #ffffff;
-      border-bottom: 1px solid #f1f5f9;
-      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
-      backdrop-filter: blur(6px);
-      transition: all 0.3s ease-in-out;
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid #e5e7eb;
+      box-shadow: 0 2px 10px rgba(15, 23, 42, 0.06);
     }
-    body.scrolled .navbar {
-      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
-    }
-
-    .navbar-container {
-      max-width: 1100px;
+    .navbar-inner {
+      max-width: 1120px;
       margin: 0 auto;
       padding: 10px 16px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 16px;
+      gap: 12px;
+    }
+    .brand-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+    }
+    .brand-mark {
+      width: 34px;
+      height: 34px;
+      border-radius: 12px;
+      background: radial-gradient(circle at 30% 0%, #60a5fa, #1d4ed8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #e5e7eb;
+      font-weight: 800;
+      font-size: 16px;
+      box-shadow: 0 6px 18px rgba(37, 99, 235, 0.5);
+    }
+    .brand-text-main {
+      font-weight: 750;
+      font-size: 18px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: #0f172a;
+    }
+    .brand-text-sub {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: #64748b;
     }
 
-    .navbar-brand {
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .chip-badge {
+      font-size: 11px;
+      padding: 3px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      color: #475569;
+      background: #f8fafc;
+    }
+    #themeToggle {
+      border-radius: 999px;
+      border: 1px solid #e5e7eb;
+      background: #f9fafb;
+      padding: 6px 12px;
+      font-size: 12px;
       display: flex;
       align-items: center;
       gap: 6px;
-      font-weight: 700;
-      font-size: 1.2rem;
       cursor: pointer;
-    }
-    .logo-icon { font-size: 1.5rem; }
-    .version-badge {
-      font-size: 0.75rem;
-      padding: 2px 6px;
-      border-radius: 999px;
-      background: #e0f2fe;
-      color: #0369a1;
-    }
-
-    .navbar-menu {
-      display: flex;
-      align-items: center;
-      gap: 12px;
     }
 
     .user-menu {
@@ -70,337 +218,292 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      padding: 6px 10px;
       border-radius: 999px;
-      border: 1px solid #e5e7eb;
-      background: #ffffff;
+      padding: 4px 10px;
+      border: 1px solid #e2e8f0;
+      background: white;
       cursor: pointer;
     }
-    .user-avatar {
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
+    .user-menu-btn img {
+      width: 26px;
+      height: 26px;
+      border-radius: 999px;
       object-fit: cover;
+    }
+    .user-menu-name {
+      font-size: 13px;
+      font-weight: 500;
+      color: #0f172a;
     }
     .user-menu-dropdown {
       position: absolute;
       right: 0;
-      top: 40px;
-      background: #fff;
-      border-radius: 10px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
-      padding: 8px 0;
+      top: 110%;
+      background: white;
+      border-radius: 14px;
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.18);
+      padding: 6px 0;
+      min-width: 170px;
       display: none;
-      min-width: 150px;
     }
     .user-menu-dropdown.show {
       display: block;
-      animation: fadeIn 0.2s ease-in-out;
+      animation: fadeIn 0.18s ease-out;
     }
     .menu-item {
+      padding: 7px 14px;
       display: flex;
       align-items: center;
       gap: 8px;
-      padding: 8px 14px;
-      font-size: 0.9rem;
-      color: #111827;
+      font-size: 13px;
+      color: #0f172a;
       text-decoration: none;
+      cursor: pointer;
     }
     .menu-item:hover {
-      background: #f9fafb;
+      background: #f1f5f9;
     }
     .menu-divider {
-      height: 1px;
-      background: #e5e7eb;
+      border-top: 1px solid #e5e7eb;
       margin: 4px 0;
     }
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-10px); }
+      from { opacity: 0; transform: translateY(-4px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
     /* Layout spacing */
-    .main-content {
-      padding: 16px;
+    .main {
+      max-width: 1120px;
+      margin: 16px auto 40px;
+      padding: 0 16px;
     }
-    .container {
-      max-width: 1100px;
-      margin: 0 auto;
+    section {
+      margin-bottom: 22px;
     }
-    .welcome-section,
-    .balance-section,
-    .banner,
-    .money-moves,
-    .quick-services,
-    .transactions-section {
-      margin-bottom: 24px;
+
+    .welcome-section h1 {
+      font-size: 22px;
+      font-weight: 650;
+      margin-bottom: 4px;
+      color: #0f172a;
+    }
+    .welcome-section p {
+      font-size: 13px;
+      color: #64748b;
+    }
+
+    .balance-card {
+      border-radius: var(--card-radius);
+      padding: 18px 18px 16px;
+      background: radial-gradient(circle at 0 0, #e0f2fe, #eff6ff);
+      border: 1px solid #bfdbfe;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .balance-label {
+      font-size: 12px;
+      color: #0f172a;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+    .balance-amount {
+      font-size: 26px;
+      font-weight: 700;
+      margin: 4px 0;
+      color: #0f172a;
+    }
+    .wallet-address,
+    .wallet-meta {
+      font-size: 12px;
+      color: #475569;
+    }
+    .kyc-pill {
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(22, 163, 74, 0.06);
+      border: 1px solid rgba(22, 163, 74, 0.3);
+      color: #15803d;
+      font-size: 11px;
+    }
+    .btn-primary {
+      border-radius: 999px;
+      border: none;
+      padding: 8px 14px;
+      font-size: 13px;
+      background: var(--accent-gradient);
+      color: white;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      box-shadow: 0 8px 22px rgba(37, 99, 235, 0.35);
     }
 
     .banner {
+      border-radius: var(--card-radius);
+      padding: 12px 14px;
       display: flex;
       align-items: center;
-      gap: 12px;
-      padding: 12px 16px;
-      border-radius: 12px;
-      background: #f9fafb;
+      gap: 10px;
     }
-    .banner-security { border-left: 4px solid #22c55e; }
-    .banner-finance { border-left: 4px solid #3b82f6; }
-
-    /* Scroll to top */
-    #scrollTopBtn {
-      position: fixed;
-      bottom: 28px;
-      right: 28px;
-      width: 45px;
-      height: 45px;
-      border-radius: 50%;
-      border: none;
-      background: var(--gradient-accent);
-      color: white;
+    .banner-security {
+      background: #0f172a;
+      color: #e5e7eb;
+    }
+    .banner-finance {
+      background: white;
+      border: 1px solid #e5e7eb;
+    }
+    .banner-emoji {
       font-size: 20px;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
-      cursor: pointer;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.3s ease;
-      z-index: 999;
     }
-    #scrollTopBtn.show { display: flex; }
-    #scrollTopBtn:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+    .banner-text h4 {
+      font-size: 13px;
+      margin-bottom: 2px;
+    }
+    .banner-text p {
+      font-size: 12px;
+      color: #9ca3af;
     }
 
-    /* Welcome toast */
-    #welcomeToast {
-      position: fixed;
-      bottom: 30px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: var(--gradient-accent);
-      color: #fff;
-      padding: 12px 22px;
-      border-radius: 30px;
-      font-size: 14px;
-      font-weight: 500;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-      opacity: 0;
-      z-index: 9999;
-      display: none;
-      align-items: center;
-      gap: 8px;
-    }
-
-    /* Top-right toast */
-    .toast {
-      animation: fadeInToast 0.3s ease, fadeOutToast 0.3s ease 2.7s forwards;
-    }
-    @keyframes fadeInToast {
-      from { opacity: 0; transform: translateY(-10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes fadeOutToast {
-      from { opacity: 1; transform: translateY(0); }
-      to { opacity: 0; transform: translateY(-10px); }
-    }
-
-    /* Bottom-left toast */
-    .toast-bottom {
-      animation: fadeInUp 0.3s ease, fadeOutDown 0.3s ease 3.7s forwards;
-    }
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes fadeOutDown {
-      from { opacity: 1; transform: translateY(0); }
-      to { opacity: 0; transform: translateY(20px); }
-    }
-
-    /* Bottom sheet (for most actions) */
-    .bottom-sheet-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(15,23,42,0.45);
-      display: none;
-      align-items: flex-end;
-      justify-content: center;
-      z-index: 9998;
-    }
-    .bottom-sheet-overlay.show {
-      display: flex;
-    }
-    .bottom-sheet {
-      width: 100%;
-      max-width: 500px;
-      max-height: 80vh;
-      background: #ffffff;
-      border-top-left-radius: 18px;
-      border-top-right-radius: 18px;
-      padding: 14px 18px 18px;
-      box-shadow: 0 -8px 24px rgba(15,23,42,0.25);
-      overflow-y: auto;
-      animation: slideUp 0.25s ease-out;
-    }
-    @keyframes slideUp {
-      from { transform: translateY(40px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
-    .bottom-sheet-header {
+    .section-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
       margin-bottom: 10px;
     }
-    .bottom-sheet-title {
-      font-size: 1rem;
+    .section-header h3 {
+      font-size: 15px;
       font-weight: 600;
+      color: #0f172a;
     }
-    .bottom-sheet-close {
-      border: none;
-      background: transparent;
-      font-size: 20px;
-      cursor: pointer;
-    }
-    .bottom-sheet-body {
-      font-size: 0.9rem;
-      display: flex;
-      flex-direction: column;
+
+    .action-grid,
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
       gap: 10px;
     }
 
-    .form-row {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-    .form-row label {
-      font-size: 0.8rem;
-      color: #6b7280;
-    }
-    .form-row input,
-    .form-row select,
-    .form-row textarea {
-      border-radius: 8px;
-      border: 1px solid #e5e7eb;
-      padding: 8px 10px;
-      font-size: 0.9rem;
-    }
-
-    .sheet-actions {
-      display: flex;
-      gap: 8px;
-      margin-top: 8px;
-      justify-content: flex-end;
-    }
-
-    /* Simple card styles */
-    .small-card-list {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin-top: 6px;
-    }
-    .small-card {
-      border-radius: 10px;
-      border: 1px solid #e5e7eb;
-      padding: 8px 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 0.85rem;
-    }
-    .badge {
-      display: inline-flex;
-      padding: 2px 8px;
-      border-radius: 999px;
-      font-size: 0.7rem;
-      background: #eff6ff;
-      color: #1d4ed8;
-    }
-    .badge-default {
-      background: #dcfce7;
-      color: #15803d;
-    }
-
-    .card-stack {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-top: 8px;
-    }
-    .card-visual {
+    .action-card,
+    .service-card {
       border-radius: 16px;
-      padding: 12px 14px;
-      color: #fff;
+      padding: 12px 12px;
+      border: 1px solid #e5e7eb;
+      background: white;
       display: flex;
       flex-direction: column;
       gap: 4px;
+      cursor: pointer;
       position: relative;
       overflow: hidden;
+      transition: transform 0.12s ease, box-shadow 0.12s ease,
+        border-color 0.12s ease, background 0.12s ease;
     }
-    .card-visual.virtual {
-      background: radial-gradient(circle at top left, #0ea5e9, #1d4ed8);
-    }
-    .card-visual.linked-1 {
-      background: radial-gradient(circle at top left, #15803d, #16a34a);
-    }
-    .card-visual.linked-2 {
-      background: radial-gradient(circle at top left, #7c2d12, #ea580c);
-    }
-    .card-visual.linked-3 {
-      background: radial-gradient(circle at top left, #4b5563, #020617);
-    }
-    .contactless {
+    .action-card::after,
+    .service-card::after {
+      content: "";
       position: absolute;
-      top: 10px;
-      right: 12px;
+      inset: 0;
+      background: radial-gradient(circle at top right, rgba(37, 99, 235, 0.16), transparent);
+      opacity: 0;
+      transition: opacity 0.15s ease;
+    }
+    .action-card:hover,
+    .service-card:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+      border-color: rgba(37, 99, 235, 0.3);
+    }
+    .action-card:hover::after,
+    .service-card:hover::after {
+      opacity: 1;
+    }
+    .action-icon {
       font-size: 18px;
-      opacity: 0.9;
+    }
+    .action-title,
+    .service-card h4 {
+      font-size: 13px;
+      font-weight: 600;
+      color: #0f172a;
+    }
+    .action-desc,
+    .service-card p {
+      font-size: 11px;
+      color: #6b7280;
     }
 
-    /* Recent transactions */
     .transactions-list {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
+      border-radius: var(--card-radius);
+      background: white;
+      border: 1px solid #e5e7eb;
+      padding: 8px 10px;
     }
     .transaction-item {
+      padding: 8px 4px;
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      padding: 8px 10px;
-      border-radius: 10px;
-      border: 1px solid #e5e7eb;
-      font-size: 0.85rem;
+      justify-content: space-between;
+      gap: 8px;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .transaction-item:last-child {
+      border-bottom: none;
     }
     .tx-main {
       display: flex;
-      flex-direction: column;
-      gap: 2px;
+      align-items: center;
+      gap: 8px;
     }
-    .tx-meta {
-      font-size: 0.75rem;
-      color: #6b7280;
+    .tx-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      background: #eff6ff;
+      color: #1d4ed8;
+    }
+    .tx-text h4 {
+      font-size: 13px;
+      font-weight: 500;
+      color: #0f172a;
+    }
+    .tx-text p {
+      font-size: 11px;
+      color: #9ca3af;
     }
     .tx-amount {
-      font-weight: 600;
       text-align: right;
+      font-size: 12px;
     }
-    .tx-amount.negative { color: #dc2626; }
-    .tx-amount.positive { color: #16a34a; }
+    .tx-amount .value.positive {
+      color: #16a34a;
+    }
+    .tx-amount .value.negative {
+      color: #b91c1c;
+    }
+    .tx-amount .meta {
+      font-size: 10px;
+      color: #9ca3af;
+    }
 
-    /* Agent modal (center) */
+    /* Modals */
     .modal-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(15,23,42,0.45);
+      background: rgba(15, 23, 42, 0.4);
       display: none;
       align-items: center;
       justify-content: center;
-      z-index: 9999;
+      z-index: 9000;
     }
     .modal-overlay.show {
       display: flex;
@@ -408,329 +511,563 @@
     .modal {
       width: 100%;
       max-width: 420px;
-      background: #ffffff;
-      border-radius: 16px;
-      padding: 16px 18px 18px;
-      box-shadow: 0 12px 32px rgba(15,23,42,0.35);
+      background: white;
+      border-radius: 18px;
+      box-shadow: 0 24px 60px rgba(15, 23, 42, 0.45);
+      padding: 16px 16px 14px;
+      animation: fadeIn 0.18s ease-out;
     }
     .modal-header {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      margin-bottom: 8px;
+      justify-content: space-between;
+      margin-bottom: 10px;
     }
     .modal-header h3 {
-      font-size: 1rem;
-      margin: 0;
+      font-size: 15px;
+      font-weight: 600;
+      color: #0f172a;
     }
-    .close-btn {
+    .close-modal {
       border: none;
       background: transparent;
-      font-size: 20px;
+      font-size: 18px;
       cursor: pointer;
+      color: #64748b;
     }
     .modal-body {
+      font-size: 13px;
+      color: #111827;
       display: flex;
       flex-direction: column;
       gap: 10px;
-      font-size: 0.9rem;
+      max-height: 70vh;
+      overflow-y: auto;
     }
     .modal-footer {
+      margin-top: 10px;
       display: flex;
       justify-content: flex-end;
       gap: 8px;
-      margin-top: 10px;
     }
-
-    /* Buttons */
-    .btn {
-      border-radius: 999px;
-      padding: 8px 14px;
-      border: none;
-      cursor: pointer;
-      font-size: 0.85rem;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
     }
-    .btn-primary {
-      background: var(--gradient-accent);
-      color: #fff;
+    .form-group label {
+      font-size: 12px;
+      color: #4b5563;
     }
-    .btn-secondary {
-      background: #f3f4f6;
-      color: #111827;
-    }
-    .btn-sm {
-      padding: 6px 10px;
-      font-size: 0.8rem;
-    }
-
-    /* Money moves & services grid (rely on your dashboard.css too) */
-    .action-grid,
-    .services-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 10px;
-    }
-    .action-card,
-    .service-card {
-      border-radius: 12px;
+    .form-control,
+    select {
+      border-radius: 10px;
       border: 1px solid #e5e7eb;
-      padding: 10px 12px;
-      background: #ffffff;
-      text-align: left;
+      padding: 7px 9px;
+      font-size: 13px;
+    }
+
+    .btn-secondary {
+      border-radius: 999px;
+      border: 1px solid #e5e7eb;
+      background: #f9fafb;
+      padding: 7px 12px;
+      font-size: 13px;
       cursor: pointer;
-      transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
-      font-size: 0.85rem;
+      color: #0f172a;
     }
-    .action-card:hover,
-    .service-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(15,23,42,0.08);
-      border-color: #bfdbfe;
-    }
-    .action-icon {
-      font-size: 1.3rem;
-      margin-bottom: 4px;
-    }
-    .action-title {
-      font-weight: 600;
-      display: block;
-    }
-    .action-desc {
-      font-size: 0.78rem;
+
+    /* Simple QR placeholder */
+    .qr-placeholder {
+      width: 130px;
+      height: 130px;
+      border-radius: 16px;
+      border: 1px dashed #cbd5f5;
+      background: repeating-linear-gradient(
+          45deg,
+          #e5e7eb,
+          #e5e7eb 4px,
+          #f9fafb 4px,
+          #f9fafb 8px
+        );
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
       color: #6b7280;
+      margin: 6px 0 2px;
+    }
+
+    /* Toasts */
+    #globalToast,
+    #systemToast,
+    #welcomeToast {
+      display: none;
     }
   </style>
 </head>
 
 <body>
-  <!-- Navigation -->
+  <!-- SMART LOADER -->
+  <div id="splashOverlay">
+    <div class="splash-badge">Hybrid Rails • PAY54</div>
+    <div class="splash-logo">
+      <div class="splash-orbit">
+        <span>P54</span>
+      </div>
+    </div>
+    <div class="splash-title">Synchronising your wallet…</div>
+    <div class="splash-sub">
+      AES-secured • Device-bound session • AI Risk Watch on standby
+    </div>
+    <div class="splash-bar">
+      <div class="splash-bar-inner"></div>
+    </div>
+    <div class="splash-caption">
+      <span class="splash-dot"></span>
+      Checking account state & last 20 transactions
+    </div>
+  </div>
+
+  <!-- NAVBAR -->
   <nav class="navbar">
-    <div class="navbar-container">
-      <div class="navbar-brand" onclick="window.location.href='index.html'">
-        <span class="logo-icon">🚀</span>
-        <span class="logo-text">DemiPay</span>
-        <span class="version-badge">v6.0 • ₦</span>
+    <div class="navbar-inner">
+      <div class="brand-wrap" onclick="window.location.href='index.html'">
+        <div class="brand-mark">P54</div>
+        <div>
+          <div class="brand-text-main">PAY54</div>
+          <div class="brand-text-sub">Hybrid Money • NG + Global</div>
+        </div>
       </div>
 
-      <div class="navbar-menu">
-        <button class="btn btn-secondary btn-sm" id="themeToggle">
+      <div class="nav-right">
+        <div class="chip-badge">v6.1 Hybrid</div>
+        <button id="themeToggle">
           <span id="themeIcon">🌙</span>
           <span id="themeText">Dark Mode</span>
         </button>
 
         <div class="user-menu">
           <button class="user-menu-btn" id="userMenuBtn">
-            <img id="userAvatar" src="./src/assets/user.png" alt="User" class="user-avatar" />
-            <span id="userName">Demi</span>
-            <span>▼</span>
+            <img id="userAvatar" src="./src/assets/user.png" alt="User" />
+            <span class="user-menu-name" id="userName">Demi</span>
+            <span style="font-size: 13px; color: #94a3b8;">▼</span>
           </button>
           <div class="user-menu-dropdown" id="userMenuDropdown">
-            <a href="#" class="menu-item" id="profileBtn"><span>👤</span><span>Profile</span></a>
-            <a href="#" class="menu-item" id="settingsBtn"><span>⚙️</span><span>Settings</span></a>
+            <div class="menu-item" id="profileBtn">
+              <span>👤</span><span>Profile</span>
+            </div>
+            <div class="menu-item" id="settingsBtn">
+              <span>⚙️</span><span>Settings</span>
+            </div>
             <div class="menu-divider"></div>
-            <a href="#" class="menu-item" id="logoutBtn"><span>🚪</span><span>Logout</span></a>
+            <div class="menu-item" id="logoutBtn">
+              <span>🚪</span><span>Logout</span>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </nav>
 
-  <!-- Main Content -->
-  <main class="main-content">
-    <div class="container">
-      <!-- Welcome -->
-      <section class="welcome-section">
-        <h1>Welcome back, <span id="welcomeName">Demi</span> 👋</h1>
-        <p>Here's what's happening with your wallet today.</p>
-      </section>
+  <!-- MAIN -->
+  <main class="main">
+    <!-- Welcome -->
+    <section class="welcome-section">
+      <h1>Welcome back, <span id="welcomeName">Demi</span> 👋</h1>
+      <p>Here’s the latest on your PAY54 hybrid wallet today.</p>
+    </section>
 
-      <!-- Wallet Balance -->
-      <section class="balance-section">
-        <div class="balance-card">
-          <div class="balance-header">
-            <div>
-              <p class="balance-label">Total Balance</p>
-              <h2 class="balance-amount" id="balanceAmount">₦0.00</h2>
-              <p class="wallet-address" id="walletAddress">Wallet: DP-WALLET-0000</p>
-              <p class="wallet-meta">
-                Account No: <strong id="accountNumber">DP-1029345678</strong><br />
-                KYC Level: <span class="kyc-level">Tier 2 (Verified)</span>
-              </p>
-            </div>
-            <button class="btn btn-primary" id="refreshBalanceBtn">
-              <span>🔄</span><span>Refresh</span>
-            </button>
-          </div>
+    <!-- Balance -->
+    <section class="balance-section">
+      <div class="balance-card">
+        <div>
+          <p class="balance-label">Total Balance</p>
+          <div class="balance-amount" id="balanceAmount">₦0.00</div>
+          <p class="wallet-address" id="walletAddress">Wallet: syncing…</p>
+          <p class="wallet-meta">
+            Account No: <strong id="walletAccount">P54-0000000000</strong><br />
+            KYC Level:
+            <span class="kyc-pill" id="kycLevel">Tier 2 (Verified)</span>
+          </p>
         </div>
-      </section>
+        <button class="btn-primary" id="refreshBalanceBtn">
+          <span>🔄</span><span>Refresh</span>
+        </button>
+      </div>
+    </section>
 
-      <!-- Security Banner -->
-      <section class="banner banner-security">
+    <!-- Banners -->
+    <section class="security-section">
+      <div class="banner banner-security">
         <span class="banner-emoji">🔒</span>
         <div class="banner-text">
-          <h4>Security</h4>
-          <p>Your wallet is protected with encryption and OTP verification.</p>
+          <h4>Security Envelope</h4>
+          <p>Device-bound sessions • PIN + 2FA • AI Risk Watch pattern guard.</p>
         </div>
-      </section>
+      </div>
+    </section>
 
-      <!-- Finance Banner -->
-      <section class="banner banner-finance">
+    <section class="finance-section">
+      <div class="banner banner-finance">
         <span class="banner-emoji">💹</span>
         <div class="banner-text">
-          <h4>Finance Updates</h4>
-          <p>FX Update: ₦1 ≈ $0.0013 • Earn +5% APY bonus this week!</p>
+          <h4>FX & Yield Pulse</h4>
+          <p>
+            FX: ₦1 ≈ $0.0013 • Local yield boost +5% this week on locked
+            savings.
+          </p>
         </div>
-      </section>
+      </div>
+    </section>
 
-      <!-- Money Moves -->
-      <section class="money-moves">
+    <!-- Money Moves -->
+    <section class="money-moves">
+      <div class="section-header">
         <h3>Money Moves</h3>
-        <div class="action-grid">
-          <button class="action-card" id="sendMoneyBtn">
-            <span class="action-icon">💸</span>
-            <span class="action-title">Send Money</span>
-            <span class="action-desc">Instant P2P transfer</span>
-          </button>
-          <button class="action-card" id="receiveMoneyBtn">
-            <span class="action-icon">📥</span>
-            <span class="action-title">Receive Money</span>
-            <span class="action-desc">QR & account share</span>
-          </button>
-          <button class="action-card" id="addMoneyBtn">
-            <span class="action-icon">➕</span>
-            <span class="action-title">Add / Withdraw</span>
-            <span class="action-desc">Card or bank (mock)</span>
-          </button>
-          <button class="action-card" id="bankTransferBtn">
-            <span class="action-icon">🏦</span>
-            <span class="action-title">Bank Transfer</span>
-            <span class="action-desc">Multi-region banks</span>
-          </button>
-        </div>
-      </section>
+      </div>
+      <div class="action-grid">
+        <button class="action-card" id="sendMoneyBtn">
+          <span class="action-icon">💸</span>
+          <span class="action-title">Send Money</span>
+          <span class="action-desc">Instant PAY54 → PAY54</span>
+        </button>
+        <button class="action-card" id="receiveMoneyBtn">
+          <span class="action-icon">📥</span>
+          <span class="action-title">Receive Money</span>
+          <span class="action-desc">QR + account link</span>
+        </button>
+        <button class="action-card" id="addMoneyBtn">
+          <span class="action-icon">➕</span>
+          <span class="action-title">Add / Withdraw</span>
+          <span class="action-desc">Cards • Bank rails</span>
+        </button>
+        <button class="action-card" id="bankTransferBtn">
+          <span class="action-icon">🏦</span>
+          <span class="action-title">Bank Transfer</span>
+          <span class="action-desc">Multi-bank NGN rails</span>
+        </button>
+      </div>
+    </section>
 
-      <!-- Services -->
-      <section class="quick-services">
+    <!-- Services -->
+    <section class="services-section">
+      <div class="section-header">
         <h3>Services</h3>
-        <div class="services-grid">
-          <div class="service-card" data-service="fx">
-            🌍
-            <h4>Cross-Border Remittance</h4>
-            <p>Preview FX & send abroad</p>
-          </div>
-          <div class="service-card" data-service="savings">
-            💰
-            <h4>Savings</h4>
-            <p>Create • Add • Withdraw • SO</p>
-          </div>
-          <div class="service-card" data-service="bills">
-            💡
-            <h4>Pay Bills & Top-Up</h4>
-            <p>Water • Power • DSTV • Airtime</p>
-          </div>
-          <div class="service-card" data-service="cards">
-            💳
-            <h4>Virtual & Linked Cards</h4>
-            <p>Add • Link • Set Default</p>
-          </div>
-          <div class="service-card" data-service="payonline">
-            🛒
-            <h4>Pay Online</h4>
-            <p>Checkout simulation</p>
-          </div>
-          <div class="service-card" data-service="shop">
-            🏬
-            <h4>Shop on the Fly</h4>
-            <p>Rides • Food • Shopping • Fun</p>
-          </div>
-          <div class="service-card" data-service="invest">
-            📈
-            <h4>Investments & Stocks</h4>
-            <p>Mock buy/sell & portfolio</p>
-          </div>
-          <div class="service-card" data-service="agent">
-            🧍‍♂️
-            <h4>Become an Agent</h4>
-            <p>Business • NIN • Photo</p>
-          </div>
+      </div>
+      <div class="services-grid">
+        <div class="service-card" data-service="fx">
+          🌍
+          <h4>Cross-Border Remittance</h4>
+          <p>Send NGN → FX with reason</p>
         </div>
-      </section>
+        <div class="service-card" data-service="savings">
+          💰
+          <h4>Savings & Goals</h4>
+          <p>Lock, autosave, visual goals</p>
+        </div>
+        <div class="service-card" data-service="bills">
+          💡
+          <h4>Pay Bills & Top-Up</h4>
+          <p>Water • Power • Airtime • TV</p>
+        </div>
+        <div class="service-card" data-service="cards">
+          💳
+          <h4>Virtual & Linked Cards</h4>
+          <p>Select default, add new cards</p>
+        </div>
+        <div class="service-card" data-service="shop">
+          🏬
+          <h4>Shop on the Fly</h4>
+          <p>Taxi • Food • Tickets • Shops</p>
+        </div>
+        <div class="service-card" data-service="invest">
+          📈
+          <h4>Investments & Stocks</h4>
+          <p>USD assets, pay in ₦ or $</p>
+        </div>
+        <div class="service-card" data-service="agent">
+          🧍‍♂️
+          <h4>Become an Agent</h4>
+          <p>Business + NIN + live photo</p>
+        </div>
+        <div class="service-card" data-service="aiwatch">
+          🤖
+          <h4>AI Risk Watch</h4>
+          <p>Fraud pattern alerts & locks</p>
+        </div>
+      </div>
+    </section>
 
-      <!-- Recent Transactions -->
-      <section class="transactions-section">
-        <div class="section-header" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-          <h3>Recent Transactions</h3>
-          <button class="btn btn-secondary btn-sm" id="viewAllBtn">View All</button>
-        </div>
-        <div id="transactionsList" class="transactions-list">
-          <!-- Filled by JS -->
-        </div>
-      </section>
-    </div>
+    <!-- Recent Transactions -->
+    <section class="transactions-section">
+      <div class="section-header">
+        <h3>Recent Transactions</h3>
+        <button class="btn-secondary" id="viewAllBtn">View All</button>
+      </div>
+      <div id="transactionsList" class="transactions-list">
+        <!-- Rendered by JS -->
+      </div>
+    </section>
   </main>
 
-  <!-- Scroll to Top -->
-  <button id="scrollTopBtn" title="Back to Top">⬆️</button>
+  <!-- MODALS -->
 
-  <!-- Bottom Sheet (shared for most flows) -->
-  <div id="bottomSheetOverlay" class="bottom-sheet-overlay">
-    <div class="bottom-sheet">
-      <div class="bottom-sheet-header">
-        <div class="bottom-sheet-title" id="bottomSheetTitle">Title</div>
-        <button class="bottom-sheet-close" id="bottomSheetClose">✕</button>
+  <!-- Send Money -->
+  <div class="modal-overlay" id="sendMoneyModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Send Money (PAY54 → PAY54)</h3>
+        <button class="close-modal" data-close="sendMoneyModal">✕</button>
       </div>
-      <div class="bottom-sheet-body" id="bottomSheetBody">
-        <!-- Dynamic content -->
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Recipient Email / Tag</label>
+          <input id="sendRecipient" class="form-control" placeholder="eg. user@pay54.app" />
+        </div>
+        <div class="form-group">
+          <label>Amount (₦)</label>
+          <input id="sendAmount" class="form-control" type="number" min="0" step="0.01" />
+        </div>
+        <div class="form-group">
+          <label>Note (optional)</label>
+          <input id="sendNote" class="form-control" placeholder="What is this for?" />
+        </div>
+        <div class="form-group">
+          <label>Fee & Summary</label>
+          <div id="sendSummary" style="font-size:12px;color:#6b7280;">
+            Enter an amount to see fee (0.5%) and total.
+          </div>
+        </div>
+        <div id="sendAlert" style="font-size:12px;color:#b91c1c;"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" data-close="sendMoneyModal">Cancel</button>
+        <button class="btn-primary" id="confirmSendBtn">Send ₦</button>
       </div>
     </div>
   </div>
 
-  <!-- Become an Agent Modal (center) -->
-  <div id="agentModalOverlay" class="modal-overlay">
+  <!-- Receive Money -->
+  <div class="modal-overlay" id="receiveMoneyModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Receive Money</h3>
+        <button class="close-modal" data-close="receiveMoneyModal">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>From (Name)</label>
+          <input id="receiveFrom" class="form-control" placeholder="Eg. Client, Friend, Employer" />
+        </div>
+        <div class="form-group">
+          <label>Amount (₦)</label>
+          <input id="receiveAmount" class="form-control" type="number" min="0" step="0.01" />
+        </div>
+        <div class="form-group">
+          <label>Note (optional)</label>
+          <input id="receiveNote" class="form-control" placeholder="Reason for payment" />
+        </div>
+        <div class="form-group">
+          <label>Your PAY54 QR</label>
+          <div class="qr-placeholder">
+            PAY54 QR<br />Demo only
+          </div>
+          <div style="font-size:11px;color:#6b7280;">
+            In production, this becomes a live QR pointing to your PAY54 tag.
+          </div>
+        </div>
+        <div id="receiveAlert" style="font-size:12px;color:#b91c1c;"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" data-close="receiveMoneyModal">Cancel</button>
+        <button class="btn-primary" id="confirmReceiveBtn">Mark as received</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bank Transfer -->
+  <div class="modal-overlay" id="bankTransferModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Bank Transfer (NGN)</h3>
+        <button class="close-modal" data-close="bankTransferModal">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Recipient Name</label>
+          <input id="bankRecipientName" class="form-control" />
+        </div>
+        <div class="form-group">
+          <label>Bank Name</label>
+          <input id="bankName" class="form-control" placeholder="GTBank, Zenith, Access…" />
+        </div>
+        <div class="form-group">
+          <label>Account Number</label>
+          <input id="bankAccountNumber" class="form-control" maxlength="10" />
+        </div>
+        <div class="form-group">
+          <label>Amount (₦)</label>
+          <input id="bankAmount" class="form-control" type="number" min="0" step="0.01" />
+        </div>
+        <div class="form-group">
+          <label>Reference / Notes</label>
+          <input id="bankReference" class="form-control" placeholder="Eg. Rent, Invoice 0031" />
+        </div>
+        <div id="bankAlert" style="font-size:12px;color:#b91c1c;"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" data-close="bankTransferModal">Cancel</button>
+        <button class="btn-primary" id="confirmBankTransferBtn">Send to bank</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bills -->
+  <div class="modal-overlay" id="billsModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Pay Bills & Top-Up</h3>
+        <button class="close-modal" data-close="billsModal">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Bill Type</label>
+          <select id="billType" class="form-control">
+            <option value="">Select bill</option>
+            <option value="water">Water</option>
+            <option value="electricity">Electricity</option>
+            <option value="tv">DSTV / TV</option>
+            <option value="airtime">Airtime</option>
+          </select>
+        </div>
+
+        <div class="form-group bill-field shared-account d-none">
+          <label>Account / Meter Number</label>
+          <input id="billAccountNumber" class="form-control" />
+        </div>
+
+        <div class="form-group bill-field shared-provider d-none">
+          <label>Provider</label>
+          <input id="billProvider" class="form-control" placeholder="Eg. Ikeja Electric, Lagos Water…" />
+        </div>
+
+        <div class="form-group bill-field airtime-only d-none">
+          <label>Mobile Network</label>
+          <select id="airtimeNetwork" class="form-control">
+            <option value="">Select network</option>
+            <option>MTN</option>
+            <option>Glo</option>
+            <option>Airtel</option>
+            <option>9mobile</option>
+          </select>
+        </div>
+
+        <div class="form-group bill-field airtime-only d-none">
+          <label>Phone Number</label>
+          <input id="airtimePhone" class="form-control" />
+        </div>
+
+        <div class="form-group">
+          <label>Plan / Amount (₦)</label>
+          <input id="billAmount" class="form-control" type="number" min="0" step="0.01" />
+        </div>
+
+        <div class="form-group">
+          <label>Make this a recurring payment?</label>
+          <select id="billRecurring" class="form-control">
+            <option value="none">No, one-off payment</option>
+            <option value="monthly">Monthly</option>
+            <option value="weekly">Weekly</option>
+          </select>
+          <div style="font-size:11px;color:#6b7280;margin-top:2px;">
+            Recurring bills will be charged from your wallet or default card automatically.
+          </div>
+        </div>
+        <div id="billsAlert" style="font-size:12px;color:#b91c1c;"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" data-close="billsModal">Cancel</button>
+        <button class="btn-primary" id="confirmBillsBtn">Pay Bill</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cards -->
+  <div class="modal-overlay" id="cardsModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Virtual & Linked Cards</h3>
+        <button class="close-modal" data-close="cardsModal">✕</button>
+      </div>
+      <div class="modal-body" id="cardsModalBody">
+        <!-- Rendered by JS -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" id="addCardBtn">Add / Link Card</button>
+        <button class="btn-primary" data-close="cardsModal">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Investments -->
+  <div class="modal-overlay" id="investModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Investments & Stocks</h3>
+        <button class="close-modal" data-close="investModal">✕</button>
+      </div>
+      <div class="modal-body" id="investModalBody">
+        <!-- Rendered by JS -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn-primary" data-close="investModal">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Agent -->
+  <div class="modal-overlay" id="agentModal">
     <div class="modal">
       <div class="modal-header">
         <h3>Become an Agent</h3>
-        <button class="close-btn" id="closeAgentModal">✕</button>
+        <button class="close-modal" data-close="agentModal">✕</button>
       </div>
       <div class="modal-body">
-        <form id="agentForm">
-          <div class="form-row">
-            <label for="businessName">Business Name</label>
-            <input type="text" id="businessName" placeholder="DemiPay Micro Services" required />
+        <div class="form-group">
+          <label>Business Name</label>
+          <input id="agentBusiness" class="form-control" placeholder="Eg. PAY54 MicroAgent Ltd" />
+        </div>
+        <div class="form-group">
+          <label>Full Name</label>
+          <input id="agentFullName" class="form-control" placeholder="Legal full name" />
+        </div>
+        <div class="form-group">
+          <label>NIN (11 digits)</label>
+          <input id="agentNIN" class="form-control" maxlength="11" />
+        </div>
+        <div class="form-group">
+          <label>Capture / Upload Photo ID</label>
+          <input id="agentPhoto" class="form-control" type="file" accept="image/*" capture="environment" />
+          <div style="font-size:11px;color:#6b7280;margin-top:2px;">
+            For security, a live photo is recommended on supported devices.
           </div>
-          <div class="form-row">
-            <label for="agentFullName">Full Name</label>
-            <input type="text" id="agentFullName" placeholder="John Doe" required />
-          </div>
-          <div class="form-row">
-            <label for="agentNIN">NIN (11 digits)</label>
-            <input type="text" id="agentNIN" placeholder="Enter 11-digit NIN" maxlength="11" required />
-          </div>
-          <div class="form-row">
-            <label for="agentPhoto">Capture/Upload Photo ID</label>
-            <input type="file" id="agentPhoto" accept="image/*" capture="user" required />
-          </div>
-        </form>
-        <small style="font-size:0.75rem;color:#6b7280;">
-          📸 For security, DemiPay will use this photo to verify it's really you.
-        </small>
+        </div>
+        <div id="agentAlert" style="font-size:12px;color:#b91c1c;"></div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-secondary" id="cancelAgentBtn">Cancel</button>
-        <button class="btn btn-primary" id="submitAgentBtn">Submit Application</button>
+        <button class="btn-secondary" data-close="agentModal">Cancel</button>
+        <button class="btn-primary" id="submitAgentBtn">Submit Application</button>
       </div>
     </div>
   </div>
 
-  <!-- Toasts -->
+  <!-- TOASTS -->
   <div id="welcomeToast"></div>
-  <div id="globalToast" style="display:none;"></div>
-  <div id="systemToast" style="display:none;"></div>
+  <div id="globalToast"></div>
+  <div id="systemToast"></div>
 
-  <!-- Dashboard Logic -->
-  <script src="./src/js/dashboard.js"></script>
+  <!-- SCRIPT -->
+  <script src="./src/js/dashboard.js" defer></script>
 </body>
 </html>
