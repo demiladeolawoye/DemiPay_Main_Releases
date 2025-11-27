@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PAY54 — Login</title>
+  <link rel="stylesheet" href="./src/css/global.css" />
+  <link rel="stylesheet" href="./src/css/login.css" />
+</head>
+<body class="login-body dark-mode">
+  <div class="login-wrapper">
+    <div class="login-card">
+      <div class="login-brand">
+        <div class="logo-shield">P54</div>
+        <div>
+          <div class="logo-row">
+            <span class="logo-title">PAY54</span>
+            <span class="logo-pill">SmartWallet</span>
+          </div>
+          <span class="logo-tagline">Hybrid Money • NG + Global</span>
+        </div>
+      </div>
+      <h1>Welcome back</h1>
+      <p class="login-sub">Sign in with your PAYtag, email or phone.</p>
+
+      <form id="loginForm">
+        <label class="form-label">PAYtag, Email or Phone</label>
+        <input type="text" id="loginId" class="form-input" placeholder="@demi or user@pay54.app" />
+
+        <label class="form-label">4‑digit PIN</label>
+        <input type="password" id="loginPin" class="form-input" maxlength="4" placeholder="••••" />
+
+        <button type="submit" class="btn-pill btn-primary login-btn">Login</button>
+      </form>
+
+      <p class="login-meta">For demo, use any ID + PIN <strong>1234</strong>.</p>
+    </div>
+  </div>
+
+  <div id="globalToast"></div>
+  <script>
+    function showToast(message) {
+      const toast = document.getElementById('globalToast');
+      toast.textContent = message;
+      toast.className = 'toast-error';
+      toast.style.display = 'block';
+      setTimeout(() => { toast.style.display = 'none'; }, 2600);
+    }
+
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const pin = document.getElementById('loginPin').value.trim();
+      if (pin !== '1234') {
+        showToast('Invalid PIN. Use 1234 for demo.');
+        return;
+      }
+      localStorage.setItem('pay54_user', JSON.stringify({
+        name: 'Demi',
+        paytag: '@demi',
+        country: 'NG',
+        email: 'demo@pay54.app'
+      }));
+      window.location.href = 'index.html';
+    });
+  </script>
+</body>
+</html>

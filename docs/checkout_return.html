@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PAY54 — Payment Complete</title>
+  <link rel="stylesheet" href="./src/css/global.css" />
+  <link rel="stylesheet" href="./src/css/checkout.css" />
+</head>
+<body class="checkout-body dark-mode">
+  <main class="checkout-main">
+    <div class="checkout-card">
+      <div class="checkout-icon">✓</div>
+      <h1>Boom 💥 Paid via PAY54</h1>
+      <p class="checkout-sub">Fast. Secure. Hybrid Money.</p>
+
+      <div id="checkoutDetails" class="checkout-details"></div>
+
+      <div class="checkout-actions">
+        <button id="viewReceiptBtn" class="btn-pill btn-primary">View Receipt</button>
+        <button id="backToStoreBtn" class="btn-pill btn-ghost">Return to Store</button>
+      </div>
+    </div>
+  </main>
+
+  <div id="globalToast"></div>
+  <script src="./src/js/checkout.js"></script>
+</body>
+</html>
